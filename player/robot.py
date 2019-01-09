@@ -16,7 +16,9 @@ __pragma__('iconv')
 __pragma__('tconv')
 __pragma__('opov')
 
-
+# The directions: North, NorthEast, East, SouthEast, South, SouthWest, West, NorthWest
+directions = { 'North':(0, -1), 'NorthEast':(1, -1), 'East' :(1, 0), 'SouthEast':(1, 1),
+               'South':(0, 1), 'SouthWest': (-1, 1), 'West':(-1, 0), 'NorthWest': (-1, -1)}
 def get_moves(r):
     moves = []
     for i in range(-r,r+1):
@@ -62,22 +64,29 @@ x = util.PathfindingMap(5,5)
 print(path_map(x, (0,0), [(0,1),(1,0),(0,-1),(-1,0)])._map)
 print(len(get_moves(3)))
 
-"""
-def direction_to(x, y, goal_x, goal_y):
-    dx, dy = x - goal_x, y - goal_y
 
+def direction_to(x, y, goal_x, goal_y):
+    dx, dy = goal_x - x, y - goal_y
+
+    if dy == 0 and dx == 0:
+        raise Exception
     if dy == 0:
-        return Direction.EAST if dx > 0 else Direction.WEST
+        return directions['East'] if dx > 0 else directions['West']
     if dx == 0:
-        return Direction.NORTH if dy > 0 else Direction.SOUTH
+        return directions['North'] if dy > 0 else directions['South']
 
     angle = (0.0 + dy) / dx
 
-    if angle <= 0.25:
-        return Direction.EAST if dx > 0 else Direction.WEST
-    elif angle <= 0.75:
-        return Direction.NORTHEAST if dx > 0 else Direction.SOUTHWEST
-"""
+    if  angle < -2.41:
+        return directions['North'] if dy > 0 else directions['South']
+    elif angle < -0.414:
+        return directions['NorthWest'] if dy > 0 else directions['SouthEast']
+    if  angle < 0.414:
+        return directions['East'] if dx > 0 else directions['West']
+    elif angle <= 2.41:
+        return directions['NorthEast'] if dx > 0 else directions['SouthWest']
+
+
 
 
 # don't try to use global variables!!

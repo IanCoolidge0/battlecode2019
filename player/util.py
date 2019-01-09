@@ -13,3 +13,5 @@ class PathfindingMap(object):
 
     def size(self):
         return len(self._map), len(self._map[0])
+
+def direction
