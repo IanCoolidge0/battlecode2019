@@ -1,13 +1,13 @@
 from battlecode import BCAbstractRobot, SPECS
 import battlecode as bc
 import random
-import player.church as church
-import player.castle as castle
-import player.crusader as crusader
-import player.pilgrim as pilgrim
-import player.preacher as preacher
-import player.prophet as prophet
-import player.util as util
+import church
+import castle
+import crusader
+import pilgrim
+import preacher
+import prophet
+import util
 
 
 
@@ -15,6 +15,7 @@ import player.util as util
 __pragma__('iconv')
 __pragma__('tconv')
 __pragma__('opov')
+
 
 # The directions: North, NorthEast, East, SouthEast, South, SouthWest, West, NorthWest
 directions = { 'North':(0, -1), 'NorthEast':(1, -1), 'East' :(1, 0), 'SouthEast':(1, 1),
@@ -89,11 +90,10 @@ def direction_to(x, y, goal_x, goal_y):
 
 
 
+
 # don't try to use global variables!!
 class MyRobot(BCAbstractRobot):
     step = -1
-    pass_map = None
-    pathfinding_map = None
 
     def turn(self):
         self.step += 1

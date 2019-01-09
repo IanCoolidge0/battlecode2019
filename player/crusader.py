@@ -1,4 +1,6 @@
 import random
+
+
 def crusader_step(r):
     r.log("Crusader health: " + str(r.me['health']))
     # The directions: North, NorthEast, East, SouthEast, South, SouthWest, West, NorthWest
