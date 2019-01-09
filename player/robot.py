@@ -1,7 +1,16 @@
 from battlecode import BCAbstractRobot, SPECS
 import battlecode as bc
 import random
-from . import util, crusader, prophet, preacher, pilgrim, church, castle
+import player.church as church
+import player.castle as castle
+import player.crusader as crusader
+import player.pilgrim as pilgrim
+import player.preacher as preacher
+import player.prophet as prophet
+import player.util as util
+
+
+
 
 __pragma__('iconv')
 __pragma__('tconv')
@@ -48,7 +57,7 @@ def path_map(pass_map, start, moves):
 
 
 # test
-x = PathfindingMap(5,5)
+x = util.PathfindingMap(5,5)
 
 print(path_map(x, (0,0), [(0,1),(1,0),(0,-1),(-1,0)])._map)
 print(len(get_moves(3)))
