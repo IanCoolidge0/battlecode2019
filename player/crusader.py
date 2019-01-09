@@ -1,3 +1,5 @@
+import random
+
 
 def crusader_step(r):
     r.log("Crusader health: " + str(r.me['health']))
