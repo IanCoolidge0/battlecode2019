@@ -31,46 +31,46 @@ export function signalCoords(x, y) {
 }
 
 export function decodeCoords(signal) {
-    return [signal / 64, signal % 64];
+    return [Math.floor(signal / 64), signal % 64];
 }
 
-export function karboniteCoords(passMap, karbMap, startX, startY, moves, r) {
-    let size = passMap.length;
-
-    let visited = create2dArray(size, size, false);
-    let queue = [[startX, startY]];
-    let coords = [];
-
-    while(queue.length > 0) {
-        let current_pos = queue.shift();
-
-        if (karbMap[current_pos[1]][current_pos[0]]) {
-            coords.push(current_pos);
-        }
-
-        for (let i = 0; i < moves.length; i++) {
-            let move = moves[i];
-
-            let nextX = current_pos[0] + move[0];
-            let nextY = current_pos[1] + move[1];
-
-            if (Math.min(nextX, nextY) < 0 || Math.max(nextX, nextY) >= size)
-                continue;
-
-            if (visited[nextY][nextX] || !passMap[nextY][nextX])
-                continue;
-
-            if (!queue.includes([nextX, nextY])) {
-                queue.push([nextX, nextY]);
-            }
-        }
-
-        visited[current_pos[1]][current_pos[0]] = true;
-
-    }
-
-    return coords;
-}
+// export function karboniteCoords(passMap, karbMap, startX, startY, moves, r) {
+//     let size = passMap.length;
+//
+//     let visited = create2dArray(size, size, false);
+//     let queue = [[startX, startY]];
+//     let coords = [];
+//
+//     while(queue.length > 0) {
+//         let current_pos = queue.shift();
+//
+//         if (karbMap[current_pos[1]][current_pos[0]]) {
+//             coords.push(current_pos);
+//         }
+//
+//         for (let i = 0; i < moves.length; i++) {
+//             let move = moves[i];
+//
+//             let nextX = current_pos[0] + move[0];
+//             let nextY = current_pos[1] + move[1];
+//
+//             if (Math.min(nextX, nextY) < 0 || Math.max(nextX, nextY) >= size)
+//                 continue;
+//
+//             if (visited[nextY][nextX] || !passMap[nextY][nextX])
+//                 continue;
+//
+//             if (!queue.includes([nextX, nextY])) {
+//                 queue.push([nextX, nextY]);
+//             }
+//         }
+//
+//         visited[current_pos[1]][current_pos[0]] = true;
+//
+//     }
+//
+//     return coords;
+// }
 
 export function directions(dir) {
     let dir_name = ['North', 'NorthEast', 'East', 'SouthEast', 'South', 'SouthWest', 'West', 'NorthWest'];
@@ -99,4 +99,65 @@ export function pathfindingMap(pass_map,start,moves) {
         }
     }
     return path_finding_map
+}
+
+export function karboniteCoords(pass_map, karbonite_map, start, moves) {
+    let size = pass_map.length;
+    let queue = [start];
+    let path_finding_map = create2dArray(size, size, 0)
+    let coords = [];
+
+    while(queue.length > 0) {
+        let location = queue.pop();
+
+        if(karbonite_map[location[1]][location[0]]) {
+            coords.push(location);
+        }
+
+        for (let i = 0;i < moves.length;i++) {
+            let next_location = [location[0] + moves[i][0], location[1] + moves[i][1]];
+
+            if ( next_location[0] >= 0 && next_location[1] > 0 && next_location[0] < size && next_location[1] < size && path_finding_map[next_location[1]][next_location[0]] === 0 && pass_map[next_location[1]][next_location[0]] === true) {
+                path_finding_map[next_location[1]][next_location[0]] = 1;
+                queue.push(next_location);
+            }
+        }
+    }
+
+    return coords;
+}
+
+export function pathTo(pass_map, start, end, moves, r) {
+    let size = pass_map.length;
+    let queue = [start];
+    let path_finding_map = create2dArray(size, size, 0)
+
+    while(queue.length > 0) {
+        let location = queue.pop();
+
+        if(location[0] === end[0] && location[1] === end[1])
+            break;
+
+        for (let i = 0;i < moves.length;i++) {
+            let next_location = [location[0] + moves[i][0], location[1] + moves[i][1]];
+
+            if ( next_location[0] >= 0 && next_location[1] > 0 && next_location[0] < size && next_location[1] < size && path_finding_map[next_location[1]][next_location[0]] === 0 && pass_map[next_location[1]][next_location[0]] === true) {
+                path_finding_map[next_location[1]][next_location[0]] = moves[i];
+                queue.push(next_location);
+            }
+        }
+    }
+
+    let path = [];
+    let location = end;
+
+    while(location[0] !== start[0] || location[1] !== start[1]) {
+        let move = path_finding_map[location[1]][location[0]];
+        path.push(move);
+
+        location[0] -= move[0];
+        location[1] -= move[1];
+    }
+
+    return path;
 }
