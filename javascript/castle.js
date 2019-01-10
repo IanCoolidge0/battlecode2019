@@ -7,7 +7,7 @@ export function castle_step(r) {
         r.initial_pilgrim_count = 0;
     }
 
-    if(r.step < 4 && r.step % 2 == 0) {
+    if(r.step < 4) {
         r.signal(util.signalCoords(r.karboniteCoords[r.initial_pilgrim_count][0], r.karboniteCoords[r.initial_pilgrim_count][1]), 2);
         r.initial_pilgrim_count += 1;
         return r.buildUnit(SPECS.PILGRIM, 1, 1);
