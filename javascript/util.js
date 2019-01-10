@@ -129,22 +129,20 @@ export function karboniteCoords(pass_map, karbonite_map, start, moves, r) {
 
 export function pathTo(pass_map, start, end, moves, r) {
     let size = pass_map.length;
-    //r.log(pass_map[38][12]);
+
     let queue = [start];
     let path_finding_map = create2dArray(size, size, 0)
 
     while(queue.length > 0) {
         let location = queue.shift();
 
-        //if(location[0] === end[0] && location[1] === end[1])
-           // break;
+        if(location[0] === end[0] && location[1] === end[1])
+           break;
 
         for (let i = 0;i < moves.length;i++) {
             let next_location = [location[0] + moves[i][0], location[1] + moves[i][1]];
 
             if ( next_location[0] >= 0 && next_location[1] >= 0 && next_location[0] < size && next_location[1] < size && path_finding_map[next_location[1]][next_location[0]] === 0 && pass_map[next_location[1]][next_location[0]] === true) {
-                //r.log(pass_map[next_location[1]][next_location[0]]);
-
                 path_finding_map[next_location[1]][next_location[0]] = moves[i];
                 queue.push(next_location);
             }

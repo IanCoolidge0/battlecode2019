@@ -13,9 +13,9 @@ export function pilgrim_step(r) {
         }
 
         r.goal = util.decodeCoords(parent_castle.signal);
-        r.path = util.pathTo(r.map, [r.me.x, r.me.y], r.goal, util.getMoves(1), r);
+        r.path = util.pathTo(r.map, [r.me.x, r.me.y], r.goal, util.getMoves(2), r);
         r.pathPosition = 0;
-        //r.log(r.path);
+        r.mode = 0;
     }
 
     if(r.pathPosition < r.path.length) {
@@ -30,5 +30,4 @@ export function pilgrim_step(r) {
             return r.move(dx, dy);
         }
     }
-
 }
