@@ -1,6 +1,12 @@
 import * as util from "./util.js"
 import {SPECS} from 'battlecode';
 
+var MODE = {
+  PATH_TO_RESOURCE: 0,
+  MINE: 1,
+  PATH_TO_CASTLE: 2
+};
+
 export function pilgrim_step(r) {
     if(r.step == 0) {
         let visible = r.getVisibleRobots();
@@ -15,10 +21,11 @@ export function pilgrim_step(r) {
         r.goal = util.decodeCoords(parent_castle.signal);
         r.path = util.pathTo(r.map, [r.me.x, r.me.y], r.goal, util.getMoves(2), r);
         r.pathPosition = 0;
-        r.mode = 0;
+        r.mode = MODE.PATH_TO_RESOURCE;
     }
 
-    if(r.mode === 0) {
+    if(r.mode === MODE.PATH_TO_RESOURCE) {
+
         if (r.pathPosition < r.path.length) {
             let dx = r.path[r.pathPosition][0];
             let dy = r.path[r.pathPosition][1];
@@ -33,16 +40,20 @@ export function pilgrim_step(r) {
         }
 
         if(r.pathPosition === r.path.length) {
-            r.mode = 1;
-        }
-    } else if(r.mode === 1) {
-        if(r.me.karbonite >= 18) {
-            r.mode = 2;
             r.pathPosition = r.path.length - 1;
+            r.mode = MODE.MINE;
+        }
+
+    } else if(r.mode === MODE.MINE) {
+
+        if(r.me.karbonite >= 18) {
+            r.mode = MODE.PATH_TO_CASTLE;
         }
 
         return r.mine();
-    } else if(r.mode === 2) {
+
+    } else if(r.mode === MODE.PATH_TO_CASTLE) {
+
         if(r.pathPosition >= 0) {
             let dx = r.path[r.pathPosition][0];
             let dy = r.path[r.pathPosition][1];
@@ -57,7 +68,7 @@ export function pilgrim_step(r) {
         }
 
         if(r.pathPosition === -1) {
-            r.mode = 0;
+            r.mode = MODE.PATH_TO_RESOURCE;
             r.pathPosition = 0;
             return r.give(-1, -1, 20, 0);
         }
