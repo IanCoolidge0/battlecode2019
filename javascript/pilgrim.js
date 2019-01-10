@@ -18,16 +18,48 @@ export function pilgrim_step(r) {
         r.mode = 0;
     }
 
-    if(r.pathPosition < r.path.length) {
-        let dx = r.path[r.pathPosition][0];
-        let dy = r.path[r.pathPosition][1];
+    if(r.mode === 0) {
+        if (r.pathPosition < r.path.length) {
+            let dx = r.path[r.pathPosition][0];
+            let dy = r.path[r.pathPosition][1];
 
-        let newX = r.me.x + dx;
-        let newY = r.me.y + dy;
+            let newX = r.me.x + dx;
+            let newY = r.me.y + dy;
 
-        if(r.getVisibleRobotMap()[newY][newX] === 0) {
-            r.pathPosition++;
-            return r.move(dx, dy);
+            if (r.getVisibleRobotMap()[newY][newX] === 0) {
+                r.pathPosition++;
+                return r.move(dx, dy);
+            }
+        }
+
+        if(r.pathPosition === r.path.length) {
+            r.mode = 1;
+        }
+    } else if(r.mode === 1) {
+        if(r.me.karbonite >= 18) {
+            r.mode = 2;
+            r.pathPosition = r.path.length - 1;
+        }
+
+        return r.mine();
+    } else if(r.mode === 2) {
+        if(r.pathPosition >= 0) {
+            let dx = r.path[r.pathPosition][0];
+            let dy = r.path[r.pathPosition][1];
+
+            let newX = r.me.x - dx;
+            let newY = r.me.y - dy;
+
+            if (r.getVisibleRobotMap()[newY][newX] === 0) {
+                r.pathPosition--;
+                return r.move(-dx, -dy);
+            }
+        }
+
+        if(r.pathPosition === -1) {
+            r.mode = 0;
+            r.pathPosition = 0;
+            return r.give(-1, -1, 20, 0);
         }
     }
 }
