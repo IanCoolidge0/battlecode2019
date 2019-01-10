@@ -1,35 +1,32 @@
 import {BCAbstractRobot, SPECS} from 'battlecode';
+import {crusader_step} from "./crusader";
+import {pilgrim_step} from "./pilgrim";
+import {castle_step} from "./castle";
+import {preacher_step} from "./preacher";
+import {church_step} from "./church";
+import {prophet_step} from "./prophet";
+import * as util from "./util"
 
 var step = -1;
-const church = require('./church');
-const castle = require('./castle');
-const pilgrim = require('./pilgrim');
-const preacher = require('./preacher');
-const prophet = require('./prophet');
-const crusader = require('./crusader');
-
-
 
 class MyRobot extends BCAbstractRobot {
     turn() {
         step++;
 
         if (this.me.unit === SPECS.CRUSADER) {
-            // this.log("Crusader health: " + this.me.health);
-            const choices = [[0,-1], [1, -1], [1, 0], [1, 1], [0, 1], [-1, 1], [-1, 0], [-1, -1]];
-            const choice = choices[Math.floor(Math.random()*choices.length)]
-            return this.move(...choice);
+            crusader_step(this);
+        } else if(this.me.unit === SPECS.PILGRIM) {
+            pilgrim_step(this);
+        } else if(this.me.unit === SPECS.CASTLE) {
+            castle_step(this);
+        } else if(this.me.unit === SPECS.PREACHER) {
+            preacher_step(this);
+        } else if(this.me.unit === SPECS.CHURCH) {
+            church_step(this);
+        } else if(this.me.unit === SPECS.PROPHET) {
+            prophet_step(this);
         }
-
-        else if (this.me.unit === SPECS.CASTLE) {
-            if (step % 10 === 0) {
-                this.log("Building a crusader at " + (this.me.x+1) + ", " + (this.me.y+1));
-                return this.buildUnit(SPECS.CRUSADER, 1, 1);
-            } else {
-                return // this.log("Castle health: " + this.me.health);
-            }
-        }
-
+        
     }
 }
 
