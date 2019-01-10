@@ -26,15 +26,15 @@ export function create2dArray(rows, cols, fill) {
     return arr;
 }
 
-exports.signalCoords = function(x, y) {
+export function signalCoords(x, y) {
     return 64 * x + y;
 }
 
-exports.decodeCoords = function(signal) {
+export function decodeCoords(signal) {
     return [signal / 64, signal % 64];
 }
 
-function karboniteCoords(passMap, karbMap, startX, startY, moves, r) {
+export function karboniteCoords(passMap, karbMap, startX, startY, moves, r) {
     let size = passMap.length;
 
     let visited = create2dArray(size, size, false);

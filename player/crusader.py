@@ -9,6 +9,5 @@ def crusader_step(r):
     r.log('TRYING TO MOVE IN DIRECTION ' + str(choice))
     return r.move(*choice)
 
-def attack(r):
-
-
+def attack():
+    pass

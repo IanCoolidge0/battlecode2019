@@ -59,6 +59,7 @@ def path_map(pass_map, start, moves):
     return pmap
 
 
+
 # test
 x = util.PathfindingMap(5,5)
 
@@ -91,27 +92,16 @@ def direction_to(x, y, goal_x, goal_y):
 
 
 
+
 # don't try to use global variables!!
 class MyRobot(BCAbstractRobot):
     step = -1
 
     def turn(self):
+        if self.step == -1:
+            util.path(self.map,(self.me.x,self.me.y),(self.me.x + 10, self.me.y + 10),util.get_moves(9),self)
         self.step += 1
 
-        if self.me['unit'] == SPECS['CRUSADER']:
-            return crusader.crusader_step(self)
-        elif self.me['unit'] == SPECS['PROPHET']:
-            return prophet.prophet_step(self)
-        elif self.me['unit'] == SPECS['PREACHER']:
-            return preacher.preacher_step(self)
-        elif self.me['unit'] == SPECS['PILGRIM']:
-            return pilgrim.pilgrim_step(self)
-        elif self.me['unit'] == SPECS['CHURCH']:
-            return church.church_step(self)
-        elif self.me['unit'] == SPECS['CASTLE']:
-            return castle.castle_step(self)
-        else:
-            self.log("Unknown unit type found: " + self.me['unit'])
 
 
 robot = MyRobot()
