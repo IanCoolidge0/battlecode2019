@@ -78,6 +78,36 @@ export function directions(dir) {
     return dir_coord[dir_name.indexOf(dir)];
 }
 
+export function rotateLeft(direction, turn, radius) {
+    if(radius === 2) {
+        if(direction[0] === 2)
+            direction[0] = 1;
+        if(direction[1] === 2)
+            direction[1] = 1;
+
+        let dir_coord = [[-1, -1], [-1, 0], [-1, 1], [0, 1], [1, 1], [1, 0], [1, -1], [0, -1]];
+
+        return dir_coord[(dir_coord.indexOf(direction) + turn) % 8];
+    } else if(radius === 3) {
+        //have fun
+    }
+}
+
+export function rotateRight(direction, turn, radius) {
+    if(radius === 2) {
+        if(direction[0] === 2)
+            direction[0] = 1;
+        if(direction[1] === 2)
+            direction[1] = 1;
+
+        let dir_coord = [[0,-1], [1, -1], [1, 0], [1, 1], [0, 1], [-1, 1], [-1, 0], [-1, -1]];
+
+        return dir_coord[(dir_coord.indexOf(direction) + turn) % 8];
+    } else if(radius === 3) {
+        //have fun
+    }
+}
+
 export function pathfindingMap(pass_map,start,moves, r) {
     let size = pass_map.length;
     let path_finding_map = create2dArray(size,size,0);

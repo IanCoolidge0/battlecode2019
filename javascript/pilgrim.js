@@ -30,17 +30,34 @@ export function pilgrim_step(r) {
     if(r.mode === MODE.PATH_TO_RESOURCE) {
 
         if (r.me.x != r.goal[0] || r.me.y != r.goal[1]) {
+            let rmap = r.getVisibleRobotMap();
+
             let dx = r.pathMapToKarb[r.me.y][r.me.x][0];
             let dy = r.pathMapToKarb[r.me.y][r.me.x][1];
 
             let newX = r.me.x - dx;
             let newY = r.me.y - dy;
 
-            if(r.getVisibleRobotMap()[newY][newX] === 0) {
+            if(rmap[newY][newX] === 0) {
                 return r.move(-dx, -dy);
-            } else {
-                let move = util.getMoves(2)[Math.floor(Math.random() * 12)]
-                return r.move(move[0], move[1]);
+            }
+
+            for(let i=1;i<4;i++) {
+                let leftMove = util.rotateLeft([-dx, -dy], i, 2);
+
+                newX = r.me.x + leftMove[0];
+                newY = r.me.y + leftMove[1];
+
+                if(rmap[newY][newX] === 0 && r.map[newY][newX] === true)
+                    return r.move(leftMove[0], leftMove[1]);
+
+                let rightMove = util.rotateRight([-dx, -dy], i, 2);
+
+                newX = r.me.x + rightMove[0];
+                newY = r.me.y + rightMove[1];
+
+                if(rmap[newY][newX] === 0 && r.map[newY][newX] === true)
+                    return r.move(rightMove[0], rightMove[1]);
             }
 
         } else {
@@ -58,17 +75,34 @@ export function pilgrim_step(r) {
     } else if(r.mode === MODE.PATH_TO_CASTLE) {
 
         if (r.me.x != r.start[0] || r.me.y != r.start[1]) {
+            let rmap = r.getVisibleRobotMap();
+
             let dx = r.pathMapToStart[r.me.y][r.me.x][0];
             let dy = r.pathMapToStart[r.me.y][r.me.x][1];
 
             let newX = r.me.x - dx;
             let newY = r.me.y - dy;
 
-            if(r.getVisibleRobotMap()[newY][newX] === 0) {
+            if(rmap[newY][newX] === 0) {
                 return r.move(-dx, -dy);
-            } else {
-                let move = util.getMoves(2)[Math.floor(Math.random() * 12)]
-                return r.move(move[0], move[1]);
+            }
+
+            for(let i=1;i<4;i++) {
+                let leftMove = util.rotateLeft([-dx, -dy], i, 2);
+
+                newX = r.me.x + leftMove[0];
+                newY = r.me.y + leftMove[1];
+
+                if(rmap[newY][newX] === 0 && r.map[newY][newX] === true)
+                    return r.move(leftMove[0], leftMove[1]);
+
+                let rightMove = util.rotateRight([-dx, -dy], i, 2);
+
+                newX = r.me.x + rightMove[0];
+                newY = r.me.y + rightMove[1];
+
+                if(rmap[newY][newX] === 0 && r.map[newY][newX] === true)
+                    return r.move(rightMove[0], rightMove[1]);
             }
 
         } else {
