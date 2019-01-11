@@ -78,7 +78,7 @@ export function directions(dir) {
     return dir_coord[dir_name.indexOf(dir)];
 }
 
-export function pathfindingMap(pass_map,start,moves) {
+export function pathfindingMap(pass_map,start,moves, r) {
     let size = pass_map.length;
     let path_finding_map = create2dArray(size,size,0);
 
@@ -86,7 +86,8 @@ export function pathfindingMap(pass_map,start,moves) {
     let current_locations = [start];
     while (current_locations.length > 0) {
         //r.log(current_locations);
-        let location = current_locations.pop();
+        let location = current_locations.shift();
+        //r.log(location);
         for (let i = 0;i < moves.length;i++) {
 
             let next_location = [location[0] + moves[i][0], location[1] + moves[i][1]];
@@ -162,3 +163,5 @@ export function pathTo(pass_map, start, end, moves, r) {
 
     return path;
 }
+
+e

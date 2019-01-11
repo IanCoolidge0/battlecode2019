@@ -18,29 +18,32 @@ export function pilgrim_step(r) {
             }
         }
 
+        r.start = [r.me.x, r.me.y];
         r.goal = util.decodeCoords(parent_castle.signal);
-        r.path = util.pathTo(r.map, [r.me.x, r.me.y], r.goal, util.getMoves(2), r);
-        r.pathPosition = 0;
+
+        r.pathMapToKarb = util.pathfindingMap(r.map, r.goal, util.getMoves(2), r);
+        r.pathMapToStart = util.pathfindingMap(r.map, r.start, util.getMoves(2), r)
+
         r.mode = MODE.PATH_TO_RESOURCE;
     }
 
     if(r.mode === MODE.PATH_TO_RESOURCE) {
 
-        if (r.pathPosition < r.path.length) {
-            let dx = r.path[r.pathPosition][0];
-            let dy = r.path[r.pathPosition][1];
+        if (r.me.x != r.goal[0] || r.me.y != r.goal[1]) {
+            let dx = r.pathMapToKarb[r.me.y][r.me.x][0];
+            let dy = r.pathMapToKarb[r.me.y][r.me.x][1];
 
-            let newX = r.me.x + dx;
-            let newY = r.me.y + dy;
+            let newX = r.me.x - dx;
+            let newY = r.me.y - dy;
 
-            if (r.getVisibleRobotMap()[newY][newX] === 0) {
-                r.pathPosition++;
-                return r.move(dx, dy);
+            if(r.getVisibleRobotMap()[newY][newX] === 0) {
+                return r.move(-dx, -dy);
+            } else {
+                let move = util.getMoves(2)[Math.floor(Math.random() * 12)]
+                return r.move(move[0], move[1]);
             }
-        }
 
-        if(r.pathPosition === r.path.length) {
-            r.pathPosition = r.path.length - 1;
+        } else {
             r.mode = MODE.MINE;
         }
 
@@ -54,22 +57,23 @@ export function pilgrim_step(r) {
 
     } else if(r.mode === MODE.PATH_TO_CASTLE) {
 
-        if(r.pathPosition >= 0) {
-            let dx = r.path[r.pathPosition][0];
-            let dy = r.path[r.pathPosition][1];
+        if (r.me.x != r.start[0] || r.me.y != r.start[1]) {
+            let dx = r.pathMapToStart[r.me.y][r.me.x][0];
+            let dy = r.pathMapToStart[r.me.y][r.me.x][1];
 
             let newX = r.me.x - dx;
             let newY = r.me.y - dy;
 
-            if (r.getVisibleRobotMap()[newY][newX] === 0) {
-                r.pathPosition--;
+            if(r.getVisibleRobotMap()[newY][newX] === 0) {
                 return r.move(-dx, -dy);
+            } else {
+                let move = util.getMoves(2)[Math.floor(Math.random() * 12)]
+                return r.move(move[0], move[1]);
             }
-        }
 
-        if(r.pathPosition === -1) {
+        } else {
+            // at goal
             r.mode = MODE.PATH_TO_RESOURCE;
-            r.pathPosition = 0;
             return r.give(-1, -1, 20, 0);
         }
     }
