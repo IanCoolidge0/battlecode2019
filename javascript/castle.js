@@ -19,7 +19,6 @@ export function castle_step(r) {
         r.initial_pilgrim_complete = false;
         r.initial_pilgrim_count = 0;
         r.castleCount = r.getVisibleRobots().length;
-
     } else if(!r.initial_pilgrim_complete) {
         let target = r.karboniteCoords[r.initial_pilgrim_count];
 
@@ -29,6 +28,16 @@ export function castle_step(r) {
             r.signal(util.signalCoords(target[0], target[1]), 2);
             r.initial_pilgrim_count++;
             return build(r, SPECS.PILGRIM);
+        }
+    }
+
+    let visible = r.getVisibleRobots();
+    for(let i=0;i<visible.length;i++) {
+        let robot = visible[i];
+
+        if(robot.unit === SPECS.PILGRIM && robot.signal === 1) {
+            r.signal(util.signalCoords(target[0], target[1]), 2);
+            r.initial_pilgrim_count++;
         }
     }
 }
