@@ -116,7 +116,7 @@ export function pilgrim_step(r) {
             if(r.needs_new_assignment)
                 r.signal(1, 2);
 
-            return r.give(-r.castleOffset[0], -r.castleOffset[1], 20, 0);
+            return r.give(-r.castleOffset[0], -r.castleOffset[1], r.me.karbonite, 0);
         }
     }
 }
