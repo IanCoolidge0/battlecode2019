@@ -34,43 +34,28 @@ export function decodeCoords(signal) {
     return [Math.floor(signal / 64), signal % 64];
 }
 
-// export function karboniteCoords(passMap, karbMap, startX, startY, moves, r) {
-//     let size = passMap.length;
-//
-//     let visited = create2dArray(size, size, false);
-//     let queue = [[startX, startY]];
-//     let coords = [];
-//
-//     while(queue.length > 0) {
-//         let current_pos = queue.shift();
-//
-//         if (karbMap[current_pos[1]][current_pos[0]]) {
-//             coords.push(current_pos);
-//         }
-//
-//         for (let i = 0; i < moves.length; i++) {
-//             let move = moves[i];
-//
-//             let nextX = current_pos[0] + move[0];
-//             let nextY = current_pos[1] + move[1];
-//
-//             if (Math.min(nextX, nextY) < 0 || Math.max(nextX, nextY) >= size)
-//                 continue;
-//
-//             if (visited[nextY][nextX] || !passMap[nextY][nextX])
-//                 continue;
-//
-//             if (!queue.includes([nextX, nextY])) {
-//                 queue.push([nextX, nextY]);
-//             }
-//         }
-//
-//         visited[current_pos[1]][current_pos[0]] = true;
-//
-//     }
-//
-//     return coords;
-// }
+export function isHorizontallySymm(r) {
+
+    let size = r.map.length;
+    for (let y = 0;y < size;y++) {
+        for (let x = 0;x < size;x++) {
+            if (r.map[y][x] !== r.map[y][size - 1 - x]) {
+                return true;
+            }
+        }
+    }
+    return false;
+
+}
+
+export function getReflectedCoord(coord,r) {
+
+    if (r.HSymm) {
+        return [coord[0],r.size - 1 - coord[1]];
+    } else {
+        return [r.size - 1 - coord[0],coord[1]];
+    }
+}
 
 export function directions(dir) {
     let dir_name = ['North', 'NorthEast', 'East', 'SouthEast', 'South', 'SouthWest', 'West', 'NorthWest'];
@@ -78,31 +63,47 @@ export function directions(dir) {
     return dir_coord[dir_name.indexOf(dir)];
 }
 
-export function rotateLeft(direction, turn, radius) {
+
+export function rotateLeft(direction, amount, radius) {
     if(radius === 2) {
         if(direction[0] === 2)
             direction[0] = 1;
         if(direction[1] === 2)
             direction[1] = 1;
+        if(direction[0] === -2)
+            direction[0] = -1;
+        if(direction[1] === -2)
+            direction[1] = -1;
 
         let dir_coord = [[-1, -1], [-1, 0], [-1, 1], [0, 1], [1, 1], [1, 0], [1, -1], [0, -1]];
+        let index = 0;
+        while(dir_coord[index][0] != direction[0] || dir_coord[index][1] != direction[1])
+            index++;
 
-        return dir_coord[(dir_coord.indexOf(direction) + turn) % 8];
+        return dir_coord[(index + amount) % 8];
     } else if(radius === 3) {
         //have fun
     }
 }
 
-export function rotateRight(direction, turn, radius) {
+export function rotateRight(direction, amount, radius) {
     if(radius === 2) {
         if(direction[0] === 2)
             direction[0] = 1;
         if(direction[1] === 2)
             direction[1] = 1;
+        if(direction[0] === -2)
+            direction[0] = -1;
+        if(direction[1] === -2)
+            direction[1] = -1;
+
 
         let dir_coord = [[0,-1], [1, -1], [1, 0], [1, 1], [0, 1], [-1, 1], [-1, 0], [-1, -1]];
+        let index = 0;
+        while(dir_coord[index][0] != direction[0] || dir_coord[index][1] != direction[1])
+            index++;
 
-        return dir_coord[(dir_coord.indexOf(direction) + turn) % 8];
+        return dir_coord[(index + amount) % 8];
     } else if(radius === 3) {
         //have fun
     }
@@ -193,5 +194,3 @@ export function pathTo(pass_map, start, end, moves, r) {
 
     return path;
 }
-
-e

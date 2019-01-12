@@ -7,6 +7,28 @@ var MODE = {
   PATH_TO_CASTLE: 2
 };
 
+function fuzzy_move(r, dx, dy) {
+    let rmap = r.getVisibleRobotMap();
+
+    for(let i=1;i<4;i++) {
+        let leftMove = util.rotateLeft([-dx, -dy], i, 2);
+        //r.log("move" + leftMove);
+        let newX = r.me.x + leftMove[0];
+        let newY = r.me.y + leftMove[1];
+
+        if(rmap[newY][newX] === 0 && r.map[newY][newX] === true)
+            return r.move(leftMove[0], leftMove[1]);
+
+        let rightMove = util.rotateRight([-dx, -dy], i, 2);
+
+        newX = r.me.x + rightMove[0];
+        newY = r.me.y + rightMove[1];
+
+        if(rmap[newY][newX] === 0 && r.map[newY][newX] === true)
+            return r.move(rightMove[0], rightMove[1]);
+    }
+}
+
 export function pilgrim_step(r) {
     if(r.step == 0) {
         let visible = r.getVisibleRobots();
@@ -19,6 +41,7 @@ export function pilgrim_step(r) {
         }
 
         r.start = [r.me.x, r.me.y];
+        r.castleOffset = [r.me.x - parent_castle.x, r.me.y - parent_castle.y];
         r.goal = util.decodeCoords(parent_castle.signal);
 
         r.pathMapToKarb = util.pathfindingMap(r.map, r.goal, util.getMoves(2), r);
@@ -42,23 +65,7 @@ export function pilgrim_step(r) {
                 return r.move(-dx, -dy);
             }
 
-            for(let i=1;i<4;i++) {
-                let leftMove = util.rotateLeft([-dx, -dy], i, 2);
-
-                newX = r.me.x + leftMove[0];
-                newY = r.me.y + leftMove[1];
-
-                if(rmap[newY][newX] === 0 && r.map[newY][newX] === true)
-                    return r.move(leftMove[0], leftMove[1]);
-
-                let rightMove = util.rotateRight([-dx, -dy], i, 2);
-
-                newX = r.me.x + rightMove[0];
-                newY = r.me.y + rightMove[1];
-
-                if(rmap[newY][newX] === 0 && r.map[newY][newX] === true)
-                    return r.move(rightMove[0], rightMove[1]);
-            }
+            return fuzzy_move(r, dx, dy);
 
         } else {
             r.mode = MODE.MINE;
@@ -87,28 +94,12 @@ export function pilgrim_step(r) {
                 return r.move(-dx, -dy);
             }
 
-            for(let i=1;i<4;i++) {
-                let leftMove = util.rotateLeft([-dx, -dy], i, 2);
-
-                newX = r.me.x + leftMove[0];
-                newY = r.me.y + leftMove[1];
-
-                if(rmap[newY][newX] === 0 && r.map[newY][newX] === true)
-                    return r.move(leftMove[0], leftMove[1]);
-
-                let rightMove = util.rotateRight([-dx, -dy], i, 2);
-
-                newX = r.me.x + rightMove[0];
-                newY = r.me.y + rightMove[1];
-
-                if(rmap[newY][newX] === 0 && r.map[newY][newX] === true)
-                    return r.move(rightMove[0], rightMove[1]);
-            }
+            return fuzzy_move(r, dx, dy);
 
         } else {
             // at goal
             r.mode = MODE.PATH_TO_RESOURCE;
-            return r.give(-1, -1, 20, 0);
+            return r.give(-r.castleOffset[0], -r.castleOffset[1], 20, 0);
         }
     }
 }
