@@ -38,6 +38,8 @@ function castle_pilgrim_step(r) {
     let signaledThisTurn = false;
 
     let target = r.karboniteCoords[r.initial_pilgrim_count];
+    if(target === undefined)
+        r.log("target undef");
     if(!r.initial_pilgrim_complete) {
         if(r.getVisibleRobots().length - r.castleCount === 4) {
             r.initial_pilgrim_complete = true;

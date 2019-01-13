@@ -52,11 +52,11 @@ export function pilgrim_step(r) {
                 let newX = r.me.x - dx;
                 let newY = r.me.y - dy;
 
-                if (rmap[newY][newX] === 0) {
+                if (util.withInMap(newX, newY, r) && rmap[newY][newX] === 0) {
                     return r.move(-dx, -dy);
                 }
 
-                return util.fuzzy_move(r, -dx, -dy);
+                return util.fuzzy_move(r, -dx, -dy, 3);
 
             } else {
                 r.mode = MODE.MINE;
@@ -81,11 +81,11 @@ export function pilgrim_step(r) {
             let newX = r.me.x - dx;
             let newY = r.me.y - dy;
 
-            if(rmap[newY][newX] === 0) {
+            if(util.withInMap(newX, newY, r) && rmap[newY][newX] === 0) {
                 return r.move(-dx, -dy);
             }
 
-            return util.fuzzy_move(r, -dx, -dy);
+            return util.fuzzy_move(r, -dx, -dy, 3);
 
         } else {
             // at goal

@@ -21,20 +21,29 @@ function init(r) {
 }
 
 function defenseInit2(r) {
-    return r.move(r.dir[0],r.dir[1]);
+    let rmap = r.getVisibleRobotMap();
+
+    let dir = r.dir;
+    r.log("dir: " + dir);
+    if (util.withInMap(dir[0],dir[1],r) && rmap[dir[0]][dir[1]] === 0 && r.map[dir[0]][dir[1]] === true)
+        return r.move(dir[0],dir[1]);
+    return util.fuzzy_move(r,r.dir[0],r.dir[1],1);
+
 }
 
 function defense_step(r) {
     let robotMap = r.getVisibleRobotMap();
     let attackRange = util.getMoves(4);
     for (let i = 0;i < attackRange.length;i++) {
-        let id = robotMap[r.me.y + attackRange[i][1]][r.me.x + attackRange[i][0]];
-        if (id <= 0 || id === undefined) continue;
+        if (util.withInMap(r.me.y + attackRange[i][1],r.me.x + attackRange[i][0],r)) {
+            let id = robotMap[r.me.y + attackRange[i][1]][r.me.x + attackRange[i][0]];
+            if (id <= 0 || id === undefined) continue;
 
-        let other_r = r.getRobot(id);
+            let other_r = r.getRobot(id);
 
-        if (r.me.team !== other_r.team) {
-            return r.attack(attackRange[i][0],attackRange[i][1]);
+            if (r.me.team !== other_r.team) {
+                return r.attack(attackRange[i][0], attackRange[i][1]);
+            }
         }
     }
 }
@@ -44,13 +53,15 @@ function killPilgrimStep(r) {
         let robotMap = r.getVisibleRobotMap();
         let attackRange = util.getMoves(4);
         for (let i = 0;i < attackRange.length;i++) {
-            let id = robotMap[r.me.y + attackRange[i][1]][r.me.x + attackRange[i][0]];
-            if (id <= 0 || id === undefined) continue;
+            if(util.withInMap(r.me.x + attackRange[i][0], r.me.y + attackRange[i][1], r)) {
+                let id = robotMap[r.me.y + attackRange[i][1]][r.me.x + attackRange[i][0]];
+                if (id <= 0 || id === undefined) continue;
 
-            let other_r = r.getRobot(id);
+                let other_r = r.getRobot(id);
 
-            if (r.me.team !== other_r.team) {
-                return r.attack(attackRange[i][0],attackRange[i][1]);
+                if (r.me.team !== other_r.team) {
+                    return r.attack(attackRange[i][0], attackRange[i][1]);
+                }
             }
         }
     } else {
@@ -60,11 +71,11 @@ function killPilgrimStep(r) {
         let newX = r.me.x - dx;
         let newY = r.me.y - dy;
 
-        if (r.getVisibleRobotMap()[newY][newX] === 0) {
+        if (util.withInMap(newX, newY, r) && r.getVisibleRobotMap()[newY][newX] === 0) {
             return r.move(-dx, -dy);
         }
 
-        return util.fuzzy_move(r, -dx, -dy);
+        return util.fuzzy_move(r, -dx, -dy, 3);
     }
 }
 
