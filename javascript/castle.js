@@ -26,6 +26,8 @@ function castle_pilgrim_init(r) {
     while((r.enemyKarboniteCoords[0][0] - r.enemy_castle.x) ** 2 + (r.enemyKarboniteCoords[0][1] - r.enemy_castle.y) ** 2 < 36)
         r.enemy_karb_index++;
 
+    r.bully_preachers_built = 0;
+
     r.initial_pilgrim_complete = false;
     r.initial_pilgrim_count = 0;
     r.castleCount = r.getVisibleRobots().length;
@@ -57,11 +59,12 @@ function castle_pilgrim_step(r) {
         }
     }
 
-    if(r.initial_pilgrim_complete && !signaledThisTurn && r.karbonite >= 90 && r.enemy_karb_index < 5) {
+    if(r.initial_pilgrim_complete && !signaledThisTurn && r.karbonite >= 90 && r.bully_preachers_built < 5) {
         let goal_pos = r.enemyKarboniteCoords[r.enemy_karb_index];
         r.signaledThisTurn = true;
         r.signal(util.signalCoords(goal_pos[0], goal_pos[1], 3), 2);
         r.enemy_karb_index++;
+        r.bully_preachers_built++;
         return build(r, SPECS.PREACHER);
     }
 }
