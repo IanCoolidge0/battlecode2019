@@ -26,12 +26,12 @@ export function create2dArray(rows, cols, fill) {
     return arr;
 }
 
-export function signalCoords(x, y) {
-    return 64 * x + y;
+export function signalCoords(x, y, code) {
+    return (code << 12) + (y << 6) + x;
 }
 
 export function decodeCoords(signal) {
-    return [Math.floor(signal / 64), signal % 64];
+    return [signal % 64, (signal >> 6) % 64, signal >> 12];
 }
 
 export function isHorizontallySymm(r) {
@@ -51,9 +51,9 @@ export function isHorizontallySymm(r) {
 export function getReflectedCoord(coord,r) {
 
     if (r.HSymm) {
-        return [coord[0],r.size - 1 - coord[1]];
+        return [coord[0],r.map.length - 1 - coord[1]];
     } else {
-        return [r.size - 1 - coord[0],coord[1]];
+        return [r.map.length - 1 - coord[0],coord[1]];
     }
 }
 
@@ -278,4 +278,26 @@ export function BFSMap(pass_map,start,moves,r) {
         }
     }
     return path_finding_map
+}
+
+export function fuzzy_move(r, dx, dy) {
+    let rmap = r.getVisibleRobotMap();
+
+    for(let i=1;i<4;i++) {
+        let leftMove = rotateLeft([dx, dy], i, 2);
+
+        let newX = r.me.x + leftMove[0];
+        let newY = r.me.y + leftMove[1];
+
+        if(rmap[newY][newX] === 0 && r.map[newY][newX] === true)
+            return r.move(leftMove[0], leftMove[1]);
+
+        let rightMove = rotateRight([dx, dy], i, 2);
+
+        newX = r.me.x + rightMove[0];
+        newY = r.me.y + rightMove[1];
+
+        if(rmap[newY][newX] === 0 && r.map[newY][newX] === true)
+            return r.move(rightMove[0], rightMove[1]);
+    }
 }

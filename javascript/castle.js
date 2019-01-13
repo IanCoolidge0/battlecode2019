@@ -16,19 +16,31 @@ function build(r, unit) {
 }
 
 function castle_pilgrim_init(r) {
+    r.HSymm = util.isHorizontallySymm(r);
+    r.enemy_castle = util.getReflectedCoord([r.me.x, r.me.y], r);
+
     r.karboniteCoords = util.karboniteCoords(r.map, r.karbonite_map, [r.me.x, r.me.y], util.getMoves(2));
+    r.enemyKarboniteCoords = util.karboniteCoords(r.map, r.karbonite_map, [r.enemy_castle[0], r.enemy_castle[1]], util.getMoves(2));
+
+    r.enemy_karb_index = 0;
+    while((r.enemyKarboniteCoords[0][0] - r.enemy_castle.x) ** 2 + (r.enemyKarboniteCoords[0][1] - r.enemy_castle.y) ** 2 < 36)
+        r.enemy_karb_index++;
+
     r.initial_pilgrim_complete = false;
     r.initial_pilgrim_count = 0;
     r.castleCount = r.getVisibleRobots().length;
+    r.stepsSinceLastDefense = 0;
 }
 
 function castle_pilgrim_step(r) {
+    let signaledThisTurn = false;
+
     let target = r.karboniteCoords[r.initial_pilgrim_count];
     if(!r.initial_pilgrim_complete) {
-        if(r.getVisibleRobots().length - r.castleCount === 4 || (target[0] - r.me.x) ** 2 + (target[1] - r.me.y) ** 2 > 64) {
+        if(r.getVisibleRobots().length - r.castleCount === 4) {
             r.initial_pilgrim_complete = true;
         } else {
-            r.signal(util.signalCoords(target[0], target[1]), 2);
+            r.signal(util.signalCoords(target[0], target[1], 0), 2);
             r.initial_pilgrim_count++;
             return build(r, SPECS.PILGRIM);
         }
@@ -39,9 +51,18 @@ function castle_pilgrim_step(r) {
         let robot = visible[i];
 
         if(robot.unit === SPECS.PILGRIM && robot.signal === 1) {
-            r.signal(util.signalCoords(target[0], target[1]), 2);
+            r.signal(util.signalCoords(target[0], target[1], 0), 2);
+            r.signaledThisTurn = true;
             r.initial_pilgrim_count++;
         }
+    }
+
+    if(r.initial_pilgrim_complete && !signaledThisTurn && r.karbonite >= 90 && r.enemy_karb_index < 5) {
+        let goal_pos = r.enemyKarboniteCoords[r.enemy_karb_index];
+        r.signaledThisTurn = true;
+        r.signal(util.signalCoords(goal_pos[0], goal_pos[1], 3), 2);
+        r.enemy_karb_index++;
+        return build(r, SPECS.PREACHER);
     }
 }
 
@@ -96,9 +117,13 @@ export function castle_step(r) {
         castle_pilgrim_init(r);
     } else {
         let defenseOutput = defense(r);
-        if(defenseOutput !== undefined)
+        if(defenseOutput !== undefined) {
+            r.stepsSinceLastDefense = 0;
             return defenseOutput;
-        else
+        }
+        else {
+            r.stepsSinceLastDefense++;
             return castle_pilgrim_step(r);
+        }
     }
 }
