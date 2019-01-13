@@ -188,20 +188,19 @@ export function pathTo(pass_map, start, end, moves, r) {
     return path;
 }
 
-export function directionTo(x, y, goal_x, goal_y) {
+export function directionTo(x, y, goal_x, goal_y, r) {
     let dx = goal_x - x;
     let dy =  y - goal_y;
-
-    if (dy == 0) {
+    if (dy === 0) {
         if (dx > 0) return directions('East');
         else return directions('West');
 
     }
-    if (dx == 0) {
-        if (dy > 0) directions('North');
+    if (dx === 0) {
+        if (dy > 0) return directions('North');
         else return directions('South');
     }
-    let angle = (0.0 + dy) / dx;
+    let angle = dy / dx;
 
     if  (angle < -2.41) {
         if (dy > 0) return directions('North');
@@ -231,7 +230,7 @@ export function BFSToLocationInRadius(pass_map, start, end,radius, moves, r) {
 
     while(queue.length > 0) {
         let location = queue.shift();
-        r.log("loc: " + location[0] + " " + location[1]);
+        //r.log("loc: " + location[0] + " " + location[1]);
 
         if((location[0] - end[0]) ** 2 + (location[1] - end[1]) ** 2 <= radius ** 2 )
             return location;

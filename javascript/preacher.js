@@ -1,4 +1,5 @@
 import {SPECS} from 'battlecode';
+import * as util from "./util.js";
 
 function defenseInit(r) {
     let robots = r.getVisibleRobots();

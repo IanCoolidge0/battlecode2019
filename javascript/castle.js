@@ -67,16 +67,16 @@ function defense(r) {
     }
     if (r.preacherTotal === 0  || (r.preacherTotal === 1 && EnemyCount.length > 1)) {
 
-        let dir = util.directionTo(r.me.x,r.me.y,r.EnemyPossibleLocation[0],r.EnemyPossibleLocation[1]);
+        let dir = util.directionTo(r.me.x,r.me.y,r.EnemyPossibleLocation[0],r.EnemyPossibleLocation[1], r);
         r.log(dir);
-        let dirR = util.rotateRight(dir,2);
-        r.log("dirR" + dirR);
+        let dirR = util.rotateRight(dir,2, 2);
+        //r.log(dirR);
         if (robotMap[r.me.y + dirR[1]][r.me.x + dirR[0]] === 0  && r.map[r.me.y + dirR[1]][r.me.x + dirR[0]]) {
             r.log("built a preacher");
             r.preacherTotal++;
             return r.buildUnit(SPECS.PREACHER, dirR[0], dirR[1]);
         }
-        let dirL = util.rotateLeft(dir,2);
+        let dirL = util.rotateLeft(dir,2, 2);
         if (robotMap[r.me.y + dirL[1]][r.me.x + dirL[0]] === 0  && r.map[r.me.y + dirL[1]][r.me.x + dirL[0]]) {
             r.log("built a preacher");
             r.preacherTotal++;
