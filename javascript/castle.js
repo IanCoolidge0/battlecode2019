@@ -42,6 +42,7 @@ function castle_pilgrim_step(r) {
         if(r.getVisibleRobots().length - r.castleCount === 4) {
             r.initial_pilgrim_complete = true;
         } else {
+            r.log(target);
             r.signal(util.signalCoords(target[0], target[1], 0), 2);
             r.initial_pilgrim_count++;
             return build(r, SPECS.PILGRIM);
@@ -82,7 +83,7 @@ function defense(r) {
             EnemyCount.push(robots[i]);
         }
     }
-    //r.log("count " + EnemyCount.length);
+    r.log("count " + EnemyCount.length);
     if (EnemyCount.length === 0) return;
     if (r.EnemyPossibleLocation === undefined) {
 
@@ -92,21 +93,16 @@ function defense(r) {
     if (r.preacherTotal === 0  || (r.preacherTotal === 1 && EnemyCount.length > 1)) {
 
         let dir = util.directionTo(r.me.x,r.me.y,r.EnemyPossibleLocation[0],r.EnemyPossibleLocation[1], r);
-        r.log(dir);
-        let dirR = util.rotateRight(dir,2, 2);
-        //r.log(dirR);
-        if (robotMap[r.me.y + dirR[1]][r.me.x + dirR[0]] === 0  && r.map[r.me.y + dirR[1]][r.me.x + dirR[0]]) {
-            r.log("built a preacher");
+        //r.log(dir);
+        let fuzMove = util.fuzzy_move2(r,dir[0],dir[1],2);
+        //r.log("fuz move: " + fuzMove);
+        if (fuzMove !== undefined) {
             r.preacherTotal++;
-            return r.buildUnit(SPECS.PREACHER, dirR[0], dirR[1]);
+            r.log('built a preacher');
+            return r.buildUnit(SPECS.PREACHER,fuzMove[0],fuzMove[1]);
         }
-        let dirL = util.rotateLeft(dir,2, 2);
-        if (robotMap[r.me.y + dirL[1]][r.me.x + dirL[0]] === 0  && r.map[r.me.y + dirL[1]][r.me.x + dirL[0]]) {
-            r.log("built a preacher");
-            r.preacherTotal++;
-            return r.buildUnit(SPECS.PREACHER, dirL[0], dirL[1]);
-        }
-        if (robotMap[r.me.y + dir[1]][r.me.x + dir[0]] === 0  && r.map[r.me.y + dir[1]][r.me.x + dir[0]]) {
+        //r.log("build location: " + (r.me.x + dir[0]) + " , " + (r.me.y + dir[1]));
+        if (util.withInMap(r.me.x + dir[0],r.me.y + dir[1],r) && robotMap[r.me.y + dir[1]][r.me.x + dir[0]] === 0  && r.map[r.me.y + dir[1]][r.me.x + dir[0]]) {
             r.log("built a preacher");
             r.preacherTotal++;
             return r.buildUnit(SPECS.PREACHER, dir[0], dir[1]);
@@ -126,7 +122,7 @@ export function castle_step(r) {
         }
         else {
             r.stepsSinceLastDefense++;
-            return castle_pilgrim_step(r);
+            //return castle_pilgrim_step(r);
         }
     }
 }

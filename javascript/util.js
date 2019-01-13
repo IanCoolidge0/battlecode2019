@@ -280,16 +280,16 @@ export function BFSMap(pass_map,start,moves,r) {
     return path_finding_map
 }
 
-export function fuzzy_move(r, dx, dy) {
+export function fuzzy_move(r, dx, dy, amount) {
     let rmap = r.getVisibleRobotMap();
 
-    for(let i=1;i<4;i++) {
+    for(let i=1;i<amount;i++) {
         let leftMove = rotateLeft([dx, dy], i, 2);
 
         let newX = r.me.x + leftMove[0];
         let newY = r.me.y + leftMove[1];
 
-        if(rmap[newY][newX] === 0 && r.map[newY][newX] === true)
+        if(withInMap(newX,newY,r) && rmap[newY][newX] === 0 && r.map[newY][newX] === true)
             return r.move(leftMove[0], leftMove[1]);
 
         let rightMove = rotateRight([dx, dy], i, 2);
@@ -297,7 +297,33 @@ export function fuzzy_move(r, dx, dy) {
         newX = r.me.x + rightMove[0];
         newY = r.me.y + rightMove[1];
 
-        if(rmap[newY][newX] === 0 && r.map[newY][newX] === true)
+        if(withInMap(newX,newY,r) && rmap[newY][newX] === 0 && r.map[newY][newX] === true)
             return r.move(rightMove[0], rightMove[1]);
     }
+}
+export function fuzzy_move2(r, dx, dy, amount) {
+    let rmap = r.getVisibleRobotMap();
+
+    for(let i=1;i<amount;i++) {
+        let leftMove = rotateLeft([dx, dy], i, 2);
+
+        let newX = r.me.x + leftMove[0];
+        let newY = r.me.y + leftMove[1];
+
+        if(withInMap(newX,newY,r) && rmap[newY][newX] === 0 && r.map[newY][newX] === true)
+            return [leftMove[0], leftMove[1]];
+
+        let rightMove = rotateRight([dx, dy], i, 2);
+
+        newX = r.me.x + rightMove[0];
+        newY = r.me.y + rightMove[1];
+
+        if(withInMap(newX,newY,r) && rmap[newY][newX] === 0 && r.map[newY][newX] === true)
+            return [rightMove[0], rightMove[1]];
+    }
+}
+
+export function withInMap(x,y,r) {
+    let size = r.map.length;
+    return x >= 0 && y >= 0 && x < size && y < size;
 }
