@@ -142,7 +142,7 @@ export function karboniteCoords(pass_map, karbonite_map, start, moves, r) {
         for (let i = 0;i < moves.length;i++) {
             let next_location = [location[0] + moves[i][0], location[1] + moves[i][1]];
 
-            if ( next_location[0] >= 0 && next_location[1] > 0 && next_location[0] < size && next_location[1] < size && path_finding_map[next_location[1]][next_location[0]] === 0 && pass_map[next_location[1]][next_location[0]] === true) {
+            if ( next_location[0] >= 0 && next_location[1] >= 0 && next_location[0] < size && next_location[1] < size && path_finding_map[next_location[1]][next_location[0]] === 0 && pass_map[next_location[1]][next_location[0]] === true) {
                 path_finding_map[next_location[1]][next_location[0]] = 1;
                 queue.push(next_location);
             }
@@ -219,6 +219,11 @@ export function directionTo(x, y, goal_x, goal_y, r) {
 
         if (dx > 0)return directions('NorthEast');
         else return directions('SouthWest');
+
+    }
+    if (angle > 2.41) {
+        if (dx > 0) return directions('North');
+        else return directions('South');
     }
     if (angle > 2.41) {
         if (dx > 0) return directions('North');
@@ -273,7 +278,7 @@ export function BFSMap(pass_map,start,moves,r) {
         for (let i = 0;i < moves.length;i++) {
 
             let next_location = [location[0] + moves[i][0], location[1] + moves[i][1]];
-            if ( next_location[0] >= 0 && next_location[1] > 0 && next_location[0] < size && next_location[1] < size && path_finding_map[next_location[1]][next_location[0]] === 0 && pass_map[next_location[1]][next_location[0]] === true) {
+            if ( next_location[0] >= 0 && next_location[1] >= 0 && next_location[0] < size && next_location[1] < size && path_finding_map[next_location[1]][next_location[0]] === 0 && pass_map[next_location[1]][next_location[0]] === true) {
                 //r.log("reached");
                 path_finding_map[next_location[1]][next_location[0]] = moves[i];
                 //r.log("reached 2")
@@ -292,6 +297,7 @@ export function fuzzy_move(r, dx, dy, amount) {
 
         let newX = r.me.x + leftMove[0];
         let newY = r.me.y + leftMove[1];
+
         if(withInMap(newX,newY,r) && rmap[newY][newX] === 0 && r.map[newY][newX] === true)
             return r.move(leftMove[0], leftMove[1]);
 
@@ -304,6 +310,29 @@ export function fuzzy_move(r, dx, dy, amount) {
             return r.move(rightMove[0], rightMove[1]);
     }
 }
+
+export function fuzzy_move2(r, dx, dy, amount) {
+    let rmap = r.getVisibleRobotMap();
+
+    for(let i=1;i<amount;i++) {
+        let leftMove = rotateLeft([dx, dy], i, 2);
+
+        let newX = r.me.x + leftMove[0];
+        let newY = r.me.y + leftMove[1];
+
+        if(withInMap(newX,newY,r) && rmap[newY][newX] === 0 && r.map[newY][newX] === true)
+            return [leftMove[0], leftMove[1]];
+
+        let rightMove = rotateRight([dx, dy], i, 2);
+
+        newX = r.me.x + rightMove[0];
+        newY = r.me.y + rightMove[1];
+
+        if(withInMap(newX,newY,r) && rmap[newY][newX] === 0 && r.map[newY][newX] === true)
+            return [rightMove[0], rightMove[1]];
+    }
+}
+
 
 export function withInMap(x,y,r) {
     let size = r.map.length;
