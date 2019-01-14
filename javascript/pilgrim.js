@@ -31,7 +31,6 @@ export function pilgrim_step(r) {
     let rmap = r.getVisibleRobotMap();
     for(let i=0;i<visible.length;i++) {
         if(visible[i].team !== r.me.team && (visible[i].unit === SPECS.CRUSADER || visible[i].unit === SPECS.PROPHET || visible[i].unit === SPECS.PREACHER)) {
-            //run away little girl run away
             r.castleTalk(3);
 
             let direction = util.directionTo(r.me.x, r.me.y, visible[i].x, visible[i].y, r);
@@ -41,7 +40,8 @@ export function pilgrim_step(r) {
             let newX = r.me.x - direction[0];
             let newY = r.me.y - direction[1];
 
-            if(util.withInMap(newX, newY, r) && rmap[newY][newX] === 0) {
+            if(util.withInMap(newX, newY, r) && r.map[newY][newX] === true && rmap[newY][newX] === 0) {
+                //r.log(newX + " " + newY);
                 return r.move(-direction[0], -direction[1]);
             }
 
