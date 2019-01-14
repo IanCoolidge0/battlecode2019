@@ -2,9 +2,9 @@ import * as util from "./util.js"
 import {SPECS} from 'battlecode';
 
 var MODE = {
-  PATH_TO_RESOURCE: 0,
-  MINE: 1,
-  PATH_TO_CASTLE: 2
+    PATH_TO_RESOURCE: 0,
+    MINE: 1,
+    PATH_TO_CASTLE: 2
 };
 
 export function pilgrim_step(r) {

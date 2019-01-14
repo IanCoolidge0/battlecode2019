@@ -167,9 +167,8 @@ function step(r) {
         }
     }
     if (r.mode === MODE.DONE) {
-        return;
-    }
-
+            return;
+        }
 
 }
 
