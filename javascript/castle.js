@@ -20,7 +20,7 @@ function jobsStep(r) {
 }
 
 function createUnit(r, unit, job) {
-    r.currentJob = job
+    r.currentJob = job;
     return build(r, unit);
 }
 
@@ -58,7 +58,6 @@ function castle_pilgrim_init(r) {
     r.initial_pilgrim_count = 0;
     r.castleCount = r.getVisibleRobots().length;
     r.stepsSinceLastDefense = 0;
-
 
 }
 
@@ -121,12 +120,14 @@ function defense(r) {
         if (fuzMove !== undefined) {
             r.preacherTotal++;
             r.log('built a preacher');
+            r.currentJob = [0, 0, util.PREACHER_JOBS.DEFENSE];
             return r.buildUnit(SPECS.PREACHER,fuzMove[0],fuzMove[1]);
         }
         //r.log("build location: " + (r.me.x + dir[0]) + " , " + (r.me.y + dir[1]));
         if (util.withInMap(r.me.x + dir[0],r.me.y + dir[1],r) && robotMap[r.me.y + dir[1]][r.me.x + dir[0]] === 0  && r.map[r.me.y + dir[1]][r.me.x + dir[0]]) {
             r.log("built a preacher");
             r.preacherTotal++;
+            r.currentJob = [0, 0, util.PREACHER_JOBS.DEFENSE];
             return r.buildUnit(SPECS.PREACHER, dir[0], dir[1]);
         }
     }
@@ -161,7 +162,7 @@ function castlePostRushStep(r) {
         let target = r.enemyKarboniteCoords[r.enemyKarboniteIndex % r.enemyKarboniteCoords.length];
         r.enemyKarboniteIndex++;
         r.log("Builted Pillage Preacher");
-        r.signal(util.signalCoords(target[0], target[1], 4),2);
+        r.signal(util.signalCoords(target[0], target[1], util.PREACHER_JOBS.PILLAGE_KARBONITE),2);
         return createUnit(r, SPECS.PREACHER, [target[0], target[1], util.PREACHER_JOBS.PILLAGE_KARBONITE]);
 
     }
@@ -173,7 +174,7 @@ function castlePostRushStep(r) {
         let target = r.enemyKarboniteCoords[r.enemyKarboniteIndex % r.enemyKarboniteCoords.length];
 
         r.log("Builted Pillage Prophet");
-        r.signal(util.signalCoords(target[0], target[1], 4),2);
+        r.signal(util.signalCoords(target[0], target[1], util.PREACHER_JOBS.PILLAGE_KARBONITE),2);
         return createUnit(r, SPECS.PROPHET, [target[0], target[1], util.PROPHET_JOBS.PILLAGE_KARBONITE]);
     }
 }
@@ -196,7 +197,7 @@ export function castle_step(r) {
             r.stepsSinceLastDefense = 0;
             return defenseOutput;
         }
-        else {
+        else if(r.step > 0) {
             r.stepsSinceLastDefense++;
             return castle_pilgrim_step(r);
         }

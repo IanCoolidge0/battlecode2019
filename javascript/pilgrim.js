@@ -22,7 +22,7 @@ export function pilgrim_step(r) {
         r.start = [r.me.x, r.me.y];
         r.castleOffset = [r.me.x - r.parent_castle.x, r.me.y - r.parent_castle.y];
         r.goal = util.decodeCoords(r.parent_castle.signal);
-        r.fuel_job = (r.goal[2] === util.PILGRIM_JOBS.MINE_FUEL);
+        r.job = r.goal[2];
 
         r.pathMapToKarb = util.pathfindingMap(r.map, r.goal, util.getMoves(2), r);
         r.pathMapToStart = util.pathfindingMap(r.map, r.start, util.getMoves(2), r)
@@ -30,9 +30,9 @@ export function pilgrim_step(r) {
         r.mode = MODE.PATH_TO_RESOURCE;
     }
 
-    if(r.fuel < 4 && r.fuel_job)
+    if(r.fuel < 4 && r.job === util.PILGRIM_JOBS.MINE_FUEL)
         return;
-    if(r.fuel < 150 && !r.fuel_job)
+    if(r.fuel < 150 && r.job === util.PILGRIM_JOBS.MINE_KARBONITE)
         return;
 
     let rmap = r.getVisibleRobotMap();
@@ -90,10 +90,10 @@ export function pilgrim_step(r) {
                 return util.fuzzy_move(r, -dx, -dy, 3);
 
             } else {
-                if(r.me.karbonite >= 18 && !r.fuel_job) {
+                if(r.me.karbonite >= 18 && r.job === util.PILGRIM_JOBS.MINE_KARBONITE) {
                     r.mode = MODE.PATH_TO_CASTLE;
                 }
-                if(r.me.fuel >= 90 && r.fuel_job)
+                if(r.me.fuel >= 90 && r.job === util.PILGRIM_JOBS.MINE_FUEL)
                     r.mode = MODE.PATH_TO_CASTLE;
 
                 return r.mine();
@@ -131,7 +131,7 @@ export function pilgrim_step(r) {
             if(r.needs_new_assignment)
                 r.signal(1, 2);
 
-            if(r.fuel_job)
+            if(r.job === util.PILGRIM_JOBS.MINE_FUEL)
                 r.log("giving " + r.me.fuel + " fuel");
             else
                 r.log("giving " + r.me.karbonite + " karbonite");

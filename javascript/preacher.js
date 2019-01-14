@@ -20,8 +20,9 @@ function init(r) {
             r.log("castle direction: " + r.dir);
             r.bullyPilgrims = false;
             let inc_signal = util.decodeCoords(r.parent_castle.signal);
+            r.job = inc_signal[2];
             r.log("castle signal: " + inc_signal);
-            if(inc_signal[2] === 4) {
+            if(r.job === util.PREACHER_JOBS.PILLAGE_KARBONITE) {
                 // r.log("killing pilgrims");
                 // r.bullyPilgrims = true;
                 r.goal = [inc_signal[0], inc_signal[1]];
@@ -30,7 +31,6 @@ function init(r) {
 
 
         }
-
     }
     for (let i = 0;i <  robots.length;i++) {
 
@@ -176,9 +176,15 @@ export function preacher_step(r) {
     if(r.step === 0) {
         init(r);
         //return defenseInit2(r);
+    } else if(r.step === 1 && r.job === util.PREACHER_JOBS.DEFENSE) {
+        defenseInit2(r);
     } else {
-        getPartnerAction(r);
-        return step(r);
+        if(r.job === util.PREACHER_JOBS.PILLAGE_KARBONITE) {
+            getPartnerAction(r);
+            return step(r);
+        } else if(r.job === util.PREACHER_JOBS.DEFENSE) {
+            return defense_step(r);
+        }
     }
 
 

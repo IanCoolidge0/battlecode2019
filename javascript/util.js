@@ -4,7 +4,8 @@ export const PILGRIM_JOBS = {
 };
 
 export const PREACHER_JOBS = {
-    PILLAGE_KARBONITE: 0
+    PILLAGE_KARBONITE: 0,
+    DEFENSE: 1
 };
 
 export const CRUSADER_JOBS = {
