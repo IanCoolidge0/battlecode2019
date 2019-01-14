@@ -56,7 +56,7 @@ export function pilgrim_step(r) {
                     return r.move(-dx, -dy);
                 }
 
-                return util.fuzzy_move(r, -dx, -dy);
+                return util.fuzzy_move(r, -dx, -dy,3);
 
             } else {
                 r.mode = MODE.MINE;
@@ -85,7 +85,7 @@ export function pilgrim_step(r) {
                 return r.move(-dx, -dy);
             }
 
-            return util.fuzzy_move(r, -dx, -dy);
+            return util.fuzzy_move(r, -dx, -dy,3);
 
         } else {
             // at goal
