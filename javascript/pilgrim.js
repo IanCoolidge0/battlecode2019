@@ -11,6 +11,7 @@ export function pilgrim_step(r) {
     let visible = r.getVisibleRobots();
 
     if(r.step === 0) {
+        r.castleTalk(255);
         r.parent_castle = 0;
         for(let i=0;i<visible.length;i++) {
             if(visible[i].unit === SPECS.CASTLE) {
@@ -21,12 +22,18 @@ export function pilgrim_step(r) {
         r.start = [r.me.x, r.me.y];
         r.castleOffset = [r.me.x - r.parent_castle.x, r.me.y - r.parent_castle.y];
         r.goal = util.decodeCoords(r.parent_castle.signal);
+        r.fuel_job = (r.goal[2] === util.PILGRIM_JOBS.MINE_FUEL);
 
         r.pathMapToKarb = util.pathfindingMap(r.map, r.goal, util.getMoves(2), r);
         r.pathMapToStart = util.pathfindingMap(r.map, r.start, util.getMoves(2), r)
 
         r.mode = MODE.PATH_TO_RESOURCE;
     }
+
+    if(r.fuel < 4 && r.fuel_job)
+        return;
+    if(r.fuel < 150 && !r.fuel_job)
+        return;
 
     let rmap = r.getVisibleRobotMap();
     for(let i=0;i<visible.length;i++) {
@@ -83,16 +90,26 @@ export function pilgrim_step(r) {
                 return util.fuzzy_move(r, -dx, -dy, 3);
 
             } else {
-                if(r.me.karbonite >= 18) {
+                if(r.me.karbonite >= 18 && !r.fuel_job) {
                     r.mode = MODE.PATH_TO_CASTLE;
                 }
+                if(r.me.fuel >= 90 && r.fuel_job)
+                    r.mode = MODE.PATH_TO_CASTLE;
 
                 return r.mine();
             }
         }
     } else if(r.mode === MODE.PATH_TO_CASTLE) {
 
-        if (r.me.x !== r.start[0] || r.me.y !== r.start[1]) {
+        let castleOffset = null;
+        let visible = r.getVisibleRobots();
+        for(let i=0;i<visible.length;i++) {
+            if(visible[i].team === r.me.team && visible[i].unit === SPECS.CASTLE && (r.me.x - visible[i].x) ** 2 + (r.me.y - visible[i].y) ** 2 <= 2) {
+                castleOffset = [visible[i].x - r.me.x, visible[i].y - r.me.y];
+            }
+        }
+
+        if (castleOffset === null) {
             let rmap = r.getVisibleRobotMap();
 
             let dx = r.pathMapToStart[r.me.y][r.me.x][0];
@@ -114,7 +131,12 @@ export function pilgrim_step(r) {
             if(r.needs_new_assignment)
                 r.signal(1, 2);
 
-            return r.give(-r.castleOffset[0], -r.castleOffset[1], r.me.karbonite, 0);
+            if(r.fuel_job)
+                r.log("giving " + r.me.fuel + " fuel");
+            else
+                r.log("giving " + r.me.karbonite + " karbonite");
+
+            return r.give(castleOffset[0], castleOffset[1], r.me.karbonite, r.me.fuel);
         }
     }
 }

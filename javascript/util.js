@@ -1,3 +1,20 @@
+export const PILGRIM_JOBS = {
+    MINE_KARBONITE: 0,
+    MINE_FUEL: 1
+};
+
+export const PREACHER_JOBS = {
+    PILLAGE_KARBONITE: 0
+};
+
+export const CRUSADER_JOBS = {
+
+};
+
+export const PROPHET_JOBS = {
+    PILLAGE_KARBONITE: 0
+};
+
 export function getMoves(r) {
     let moves = []
     for(let i=-r;i<=r;i++) {

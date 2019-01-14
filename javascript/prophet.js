@@ -5,12 +5,14 @@ var MODE = {
     WAIT: 1,
     SPECIFIC_MOVE: 2,
     SPECIFIC_ATTACK: 3,
+    FOLLOW_TO_GOAL:4,
 };
 
 
 
 function init(r) {
-    r.partnerMode = MODE.PATH_TO_GOAL;
+    r.castleTalk(255);
+    r.Mode = MODE.FOLLOW_TO_GOAL;
     let robots = r.getVisibleRobots();
     for (let i = 0;i <  robots.length;i++) {
         if (robots[i].unit === SPECS.CASTLE) {
@@ -37,6 +39,7 @@ function init(r) {
 }
 
 function waitForPartner(r) {
+
     let robots = r.getVisibleRobots();
     for (let i = 0;i <  robots.length;i++) {
 
@@ -62,43 +65,42 @@ function givePartnerAction(r) {
         return;
     }
     let distanceBtwnUs = (r.me.x - partner.x) ** 2 + (r.me.y - partner.y) ** 2;
-    if (distanceBtwnUs > 32) {
-        r.partnerMode = MODE.WAIT;
-        r.signal(util.signalCoords(0,0,MODE.WAIT),distanceBtwnUs);
-    } else if (r.partnerMode !== MODE.PATH_TO_GOAL && distanceBtwnUs < 16) {
-        r.partnerMode = MODE.PATH_TO_GOAL;
-
-        r.signal(util.signalCoords(0,0,MODE.PATH_TO_GOAL),distanceBtwnUs);
+    // let distanceBtwnUs = (r.me.x - partner.x) ** 2 + (r.me.y - partner.y) ** 2;
+    // let distanceGoalToMe = (r.me.x - r.goal[0]) ** 2 + (r.me.y - r.goal[1]) ** 2;
+    // let distanceGoalToPartner = (partner.x - r.goal[0]) ** 2 + (partner.y - r.goal[1]) ** 2;
+    //
+    // if (distanceBtwnUs > 32) `{
+    //     r.partnerMode = MODE.WAIT;
+    //     r.signal(util.signalCoords(0,0,MODE.WAIT),distanceBtwnUs);
+    // } else if (r.partnerMode !== MODE.PATH_TO_GOAL && distanceBtwnUs < 16) {
+    //     r.partnerMode = MODE.PATH_TO_GOAL;
+    //
+    //     r.signal(util.signalCoords(0,0,MODE.PATH_TO_GOAL),distanceBtwnUs);
 }
 
 
 
-}
+
 function step(r) {
-
-    let partner = r.getRobot(r.partnerID);
-    if (r.ownAction === 1) {
+    if (r.fuel < 200) return;
+    if (r.Mode == MODE.FOLLOW_TO_GOAL) {
+        let partner = r.getRobot(r.partnerID);
+        if (partner === null) return;
         let robotMap = r.getVisibleRobotMap();
         let dir = util.directionTo(r.me.x,r.me.y,partner.x,partner.y,r);
         let newX = r.me.x + dir[0];
         let newY = r.me.y + dir[1];
+        if (newX === partner.x && newY === partner.y) return;
         if (util.withInMap(newX,newY,r) && r.map[newY][newX] && robotMap[newY][newX] == 0) {
             r.log("move to target");
             return r.move(dir[0], dir[1]);
         }
-        else {
-            let dx = r.goal_map[r.me.y][r.me.x][0];
-            let dy = r.goal_map[r.me.y][r.me.x][1];
+        return util.fuzzy_move(r, dir[0], dir[1],3);
 
-            let newX = r.me.x - dx;
-            let newY = r.me.y - dy;
-            if (r.getVisibleRobotMap()[newY][newX] === 0) {
-                r.log("preacher moving");
-                return r.move(-dx, -dy);
-            }
-            return util.fuzzy_move(r, dir[0], dir[1],2);
-        }
+
     }
+
+
 
 
 }
