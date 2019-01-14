@@ -10,10 +10,10 @@ var MODE = {
 export function pilgrim_step(r) {
     let visible = r.getVisibleRobots();
 
-    if(r.step == 0) {
+    if(r.step === 0) {
         r.parent_castle = 0;
         for(let i=0;i<visible.length;i++) {
-            if(visible[i].unit == SPECS.CASTLE) {
+            if(visible[i].unit === SPECS.CASTLE) {
                 r.parent_castle = visible[i];
             }
         }
@@ -26,6 +26,25 @@ export function pilgrim_step(r) {
         r.pathMapToStart = util.pathfindingMap(r.map, r.start, util.getMoves(2), r)
 
         r.mode = MODE.PATH_TO_RESOURCE;
+    }
+
+    let rmap = r.getVisibleRobotMap();
+    for(let i=0;i<visible.length;i++) {
+        if(visible[i].team !== r.me.team && (visible[i].unit === SPECS.CRUSADER || visible[i].unit === SPECS.PROPHET || visible[i].unit === SPECS.PREACHER)) {
+            //run away little girl run away
+            r.castleTalk(3);
+
+            let direction = util.directionTo(r.me.x, r.me.y, visible[i].x, visible[i].y, r);
+
+            let newX = r.me.x - direction[0];
+            let newY = r.me.y - direction[1];
+
+            if(util.withInMap(newX, newY, r) && rmap[newY][newX] === 0) {
+                return r.move(-direction[0], -direction[1]);
+            }
+
+            return util.fuzzy_move(r, -direction[0], -direction[1], 3);
+        }
     }
 
     if(r.mode === MODE.PATH_TO_RESOURCE) {
@@ -45,6 +64,9 @@ export function pilgrim_step(r) {
                     }
                 }
 
+                if(r.pathMapToKarb[r.me.y][r.me.x] === 0) {
+                    r.log(r.me.x + " " + r.me.y);
+                }
 
                 let dx = r.pathMapToKarb[r.me.y][r.me.x][0];
                 let dy = r.pathMapToKarb[r.me.y][r.me.x][1];
@@ -59,17 +81,13 @@ export function pilgrim_step(r) {
                 return util.fuzzy_move(r, -dx, -dy, 3);
 
             } else {
-                r.mode = MODE.MINE;
+                if(r.me.karbonite >= 18) {
+                    r.mode = MODE.PATH_TO_CASTLE;
+                }
+
+                return r.mine();
             }
         }
-    } else if(r.mode === MODE.MINE) {
-
-        if(r.me.karbonite >= 18) {
-            r.mode = MODE.PATH_TO_CASTLE;
-        }
-
-        return r.mine();
-
     } else if(r.mode === MODE.PATH_TO_CASTLE) {
 
         if (r.me.x !== r.start[0] || r.me.y !== r.start[1]) {

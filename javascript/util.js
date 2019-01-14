@@ -115,7 +115,7 @@ export function pathfindingMap(pass_map,start,moves, r) {
         for (let i = 0;i < moves.length;i++) {
 
             let next_location = [location[0] + moves[i][0], location[1] + moves[i][1]];
-            if ( next_location[0] >= 0 && next_location[1] > 0 && next_location[0] < size && next_location[1] < size && path_finding_map[next_location[1]][next_location[0]] === 0 && pass_map[next_location[1]][next_location[0]] === true) {
+            if ( next_location[0] >= 0 && next_location[1] >= 0 && next_location[0] < size && next_location[1] < size && path_finding_map[next_location[1]][next_location[0]] === 0 && pass_map[next_location[1]][next_location[0]] === true) {
                 //r.log("reached");
                 path_finding_map[next_location[1]][next_location[0]] = moves[i];
                 //r.log("reached 2")

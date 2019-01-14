@@ -8,7 +8,7 @@ function build(r, unit) {
 
     for(let i=0;i<dir_coord.length;i++) {
         let move = dir_coord[i];
-        if(pass_map[r.me.y + move[1]][r.me.x + move[0]] === true && visible_map[r.me.y + move[1]][r.me.x + move[0]] === 0) {
+        if(util.withInMap(r.me.x + move[0], r.me.y + move[1], r) && pass_map[r.me.y + move[1]][r.me.x + move[0]] === true && visible_map[r.me.y + move[1]][r.me.x + move[0]] === 0) {
             r.log("built a pilgrim");
             return r.buildUnit(unit, move[0], move[1]);
         }
@@ -61,13 +61,18 @@ function castle_pilgrim_step(r) {
         }
     }
 
-    if(r.initial_pilgrim_complete && !signaledThisTurn && r.karbonite >= 90 && r.bully_preachers_built < 5) {
-        let goal_pos = r.enemyKarboniteCoords[r.enemy_karb_index];
-        r.signaledThisTurn = true;
-        r.signal(util.signalCoords(goal_pos[0], goal_pos[1], 3), 2);
-        r.enemy_karb_index++;
-        r.bully_preachers_built++;
-        return build(r, SPECS.PREACHER);
+    if(r.initial_pilgrim_complete && !signaledThisTurn) {
+        if(r.bully_preachers_built < 5)
+        {
+            if(r.karbonite >= 90) {
+                let goal_pos = r.enemyKarboniteCoords[r.enemy_karb_index];
+                r.signaledThisTurn = true;
+                r.signal(util.signalCoords(goal_pos[0], goal_pos[1], 3), 2);
+                r.enemy_karb_index++;
+                r.bully_preachers_built++;
+                return build(r, SPECS.PREACHER);
+            }
+        }
     }
 }
 
@@ -94,7 +99,7 @@ function defense(r) {
     if (r.preacherTotal === 0  || (r.preacherTotal === 1 && EnemyCount.length > 1)) {
 
         let dir = util.directionTo(r.me.x,r.me.y,r.EnemyPossibleLocation[0],r.EnemyPossibleLocation[1], r);
-        r.log(dir);
+        //r.log(dir);
         let dirR = util.rotateRight(dir,2, 2);
         //r.log(dirR);
         if (robotMap[r.me.y + dirR[1]][r.me.x + dirR[0]] === 0  && r.map[r.me.y + dirR[1]][r.me.x + dirR[0]]) {
