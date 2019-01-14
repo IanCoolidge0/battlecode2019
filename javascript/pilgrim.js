@@ -35,6 +35,8 @@ export function pilgrim_step(r) {
             r.castleTalk(3);
 
             let direction = util.directionTo(r.me.x, r.me.y, visible[i].x, visible[i].y, r);
+            if(direction === undefined)
+                r.log(r.me.x + " " + r.me.y + " " + visible[i].x + " " + visible[i].y);
 
             let newX = r.me.x - direction[0];
             let newY = r.me.y - direction[1];

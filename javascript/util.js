@@ -220,6 +220,10 @@ export function directionTo(x, y, goal_x, goal_y, r) {
         if (dx > 0)return directions('NorthEast');
         else return directions('SouthWest');
     }
+    if (angle > 2.41) {
+        if (dx > 0) return directions('North');
+        else return directions('South');
+    }
 }
 
 export function BFSToLocationInRadius(pass_map, start, end,radius, moves, r) {
