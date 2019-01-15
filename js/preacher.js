@@ -1,9 +1,9 @@
-import * as util from "./util.js"
+import * as util from "./util.js";
+import * as constants from "./constants.js";
 import {SPECS} from 'battlecode';
 
 function init(r) {
-    r.castletalk(util.INIT_CASTLETALK);
-
+    r.castleTalk(constants.INIT_CASTLETALK);
 
 }
 
