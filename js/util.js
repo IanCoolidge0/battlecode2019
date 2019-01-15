@@ -1,5 +1,7 @@
 import {SPECS} from 'battlecode';
 
+
+
 export function getMoves(r) {
     let moves = []
     for(let i=-r;i<=r;i++) {
@@ -46,11 +48,39 @@ export function BFSMap(pass_map,start,moves,r) {
                 current_locations.push(next_location);
             }
         }
+
     }
     return path_finding_map
 }
 
+export function dijkstraMap(influenceMap,start,moves,r) {
+    let pathFindingMap = create2dArray(r.size,r.size,0);
+    let paths = [start];
 
+    while (paths.length > 0) {
+        let shortest_path = paths[0];
+        let shortest_path_index = 0;
+        for (let i = 1;i < paths.length;i++) {
+            let path = paths[i];
+            if (influenceMap[shortest_path.y][shortest_path.x] > influenceMap[path.y][path.x]) {
+                shortest_path = path;
+                shortest_path_index = i;
+            }
+        }
+        paths.splice(shortest_path_index,1);
+        pathFindingMap[shortest_path.y][shortest_path.x] = influenceMap[shortest_path.y][shortest_path.x];
+        for (let i = 0;i < moves.length;i++) {
+            let next = {x:shortest_path.x + moves[i].x, y: shortest_path.y + moves[i].y};
+
+            if (pathFindingMap[next.y][next.x] === 0 && influenceMap[next.y][next.x] !== -1) {
+                paths.push(next);
+            }
+        }
+    }
+    r.log(pathFindingMap);
+
+
+}
 
 
 export function resourceCoords(pass_map, karbonite_map, start, moves, r) {
@@ -74,6 +104,9 @@ export function resourceCoords(pass_map, karbonite_map, start, moves, r) {
                 queue.push(next_location);
             }
         }
+
+
+
     }
 
     return coords;
@@ -204,5 +237,6 @@ export function getFuzzyMoves(r,dx,dy,radius,tolerance) {
                 moves.push(possibleMoves[i]);
         }
     }
-    r.log(moves);
+    return moves;
 }
+
