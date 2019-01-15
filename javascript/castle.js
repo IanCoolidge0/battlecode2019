@@ -190,7 +190,7 @@ export function castle_step(r) {
 
     } else if (r.step > 50) {
         return castlePostRushStep(r);
-    } else {
+    } else if (r.step > 0 ){
         let defenseOutput = defense(r);
         if(defenseOutput !== undefined) {
             r.stepsSinceLastDefense = 0;

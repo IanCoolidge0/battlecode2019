@@ -65,24 +65,19 @@ function givePartnerAction(r) {
         return;
     }
     let distanceBtwnUs = (r.me.x - partner.x) ** 2 + (r.me.y - partner.y) ** 2;
-    // let distanceBtwnUs = (r.me.x - partner.x) ** 2 + (r.me.y - partner.y) ** 2;
-    // let distanceGoalToMe = (r.me.x - r.goal[0]) ** 2 + (r.me.y - r.goal[1]) ** 2;
-    // let distanceGoalToPartner = (partner.x - r.goal[0]) ** 2 + (partner.y - r.goal[1]) ** 2;
-    //
-    // if (distanceBtwnUs > 32) `{
-    //     r.partnerMode = MODE.WAIT;
-    //     r.signal(util.signalCoords(0,0,MODE.WAIT),distanceBtwnUs);
-    // } else if (r.partnerMode !== MODE.PATH_TO_GOAL && distanceBtwnUs < 16) {
-    //     r.partnerMode = MODE.PATH_TO_GOAL;
-    //
-    //     r.signal(util.signalCoords(0,0,MODE.PATH_TO_GOAL),distanceBtwnUs);
+    let distanceGoalToMe = (r.me.x - r.goal[0]) ** 2 + (r.me.y - r.goal[1]) ** 2;
+
 }
 
-
+function micro(r) {
+    let map = r.map()
+}
 
 
 function step(r) {
     if (r.fuel < 200) return;
+
+    for
     if (r.Mode == MODE.FOLLOW_TO_GOAL) {
         let partner = r.getRobot(r.partnerID);
         if (partner === null) return;

@@ -355,3 +355,4 @@ export function withInMap(x,y,r) {
     let size = r.map.length;
     return x >= 0 && y >= 0 && x < size && y < size;
 }
+

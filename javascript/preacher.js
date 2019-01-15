@@ -120,16 +120,8 @@ function getPartnerAction(r) {
         return;
     }
     let distanceBtwnUs = (r.me.x - partner.x) ** 2 + (r.me.y - partner.y) ** 2;
-    // let distanceBtwnUs = (r.me.x - partner.x) ** 2 + (r.me.y - partner.y) ** 2;
-    // if (partner.signal === -1) return;
-    // let partner_signal = util.decodeCoords(partner.signal);
-    //
-    // //r.log("partner " + partner.id + " move: " + partner_signal);
-    // r.mode = partner_signal[2];
-    // if (r.mode === MODE.SPECIFIC_MOVE || r.mode === MODE.SPECIFIC_ATTACK) {
-    //     r.specific_action = [partner_signal[0],partner_signal[1]];
-    //
-    // }
+
+
 
 
 
@@ -139,6 +131,7 @@ function getPartnerAction(r) {
 
 function step(r) {
     if (r.fuel < 200) return;
+
 
     if (r.mode === MODE.LEAD_TO_GOAL) {
 
