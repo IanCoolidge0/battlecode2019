@@ -6,6 +6,7 @@ import {preacher_step} from "./preacher.js";
 import {church_step} from "./church.js";
 import {prophet_step} from "./prophet.js";
 import * as nav from "./nav.js";
+import * as util from "./util.js";
 
 class MyRobot extends BCAbstractRobot {
 
@@ -16,7 +17,7 @@ class MyRobot extends BCAbstractRobot {
 
     turn() {
         this.step++;
-
+        this.log(util.getFuzzyMoves(this, 0, 1, 2, 1));
         if (this.me.unit === SPECS.CRUSADER) {
             return crusader_step(this);
         } else if(this.me.unit === SPECS.PILGRIM) {
