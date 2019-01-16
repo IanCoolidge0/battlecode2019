@@ -106,14 +106,24 @@ function step(r) {
 }
 
 export function prophet_step(r) {
-    if (r.step === 0) {
-        return init(r);
-    } else if (r.partnerID === 0) {
-        //r.log("waiting");
-        waitForPartner(r);
-    } else {
-        givePartnerAction(r);
-        return step(r);
+    let visible = r.getVisibleRobots();
+
+    for(let i=0;i<visible.length;i++) {
+        let dist = (r.me.x - visible[i].x) ** 2 + (r.me.y - visible[i].y) ** 2;
+        if(dist >= 16 && dist <= 64 && visible[i].team !== r.me.team && r.fuel > 30) {
+            return r.attack(visible[i].x - r.me.x, visible[i].y - r.me.y);
+        }
     }
+
+    let moves = util.getMoves(2);
+    let move = moves[Math.floor(Math.random() * moves.length)];
+
+    let newX = r.me.x + move[0];
+    let newY = r.me.y + move[1];
+
+    if(r.fuel >= 15 && newX >= 0 && newY >= 0 && newX < r.map.length && newY < r.map.length && r.map[newY][newX] && r.getVisibleRobotMap()[newY][newX] === 0) {
+        return r.move(move[0], move[1]);
+    }
+
 }
 

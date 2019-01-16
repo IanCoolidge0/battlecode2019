@@ -143,8 +143,7 @@ function castlePostRushInit(r) {
 }
 function castlePostRushStep(r) {
     let robotMap = r.getVisibleRobotMap();
-    if(r.count >= 2)
-        return;
+
     if(r.postRushTotal % 5 === 0 && r.karbonite >= 20 && r.fuel >= 50 && r.fuelIndex < r.fuelCoords.length) {
         r.postRushTotal++;
         r.log("Building Fuel Pilgrim");
@@ -154,29 +153,11 @@ function castlePostRushStep(r) {
         return createUnit(r, SPECS.PILGRIM, [target[0], target[1], util.PILGRIM_JOBS.MINE_FUEL]);
     }
 
-    if (r.currentBuild == SPECS.PREACHER && r.karbonite >= 30 && r.fuel >= 50) {
-        r.count++;
-        r.postRushTotal++;
-
-        r.currentBuild = SPECS.PROPHET;
-        let target = r.enemyKarboniteCoords[r.enemyKarboniteIndex % r.enemyKarboniteCoords.length];
-        r.enemyKarboniteIndex++;
-        r.log("Builted Pillage Preacher");
-        r.signal(util.signalCoords(target[0], target[1], util.PREACHER_JOBS.PILLAGE_KARBONITE),2);
-        return createUnit(r, SPECS.PREACHER, [target[0], target[1], util.PREACHER_JOBS.PILLAGE_KARBONITE]);
-
+    if(r.karbonite >= 25 && r.fuel >= 50) {
+        r.postRushTotal ++;
+        return createUnit(r, SPECS.PROPHET, [0,0,0]);
     }
-    if (r.currentBuild == SPECS.PROPHET && r.karbonite >= 25 && r.fuel >= 50) {
-        r.count++;
-        r.postRushTotal++;
 
-        r.currentBuild = SPECS.PREACHER;
-        let target = r.enemyKarboniteCoords[r.enemyKarboniteIndex % r.enemyKarboniteCoords.length];
-
-        r.log("Builted Pillage Prophet");
-        r.signal(util.signalCoords(target[0], target[1], util.PREACHER_JOBS.PILLAGE_KARBONITE),2);
-        return createUnit(r, SPECS.PROPHET, [target[0], target[1], util.PROPHET_JOBS.PILLAGE_KARBONITE]);
-    }
 }
 export function castle_step(r) {
     if(r.step === 0) {
@@ -192,14 +173,6 @@ export function castle_step(r) {
     } else if (r.step > 50) {
         return castlePostRushStep(r);
     } else {
-        let defenseOutput = defense(r);
-        if(defenseOutput !== undefined) {
-            r.stepsSinceLastDefense = 0;
-            return defenseOutput;
-        }
-        else if(r.step > 0) {
-            r.stepsSinceLastDefense++;
-            return castle_pilgrim_step(r);
-        }
+        return castle_pilgrim_step(r);
     }
 }
