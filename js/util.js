@@ -190,27 +190,29 @@ export function findParentCastle(r) {
 
 //tolerance 0 = 0~30 degrees, 1 =  90~120 degrees, 2 = 180~210 degrees
 export function getFuzzyMoves(r,dx,dy,radius,tolerance) {
-    
+
     let possibleMoves = getMoves(radius);
     let dir = [directionTo(dx, dy, r)];
-    r.log("main dir: " + dir[0]);
+
+
     if (tolerance >= 1) {
         dir.push(rotateRight(dir[0], 1));
         dir.push(rotateLeft(dir[0], 1));
+
     }
     if (tolerance >= 2) {
         dir.push(rotateRight(dir[0],2));
         dir.push(rotateLeft(dir[0],2));
+
     }
+
     let moves = [];
-    for (let i = 0;i < possibleMoves.length;i++) {
-        let currentDir = directionTo(possibleMoves[i][0],possibleMoves[i][1],r);
-        r.log(possibleMoves[i] + ": " + currentDir);
-        for (let j = 0;j < dir.length;j++) {
-            if (currentDir.x === dir[j].x && currentDir.y === dir[j].x)
+    for (let j = 0;j < dir.length;j++) {
+        for (let i = 0;i < possibleMoves.length;i++) {
+            let currentDir = directionTo(possibleMoves[i].x,possibleMoves[i].y,r);
+            if (currentDir.x === dir[j].x && currentDir.y === dir[j].y)
                 moves.push(possibleMoves[i]);
         }
     }
-    //r.log(moves);
     return moves;
 }

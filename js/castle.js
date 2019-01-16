@@ -7,17 +7,18 @@ function attempt_build(r, unit) {
     let vis_map = r.getVisibleRobotMap();
 
     for(let i=0;i<dir_coord.length;i++) {
-        let newX = r.me.x + dir_coord.x;
-        let newY = r.me.y + dir_coord.y;
+        let newX = r.me.x + dir_coord[i].x;
+        let newY = r.me.y + dir_coord[i].y;
 
-        if(r.map[newY][newX] && vis_map[newY][newX] > 0) {
-            return r.build(dir_coord.x, dir_coord.y, unit);
+        if(r.map[newY][newX] && vis_map[newY][newX] === 0) {
+            return r.buildUnit(unit, dir_coord[i].x, dir_coord[i].y);
         }
     }
 }
 
 function build_unit(r,unit_type,target_x,target_y,job) {
-    r.currentAssignment = {x: target_x, y: target_y, code: job};    r.signal(util.signalCoords(target_x, target_y, job));
+    r.currentAssignment = {x: target_x, y: target_y, code: job};
+    r.signal(util.signalCoords(target_x, target_y, job), 2);
     return attempt_build(r, unit_type);
 }
 
@@ -36,6 +37,11 @@ function init(r) {
     r.preacherQueue = [];
     r.prophetQueue = [];
     r.crusaderQueue = [];
+
+    for(let i=0;i<3;i++) {
+        r.buildQueue.push({unit: SPECS.PILGRIM, karbonite: 10, fuel: 10});
+        r.pilgrimQueue.push({x: r.karboniteCoords[i].x, y: r.karboniteCoords[i].y, code: constants.PILGRIM_JOBS.MINE_KARBONITE});
+    }
 }
 
 function step(r) {
@@ -50,7 +56,7 @@ function step(r) {
 
     //build unit from queue
     if(r.buildQueue.length > 0) {
-        if(r.karbonite >= r.buildQueue[0].karbonite && r.fuel >= r.buildQueue[1].fuel) {
+        if(r.karbonite >= r.buildQueue[0].karbonite && r.fuel >= r.buildQueue[0].fuel) {
             let robot_to_build = r.buildQueue.shift();
 
             switch(robot_to_build.unit) {

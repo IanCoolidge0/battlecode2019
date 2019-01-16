@@ -17,7 +17,7 @@ class MyRobot extends BCAbstractRobot {
 
     turn() {
         this.step++;
-        this.log(util.getFuzzyMoves(this, 0, 1, 2, 1));
+
         if (this.me.unit === SPECS.CRUSADER) {
             return crusader_step(this);
         } else if(this.me.unit === SPECS.PILGRIM) {
