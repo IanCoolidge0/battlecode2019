@@ -24,6 +24,21 @@ function moveToResourceStep(r) {
 }
 
 function mineResourceStep(r) {
+    let visible = r.getVisibleRobots();
+    let danger_units = 0;
+    for(let i=0;i<visible.length;i++) {
+        let robot = visible[i];
+        let dist = (r.me.x - robot.x) ** 2 + (r.me.y - robot.y) ** 2;
+
+        if((robot.unit === SPECS.PROPHET && dist <= 64) || (robot.unit === SPECS.PREACHER && dist <= 36) || (robot.unit === SPECS.CRUSADER && dist <= 16))
+            danger_units++;
+    }
+
+    if(danger_units > 0 && (r.me.x - r.parent_castle.x) ** 2 + (r.me.y - r.parent_castle.y) ** 2 >= 25 && !r.requestedReinforcements) {
+        r.castleTalk(constants.PILGRIM_DANGER_CASTLETALK);
+        r.requestedReinforcements = true;
+    }
+
     if(r.currentJob.code === constants.PILGRIM_JOBS.MINE_KARBONITE && r.me.karbonite >= 18)
         r.mode = constants.PILGRIM_MODE.MOVE_TO_CASTLE;
     if(r.currentJob.code === constants.PILGRIM_JOBS.MINE_FUEL && r.me.fuel >= 90)
@@ -71,6 +86,8 @@ function init(r) {
 
     r.job = r.currentJob.code;
     r.mode = constants.PILGRIM_MODE.MOVE_TO_RESOURCE;
+
+    r.requestedReinforcements = false;
 }
 
 export function pilgrim_step(r) {

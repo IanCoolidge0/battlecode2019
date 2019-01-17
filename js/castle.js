@@ -39,13 +39,23 @@ function init(r) {
     r.crusaderQueue = [];
 
     for(let i=0;i<3;i++) {
-        r.buildQueue.push({unit: SPECS.PILGRIM, karbonite: 10, fuel: 10});
+        r.buildQueue.push({unit: SPECS.PILGRIM, karbonite: 10, fuel: 50});
         r.pilgrimQueue.push({x: r.karboniteCoords[i].x, y: r.karboniteCoords[i].y, code: constants.PILGRIM_JOBS.MINE_KARBONITE});
     }
 }
 
 function step(r) {
     let visible = r.getVisibleRobots();
+
+    //queue reinforcements if requested by pilgrim
+    for(let i=0;i<visible.length;i++) {
+        if(visible[i].castle_talk === constants.PILGRIM_DANGER_CASTLETALK) {
+            r.buildQueue.unshift({unit: SPECS.PROPHET, karbonite: 25, fuel: 50});
+            r.prophetQueue.unshift({x: r.createdRobots[visible[i].id].x, y: r.createdRobots[visible[i].id].y, code: constants.PROPHET_JOBS.REINFORCE_PILGRIM})
+        }
+    }
+
+    ///// GENERAL CASTLE CODE /////
 
     //assignment
     for(let i=0;i<visible.length;i++) {
