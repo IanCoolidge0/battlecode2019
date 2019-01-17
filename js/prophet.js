@@ -6,6 +6,11 @@ function init(r) {
     r.castleTalk(constants.INIT_CASTLETALK);
 
 }
+
+export function step(r) {
+
+}
+
 export function prophet_step(r) {
     if (step === 0) {
         init(r);

@@ -1,15 +1,70 @@
+
+
+
 import {SPECS} from 'battlecode';
+
+// export function dijkstraMap(influenceMap,start,moves,r) {
+//     //r.log(start);
+//
+//
+//     let directionMap = create2dArray(r.size,r.size,0);
+//     let distanceMap = create2dArray(r.size,r.size,-1);
+//     distanceMap[start.y][start.x] = 1;
+//     let currentLocations = [start];
+//     let visitedMap = create2dArray(r.size,r.size,false);
+//     visitedMap[start.y][start.x] = true;
+//
+//
+//
+//     while (currentLocations.length > 0) {
+//         let bestDistance = 99999999;
+//         let bestLocIndex =  -1;
+//         let bestMoveIndex = -1;
+//         for (let i = 0;i < currentLocations.length;i++) {
+//             let distance = distanceMap[currentLocations[i].y][currentLocations[i].y];
+//             for (let j = 0;j < moves.length;j++) {
+//                 const next = {x:currentLocations[i].x + moves[j].x, y:currentLocations[i].y + moves[j].y};
+//
+//                 if (!withInMap(next,r) || influenceMap[next.y][next.x] === -1 || directionMap[next.y][next.x] != 0) continue;
+//                 if (bestDistance > distance + influenceMap[next.y][next.x]) {
+//                     bestDistance = distance + influenceMap[next.y][next.x];
+//                     bestLocIndex = i;
+//                     bestMoveIndex = j;
+//
+//                 }
+//
+//             }
+//         }
+//         const bestLoc = {x:currentLocations[i].x + moves[j].x, y:currentLocations[i].y + moves[j].y};
+//         visitedMap[bestLoc.y][bestLoc.x] = true;
+//
+//         distanceMap[bestLoc.y][bestLoc.x] = moves[j];
+//         currentLocations.push(bestLoc);
+//
+//
+//
+//         //r.log('reached' + shortest_path.x + ", " + shortest_path.y);
+//         paths.splice(shortest_path_index,1);
+//         pathFindingMap[shortest_path.y][shortest_path.x] = influenceMap[shortest_path.y][shortest_path.x];
+//
+//         //r.log(paths.length);
+//
+//     }
+//     r.log("map : \n" + pathFindingMap);
+//
+//
+// }
 
 
 
 export function getMoves(r) {
-    let moves = []
+    let moves = [];
     for(let i=-r;i<=r;i++) {
         for(let j=-r;j<=r;j++) {
-            if(i == 0 && j == 0) continue;
+            if(i === 0 && j === 0) continue;
 
             if(i ** 2 + j ** 2 <= r ** 2) {
-                moves.push([i, j]);
+                moves.push({x:i,y:j});
             }
         }
     }
@@ -48,42 +103,14 @@ export function BFSMap(pass_map,start,moves,r) {
                 current_locations.push(next_location);
             }
         }
-
     }
     return path_finding_map
 }
 
-export function dijkstraMap(influenceMap,start,moves,r) {
-    let pathFindingMap = create2dArray(r.size,r.size,0);
-    let paths = [start];
-
-    while (paths.length > 0) {
-        let shortest_path = paths[0];
-        let shortest_path_index = 0;
-        for (let i = 1;i < paths.length;i++) {
-            let path = paths[i];
-            if (influenceMap[shortest_path.y][shortest_path.x] > influenceMap[path.y][path.x]) {
-                shortest_path = path;
-                shortest_path_index = i;
-            }
-        }
-        paths.splice(shortest_path_index,1);
-        pathFindingMap[shortest_path.y][shortest_path.x] = influenceMap[shortest_path.y][shortest_path.x];
-        for (let i = 0;i < moves.length;i++) {
-            let next = {x:shortest_path.x + moves[i].x, y: shortest_path.y + moves[i].y};
-
-            if (pathFindingMap[next.y][next.x] === 0 && influenceMap[next.y][next.x] !== -1) {
-                paths.push(next);
-            }
-        }
-    }
-    r.log(pathFindingMap);
 
 
-}
 
-
-export function resourceCoords(pass_map, karbonite_map, start, moves, r) {
+export function resourceCoords(pass_map, resource_map, start, moves, r) {
     let size = pass_map.length;
     let queue = [start];
     let path_finding_map = create2dArray(size, size, 0)
@@ -92,21 +119,18 @@ export function resourceCoords(pass_map, karbonite_map, start, moves, r) {
     while(queue.length > 0) {
         let location = queue.shift();
 
-        if(karbonite_map[location[1]][location[0]]) {
+        if(resource_map[location.y][location.x]) {
             coords.push(location);
         }
 
         for (let i = 0;i < moves.length;i++) {
-            let next_location = [location[0] + moves[i][0], location[1] + moves[i][1]];
+            let next_location = {x: location.x + moves[i].x, y: location.y + moves[i].y};
 
-            if ( next_location[0] >= 0 && next_location[1] >= 0 && next_location[0] < size && next_location[1] < size && path_finding_map[next_location[1]][next_location[0]] === 0 && pass_map[next_location[1]][next_location[0]] === true) {
-                path_finding_map[next_location[1]][next_location[0]] = 1;
+            if ( next_location.x >= 0 && next_location.y >= 0 && next_location.x < size && next_location.y < size && path_finding_map[next_location.y][next_location.x] === 0 && pass_map[next_location.y][next_location.x] > 0) {
+                path_finding_map[next_location.y][next_location.x] = 1;
                 queue.push(next_location);
             }
         }
-
-
-
     }
 
     return coords;
@@ -117,7 +141,7 @@ export function signalCoords(x, y, code) {
 }
 
 export function decodeCoords(signal) {
-    return [signal % 64, (signal >> 6) % 64, signal >> 12];
+    return {x: signal % 64, y: (signal >> 6) % 64, code: signal >> 12};
 }
 
 export function isHorizontallySymm(r) {
@@ -143,7 +167,7 @@ export function getReflectedCoord(coord,r) {
     }
 }
 export function directions(dir) {
-    let dir_coord = [[0,-1], [1, -1], [1, 0], [1, 1], [0, 1], [-1, 1], [-1, 0], [-1, -1]];
+    let dir_coord = [{x:0,y:-1}, {x:1,y:-1}, {x:1,y:0}, {x:1,y:1}, {x:0,y:1}, {x:-1,y:1}, {x:-1,y:0}, {x:-1,y:-1}];
     if (typeof dir === 'string') {
         let dir_name = ['North', 'NorthEast', 'East', 'SouthEast', 'South', 'SouthWest', 'West', 'NorthWest'];
         return dir_coord[dir_name.indexOf(dir)];
@@ -153,7 +177,7 @@ export function directions(dir) {
 
 }
 
-export function directionTo(dx,dy, r) {
+export function directionTo(dx,dy) {
     dy = -dy;
     if (dy === 0) {
         if (dx > 0) return directions('East');
@@ -196,18 +220,18 @@ export function directionTo(dx,dy, r) {
 }
 
 export function rotateLeft(direction, amount) {
-    let dir_coord = [[-1, -1], [-1, 0], [-1, 1], [0, 1], [1, 1], [1, 0], [1, -1], [0, -1]];
+    let dir_coord = [{x:-1,y:-1}, {x:-1,y:0}, {x:-1,y:1}, {x:0,y:1}, {x:1,y:1}, {x:1,y:0}, {x:1,y:-1}, {x:0,y:-1}];
     let index = 0;
-    while(dir_coord[index][0] != direction[0] || dir_coord[index][1] != direction[1])
+    while(dir_coord[index].x !== direction.x || dir_coord[index].y !== direction.y)
         index++;
 
     return dir_coord[(index + amount) % 8];
 }
 
 export function rotateRight(direction, amount) {
-    let dir_coord = [[0,-1], [1, -1], [1, 0], [1, 1], [0, 1], [-1, 1], [-1, 0], [-1, -1]];
+    let dir_coord = [{x:0,y:-1}, {x:1,y:-1}, {x:1,y:0}, {x:1,y:1}, {x:0,y:1}, {x:-1,y:1}, {x:-1,y:0}, {x:-1,y:-1}];
     let index = 0;
-    while(dir_coord[index][0] != direction[0] || dir_coord[index][1] != direction[1])
+    while(dir_coord[index].x !== direction.x || dir_coord[index].y !== direction.y)
         index++;
 
     return dir_coord[(index + amount) % 8];
@@ -216,27 +240,51 @@ export function rotateRight(direction, amount) {
 
 //tolerance 0 = 0~30 degrees, 1 =  90~120 degrees, 2 = 180~210 degrees
 export function getFuzzyMoves(r,dx,dy,radius,tolerance) {
-    
+
     let possibleMoves = getMoves(radius);
     let dir = [directionTo(dx, dy, r)];
-    r.log("main dir: " + dir[0]);
+
+
     if (tolerance >= 1) {
         dir.push(rotateRight(dir[0], 1));
         dir.push(rotateLeft(dir[0], 1));
+
     }
     if (tolerance >= 2) {
         dir.push(rotateRight(dir[0],2));
         dir.push(rotateLeft(dir[0],2));
+
     }
+
     let moves = [];
-    for (let i = 0;i < possibleMoves.length;i++) {
-        let currentDir = directionTo(possibleMoves[i][0],possibleMoves[i][1],r);
-        r.log(possibleMoves[i] + ": " + currentDir);
-        for (let j = 0;j < dir.length;j++) {
-            if (currentDir[0] === dir[j][0] && currentDir[1] === dir[j][1])
+    for (let j = 0;j < dir.length;j++) {
+        for (let i = 0;i < possibleMoves.length;i++) {
+            let currentDir = directionTo(possibleMoves[i].x,possibleMoves[i].y,r);
+            if (currentDir.x === dir[j].x && currentDir.y === dir[j].y)
                 moves.push(possibleMoves[i]);
         }
     }
     return moves;
 }
+
+export function fuzzyMove(r,dx,dy,radius,tolerance) {
+
+    let moves = getFuzzyMoves(r,dx,dy,radius,tolerance);
+    let rmap = r.getVisibleRobotMap();
+
+    for (let i = 0;i < moves.length;i++) {
+        const next = {x:r.me.x + moves[i].x,y:r.me.y + moves[i].y};
+        if (withInMap(next,r) && r.map[next.y][next.x] && rmap[next.y][next.x] === 0)
+            return r.move(moves[i].x,moves[i].y);
+    }
+}
+
+
+export function withInMap(coord,r) {
+
+    return coord.x >= 0 && coord.y >= 0 && coord.x < r.size && coord.y < r.size;
+}
+
+
+
 

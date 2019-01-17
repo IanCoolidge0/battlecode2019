@@ -19,7 +19,7 @@ export function passMapToUnweighted(pass_map) {
 
     for(let i=0;i<pass_map.length;i++) {
         for(let j=0;j<pass_map.length;j++) {
-            if(pass_map[j][i])
+            if(!pass_map[j][i])
                 out_map[j][i] = -1;
         }
     }
