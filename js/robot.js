@@ -6,6 +6,7 @@ import {preacher_step} from "./preacher.js";
 import {church_step} from "./church.js";
 import {prophet_step} from "./prophet.js";
 import * as nav from "./nav.js";
+import * as util from "./util.js";
 
 class MyRobot extends BCAbstractRobot {
 

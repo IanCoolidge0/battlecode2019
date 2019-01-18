@@ -84,21 +84,21 @@ export function create2dArray(rows, cols, fill) {
 
     return arr;
 }
-export function BFSMap(pass_map,start,moves,r) {
+export function BFSMap(pass_map,start,moves) {
     let size = pass_map.length;
     let path_finding_map = create2dArray(size,size,0);
 
-    path_finding_map[start[1]][start[0]] = 9999999999;
+    path_finding_map[start.y][start.x] = 9999999999;
     let current_locations = [start];
     while (current_locations.length > 0) {
         //r.log(current_locations);
         let location = current_locations.shift();
         for (let i = 0;i < moves.length;i++) {
 
-            let next_location = [location[0] + moves[i][0], location[1] + moves[i][1]];
-            if ( next_location[0] >= 0 && next_location[1] >= 0 && next_location[0] < size && next_location[1] < size && path_finding_map[next_location[1]][next_location[0]] === 0 && pass_map[next_location[1]][next_location[0]] === true) {
+            let next_location = {x: location.x + moves[i].x, y: location.y + moves[i].y};
+            if ( next_location.x >= 0 && next_location.y >= 0 && next_location.x < size && next_location.y < size && path_finding_map[next_location.y][next_location.x] === 0 && pass_map[next_location.y][next_location.x] === true) {
                 //r.log("reached");
-                path_finding_map[next_location[1]][next_location[0]] = moves[i];
+                path_finding_map[next_location.y][next_location.x] = moves[i];
                 //r.log("reached 2")
                 current_locations.push(next_location);
             }
@@ -237,6 +237,13 @@ export function rotateRight(direction, amount) {
     return dir_coord[(index + amount) % 8];
 }
 
+export function findParentCastle(r) {
+    let visible = r.getVisibleRobots();
+    for(let i=0;i<visible.length;i++) {
+        if(visible[i].unit === SPECS.CASTLE && (visible[i].x - r.me.x) ** 2 + (visible[i].y - r.me.y) ** 2 <= 2)
+            return visible[i];
+    }
+}
 
 //tolerance 0 = 0~30 degrees, 1 =  90~120 degrees, 2 = 180~210 degrees
 export function getFuzzyMoves(r,dx,dy,radius,tolerance) {
@@ -271,11 +278,14 @@ export function fuzzyMove(r,dx,dy,radius,tolerance) {
 
     let moves = getFuzzyMoves(r,dx,dy,radius,tolerance);
     let rmap = r.getVisibleRobotMap();
-
     for (let i = 0;i < moves.length;i++) {
+
         const next = {x:r.me.x + moves[i].x,y:r.me.y + moves[i].y};
-        if (withInMap(next,r) && r.map[next.y][next.x] && rmap[next.y][next.x] === 0)
+
+        if (withInMap(next,r) && r.map[next.y][next.x] && rmap[next.y][next.x] === 0) {
+
             return r.move(moves[i].x,moves[i].y);
+        }
     }
 }
 

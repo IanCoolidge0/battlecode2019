@@ -64,3 +64,54 @@ export function bestCombatMoves(r,moves,damageMap) {
         const loc = {x:r.me.x + moves[i].x, y:r.me.y + moves[i].y};
 
 }
+
+export function unitMap(r) {
+
+    let map = util.create2dArray(r.size,r.size,false);
+    for (let i = 0;i < r.size;i++) {
+        for (let j = 0;j < r.size;j++) {
+            if (i % 2 == 0 && j % 2 === 0 && r.map[j][i] && !r.karbonite_map[j][i] && !r.fuel_map[j][i]) {
+                map[j][i] = true;
+            }
+        }
+    }
+    return map;
+}
+
+export function unitLocationsQueue(r,radius) {
+    let unit_location_queue = [];
+
+    let location;
+    for (let i = 2;i < radius;i++) {
+        for (let j = -i;j <= i;j++) {
+            location = {x:r.me.x + i, y:r.me.y + j};
+            if (util.withInMap(location,r) && r.unitMap[location.y][location.x]) {
+                unit_location_queue.push(location);
+            }
+            location = {x:r.me.x - i, y:r.me.y + j};
+            if (util.withInMap(location,r) && r.unitMap[location.y][location.x]) {
+                unit_location_queue.push(location);
+            }
+
+
+
+        }
+        for (let j = -i + 1;j <= i - 1;j++) {
+
+            location = {x:r.me.x + j, y:r.me.y + i};
+            if (util.withInMap(location,r) && r.unitMap[location.y][location.x]) {
+                unit_location_queue.push(location);
+            }
+            location = {x:r.me.x + j, y:r.me.y - i};
+            if (util.withInMap(location,r) && r.unitMap[location.y][location.x]) {
+                unit_location_queue.push(location);
+            }
+
+
+        }
+
+
+    }
+    r.log(unit_location_queue);
+    return unit_location_queue;
+}

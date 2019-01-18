@@ -8,22 +8,25 @@ function attempt_build(r, unit) {
     let vis_map = r.getVisibleRobotMap();
 
     for(let i=0;i<dir_coord.length;i++) {
-        let newX = r.me.x + dir_coord.x;
-        let newY = r.me.y + dir_coord.y;
+        let newX = r.me.x + dir_coord[i].x;
+        let newY = r.me.y + dir_coord[i].y;
 
-        if(r.map[newY][newX] && vis_map[newY][newX] > 0) {
-            return r.build(dir_coord.x, dir_coord.y, unit);
+        if(r.map[newY][newX] && vis_map[newY][newX] === 0) {
+
+            return r.buildUnit(unit, dir_coord[i].x, dir_coord[i].y);
         }
     }
 }
 
 function build_unit(r,unit_type,target_x,target_y,job) {
     r.currentAssignment = {x: target_x, y: target_y, code: job};
-    r.signal(util.signalCoords(target_x, target_y, job));
+    r.signal(util.signalCoords(target_x, target_y, job), 2);
+    r.log("built " + unit_type + " at: " + target_x + ", " + target_y + "  job: " + job);
     return attempt_build(r, unit_type);
 }
 
 function init(r) {
+
     r.size = r.map.length;
     r.numOfCastle = r.getVisibleRobots().length;
     r.HSymm = util.isHorizontallySymm(r);
@@ -31,23 +34,48 @@ function init(r) {
     r.karboniteCoords = util.resourceCoords(r.map, r.karbonite_map, {x:r.me.x, y:r.me.y}, util.getMoves(2));
     r.fuelCoords = util.resourceCoords(r.map, r.fuel_map, {x:r.me.x, y:r.me.y}, util.getMoves(2));
     r.createdRobots = {};
-
-    //queues
-    /**Build queue: {unit: SPECS.UNIT_TYPE, karbonite: minimum karbonite required to build, fuel: minimum fuel required to build}
-
-     Unit queue: {x, y, code} for a job**/
-
-     r.buildQueue = [];
+    r.unitMap = combat.unitMap(r);
+    for (let i = 0;i < r.size;i++) {
+        let str = "";
+        for (let j = 0;j < r.size;j++) {
+            if (r.unitMap[i][j])
+                str += '1';
+            else
+                str += '0';
+        }
+        r.log(str);
+    }
+    //r.log(r.unitMap);
+    r.unitLocationQueue = combat.unitLocationsQueue(r,10);
+    r.log(r.unitLocationQueue.length + " possible units");
+    r.buildQueue = [];
     r.pilgrimQueue = [];
     r.preacherQueue = [];
     r.prophetQueue = [];
     r.crusaderQueue = [];
 
 
+    for(let i=0;i<3;i++) {
+        r.buildQueue.push({unit: SPECS.PILGRIM, karbonite: 10, fuel: 50});
+        r.pilgrimQueue.push({x: r.karboniteCoords[i].x, y: r.karboniteCoords[i].y, code: constants.PILGRIM_JOBS.MINE_KARBONITE});
+    }
+    for(let i=0;i<3;i++) {
+        r.buildQueue.push({unit: SPECS.PILGRIM, karbonite: 10, fuel: 50});
+        r.pilgrimQueue.push({x: r.fuelCoords[i].x, y: r.fuelCoords[i].y, code: constants.PILGRIM_JOBS.MINE_FUEL});
+    }
+
+    r.log("prophet job");
+    for (let i=0;i<r.unitLocationQueue.length;i++) {
+        r.buildQueue.push({unit: SPECS.PROPHET,karbonite:25, fuel: 1000});
+        r.prophetQueue.push({x:r.unitLocationQueue[i].x, y: r.unitLocationQueue[i].y, code: constants.PROPHET_JOBS.DEFEND_GOAL});
+    }
+
 }
 
 function step(r) {
     let visible = r.getVisibleRobots();
+
+    ///// GENERAL CASTLE CODE /////
 
     //assignment
     for(let i=0;i<visible.length;i++) {
@@ -57,9 +85,8 @@ function step(r) {
     }
 
     //build unit from queue
-
     if(r.buildQueue.length > 0) {
-        if(r.karbonite >= r.buildQueue[0].karbonite && r.fuel >= r.buildQueue[1].fuel) {
+        if(r.karbonite >= r.buildQueue[0].karbonite * r.numOfCastle && r.fuel >= r.buildQueue[0].fuel) {
             let robot_to_build = r.buildQueue.shift();
 
             switch(robot_to_build.unit) {
@@ -79,7 +106,7 @@ function step(r) {
 
                 case SPECS.PROPHET:
                     if(r.prophetQueue.length > 0) {
-                        let job = r.crusaderQueue.shift();
+                        let job = r.prophetQueue.shift();
                         return build_unit(r, SPECS.PROPHET, job.x, job.y, job.code);
                     }
                     break;
@@ -96,17 +123,15 @@ function step(r) {
 
 }
 
-function turn1_to_50() {
-    r.buildQueue.push({unit:SPECS.PROPHET,karbonite:25,fuel});
-    r.prophetQueue.push({x:0,y:0,code:constants.PROPHET_JOB.DEFEND_GOAL});
-}
+
+
 
 
 export function castle_step(r) {
+
     if (r.step === 0) {
         init(r);
     } else if (r.step > 0) {
-        turn1_to_50();
         return step(r);
     }
 
