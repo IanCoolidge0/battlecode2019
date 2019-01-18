@@ -50,14 +50,14 @@ export function BFSMap(pass_map,start,moves) {
     return path_finding_map
 }
 
-
-
-
 export function resourceCoords(pass_map, resource_map, start, moves, r) {
     let size = pass_map.length;
     let queue = [start];
-    let path_finding_map = create2dArray(size, size, 0)
+    let path_finding_map = create2dArray(size, size, 0);
     let coords = [];
+
+    let hsymm = isHorizontallySymm(r);
+    let side = hsymm ? r.me.y > r.map.length / 2 : r.me.x > r.map.length / 2;
 
     while(queue.length > 0) {
         let location = queue.shift();
@@ -68,8 +68,9 @@ export function resourceCoords(pass_map, resource_map, start, moves, r) {
 
         for (let i = 0;i < moves.length;i++) {
             let next_location = {x: location.x + moves[i].x, y: location.y + moves[i].y};
+            let next_side = hsymm ? next_location.y > r.map.length / 2 : next_location.x > r.map.length / 2;
 
-            if ( next_location.x >= 0 && next_location.y >= 0 && next_location.x < size && next_location.y < size && path_finding_map[next_location.y][next_location.x] === 0 && pass_map[next_location.y][next_location.x] > 0) {
+            if ( next_location.x >= 0 && next_location.y >= 0 && next_location.x < size && next_location.y < size && path_finding_map[next_location.y][next_location.x] === 0 && pass_map[next_location.y][next_location.x] > 0 && next_side === side) {
                 path_finding_map[next_location.y][next_location.x] = 1;
                 queue.push(next_location);
             }

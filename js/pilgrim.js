@@ -34,9 +34,8 @@ function mineResourceStep(r) {
             danger_units++;
     }
 
-    if(danger_units > 0 && (r.me.x - r.parent_castle.x) ** 2 + (r.me.y - r.parent_castle.y) ** 2 >= 25 && !r.requestedReinforcements) {
+    if(danger_units > 0 && (r.me.x - r.parent_castle.x) ** 2 + (r.me.y - r.parent_castle.y) ** 2 >= 25) {
         r.castleTalk(constants.PILGRIM_DANGER_CASTLETALK);
-        r.requestedReinforcements = true;
     }
 
     if(r.currentJob.code === constants.PILGRIM_JOBS.MINE_KARBONITE && r.me.karbonite >= 18)
@@ -94,7 +93,7 @@ export function pilgrim_step(r) {
     if (r.step === 0) {
         init(r);
     }
-
+    r.castleTalk(124);
     switch(r.mode) {
         case constants.PILGRIM_MODE.MOVE_TO_RESOURCE:
             return moveToResourceStep(r);

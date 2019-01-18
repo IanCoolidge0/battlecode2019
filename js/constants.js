@@ -14,9 +14,15 @@ export const PILGRIM_MODE = {
 };
 
 export const PROPHET_JOBS = {
-    REINFORCE_PILGRIM: 0
+    REINFORCE_RESOURCE: 0
 };
 
 export const PROPHET_MODE = {
-    PATH_TO_GOAL: 0
+    PATH_TO_GOAL: 0,
+    REINFORCE: 1
+};
+
+export const SIGNAL_CODE = {
+    REQUEST_REASSIGN: 0,
+    CASTLE_POS: 1
 };
