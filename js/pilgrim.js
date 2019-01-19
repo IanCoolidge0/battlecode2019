@@ -93,8 +93,8 @@ function init(r) {
 export function pilgrim_step(r) {
     if (r.step === 0) {
         init(r);
-    }
-    r.castleTalk(124);
+    } else
+        r.castleTalk(124);
     switch(r.mode) {
         case constants.PILGRIM_MODE.MOVE_TO_RESOURCE:
             return moveToResourceStep(r);

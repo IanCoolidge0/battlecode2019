@@ -24,7 +24,7 @@ function init(r) {
 
 
 export function step(r) {
-    r.castleTalk(121);
+
     if (r.fuel < 300) return;
     if (r.mode !== constants.PROPHET_MODE.ATTACK && combat.enemyInRange(r)) {
         r.log("CHANGE MODE TO ATTACK");
@@ -49,6 +49,7 @@ export function step(r) {
     if (r.mode === constants.PROPHET_MODE.ATTACK) {
         return mode.prophet_attack(r);
     }
+
 
 
 }
@@ -96,7 +97,8 @@ function pathToGoalStep(r) {
 export function prophet_step(r) {
     if (r.step === 0) {
         init(r);
-    }
+    } else
+        r.castleTalk(124);
     return step(r);
     // switch(r.mode) {
     //     case constants.PROPHET_MODE.PATH_TO_GOAL:
@@ -105,12 +107,12 @@ export function prophet_step(r) {
     // }
 
 
-    switch(r.mode) {
-        case constants.PROPHET_MODE.PATH_TO_GOAL:
-            return pathToGoalStep(r);
-            break;
-        case constants.PROPHET_MODE.REINFORCE:
-            return reinforceStep(r);
-            break;
-    }
+    // switch(r.mode) {
+    //     case constants.PROPHET_MODE.PATH_TO_GOAL:
+    //         return pathToGoalStep(r);
+    //         break;
+    //     case constants.PROPHET_MODE.REINFORCE:
+    //         return reinforceStep(r);
+    //         break;
+    // }
 }

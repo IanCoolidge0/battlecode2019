@@ -91,20 +91,7 @@ function init(r) {
     //r.castleTalk(1);
     let robots = r.getVisibleRobots();
 
-    for(let i=0;i<3;i++) {
-        r.buildQueue.push({unit: SPECS.PILGRIM, karbonite: 10, fuel: 50});
-        r.pilgrimQueue.push({x: r.karboniteCoords[i].x, y: r.karboniteCoords[i].y, code: constants.PILGRIM_JOBS.MINE_KARBONITE});
-    }
-    for(let i=0;i<3;i++) {
-        r.buildQueue.push({unit: SPECS.PILGRIM, karbonite: 10, fuel: 50});
-        r.pilgrimQueue.push({x: r.fuelCoords[i].x, y: r.fuelCoords[i].y, code: constants.PILGRIM_JOBS.MINE_FUEL});
-    }
 
-    r.log("prophet job");
-    for (let i=0;i<r.unitLocationQueue.length;i++) {
-        r.buildQueue.push({unit: SPECS.PROPHET,karbonite:25, fuel: 200});
-        r.prophetQueue.push({x:r.unitLocationQueue[i].x, y: r.unitLocationQueue[i].y, code: constants.PROPHET_JOBS.DEFEND_GOAL});
-    }
 
 
     //signal
@@ -147,6 +134,8 @@ function turn1step(r) {
         }
     }
 
+
+
     //find responsible fuel locs
     for(let i=0;i<r.fuelCoords.length;i++) {
         let amIresponsible = true;
@@ -164,13 +153,21 @@ function turn1step(r) {
         }
     }
 
+    r.log("prophet job");
+    for (let i=0;i<r.unitLocationQueue.length;i++) {
+        r.buildQueue.push({unit: SPECS.PROPHET,karbonite:25, fuel: 200});
+        r.prophetQueue.push({x:r.unitLocationQueue[i].x, y: r.unitLocationQueue[i].y, code: constants.PROPHET_JOBS.DEFEND_GOAL});
+    }
+
     r.church_locations = util.sortClusters(util.getResourceClusters(r.karbonite_map, constants.CLUSTER_RADIUS, r), r.castles);
+
 }
 
 function step(r) {
     let visible = r.getVisibleRobots();
 
-
+    r.log("created robots");
+    r.log(r.createdRobots);
     //queue reinforcements if requested by pilgrim
     for(let i=0;i<visible.length;i++) {
         if(visible[i].castle_talk === constants.PILGRIM_DANGER_CASTLETALK) {
@@ -217,6 +214,7 @@ function step(r) {
     //assignment
     for(let i=0;i<visible.length;i++) {
         if(visible[i].castle_talk === constants.INIT_CASTLETALK) {
+            r.log('added');
             r.createdRobots[visible[i].id] = {unit: r.unit, x: r.currentAssignment.x, y: r.currentAssignment.y, code: r.currentAssignment.code};
         }
     }
