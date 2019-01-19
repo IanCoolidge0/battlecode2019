@@ -60,6 +60,7 @@ function init(r) {
     r.fuelCoords = util.resourceCoords(r.map, r.fuel_map, {x:r.me.x, y:r.me.y}, util.getMoves(2), r);
     r.createdRobots = {};
     r.castles = [];
+    r.order = 0;
 
     //queues
     r.buildQueue = [];
@@ -76,6 +77,8 @@ function init(r) {
     for(let i=0;i<visible.length;i++) {
         if(util.decodeCoords(visible[i].signal).code === constants.SIGNAL_CODE.CASTLE_POS) {
             r.castles.push({id: visible[i].id, x: visible[i].x, y: visible[i].y});
+            if(r.me.team === visible[i].team)
+                r.order++;
         }
     }
 }
@@ -105,6 +108,8 @@ function turn1step(r) {
             r.pilgrimQueue.push({x: r.karboniteCoords[i].x, y: r.karboniteCoords[i].y, code: constants.PILGRIM_JOBS.MINE_KARBONITE});
         }
     }
+
+    r.church_locations = util.sortClusters(util.getResourceClusters(r.karbonite_map, constants.CLUSTER_RADIUS, r), r.castles);
 }
 
 function step(r) {
@@ -113,8 +118,8 @@ function step(r) {
     //queue reinforcements if requested by pilgrim
     for(let i=0;i<visible.length;i++) {
         if(visible[i].castle_talk === constants.PILGRIM_DANGER_CASTLETALK) {
-            r.buildQueue.unshift({unit: SPECS.PROPHET, karbonite: 25, fuel: 50});
-            r.prophetQueue.unshift({x: r.createdRobots[visible[i].id].x, y: r.createdRobots[visible[i].id].y, code: constants.PROPHET_JOBS.REINFORCE_PILGRIM})
+            r.buildQueue.unshift({unit: SPECS.PROPHET, karbonite: 25, fuel: 200});
+            r.prophetQueue.unshift({x: r.createdRobots[visible[i].id].x, y: r.createdRobots[visible[i].id].y, code: constants.PROPHET_JOBS.REINFORCE_RESOURCE})
         }
     }
 
@@ -131,7 +136,7 @@ function step(r) {
         }
 
         if(!alive) {
-            r.log('what');
+            r.log("A unit died.");
             if(robot.code === constants.PILGRIM_JOBS.MINE_KARBONITE) {
                 r.buildQueue.push({unit: SPECS.PILGRIM, karbonite: 10, fuel: 200});
                 r.pilgrimQueue.push({x: robot.x, y: robot.y, code: constants.PILGRIM_JOBS.MINE_KARBONITE});
@@ -159,7 +164,7 @@ function step(r) {
 
     //build unit from queue
     if(r.buildQueue.length > 0) {
-        if(r.karbonite >= r.buildQueue[0].karbonite * r.numOfCastle && r.fuel >= r.buildQueue[0].fuel) {
+        if(r.karbonite >= r.buildQueue[0].karbonite * (r.numOfCastle - r.order) && r.fuel >= r.buildQueue[0].fuel) {
             let robot_to_build = r.buildQueue.shift();
 
             switch(robot_to_build.unit) {
@@ -192,6 +197,11 @@ function step(r) {
                     break;
             }
         }
+    }
+
+    for(let i=0;i<visible.length;i++) {
+        if(visible[i].team !== r.me.team)
+            return r.attack(visible[i].x - r.me.x, visible[i].y - r.me.y);
     }
 
 }

@@ -217,3 +217,49 @@ export function getFuzzyMoves(r,dx,dy,radius,tolerance) {
     }
     return moves;
 }
+
+export function getResourceClusters(resource_map, cluster_radius, r) {
+    let coords = resourceCoords(r.map, resource_map, {x: r.me.x, y: r.me.y}, getMoves(2), r);
+
+    let centers = [];
+
+    while(coords.length > 0) {
+        let center = coords[0];
+        centers.unshift({x: 0, y: 0, count: 0});
+
+        let j = 0;
+        for(let i=0;i<coords.length;i++) {
+            if((coords[i].x - center.x) ** 2 + (coords[i].y - center.y) ** 2 >= cluster_radius ** 2) {
+                coords[j++] = coords[i];
+            } else {
+                centers[0].count++;
+                centers[0].x += coords[i].x;
+                centers[0].y += coords[i].y;
+            }
+        }
+        centers[0].x = Math.floor(centers[0].x / centers[0].count);
+        centers[0].y = Math.floor(centers[0].y / centers[0].count);
+        coords.length = j;
+    }
+
+    return centers;
+}
+
+export function churchScore(cluster, castle_pos) {
+    let minCastleDist = 99999999;
+
+    for(let i=0;i<castle_pos.length;i++) {
+        if ((castle_pos[i].x - cluster.x) ** 2 + (castle_pos[i].y - cluster.y) ** 2 < minCastleDist)
+            minCastleDist = (castle_pos[i].x - cluster.x) ** 2 + (castle_pos[i].y - cluster.y) ** 2;
+    }
+
+    return minCastleDist + cluster.count;
+}
+
+export function sortClusters(clusters, castle_pos) {
+    return clusters.sort(function(a, b) {
+        let x = churchScore(a, castle_pos);
+        let y = churchScore(b, castle_pos);
+        return ((x < y) ? -1 : ((x > y) ? 1 : 0));
+    });
+}

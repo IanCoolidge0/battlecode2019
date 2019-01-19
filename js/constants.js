@@ -2,6 +2,8 @@
 export const INIT_CASTLETALK = 255;
 export const PILGRIM_DANGER_CASTLETALK = 1;
 
+export const CLUSTER_RADIUS = 5;
+
 export const PILGRIM_JOBS = {
     MINE_KARBONITE: 0,
     MINE_FUEL: 1
