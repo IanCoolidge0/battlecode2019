@@ -1,12 +1,8 @@
 
 export const INIT_CASTLETALK = 255;
-
-
-
-
-
-
 export const PILGRIM_DANGER_CASTLETALK = 1;
+
+export const CLUSTER_RADIUS = 5;
 
 export const PILGRIM_JOBS = {
     MINE_KARBONITE: 0,
@@ -20,13 +16,27 @@ export const PILGRIM_MODE = {
 };
 
 export const PROPHET_JOBS = {
+
     REINFORCE_PILGRIM: 0,
-    DEFEND_GOAL: 1
+    DEFEND_GOAL: 1,
+
+
+
 };
 
 export const PROPHET_MODE = {
     PATH_TO_GOAL: 0,
     DEFEND: 1,
-    ATTACK: 2
+    ATTACK: 2,
+    REINFORCE: 3
+};
+
+
+
+
+
+export const SIGNAL_CODE = {
+    REQUEST_REASSIGN: 0,
+    CASTLE_POS: 1
 };
 
