@@ -74,7 +74,8 @@ export function get_attacks(r,unit) {
 export function prophet_kiting(r,damageMap) {
     if (damageMap[r.me.y][r.me.x] === 0) {
         let attack = simple_attack(r,SPECS.PROPHET);
-        return r.attack(attack.x,attack.y);
+        if(attack !== undefined)
+            return r.attack(attack.x,attack.y);
     }
     let moves = util.getMoves(2);
     let rmap = r.getVisibleRobotMap();
@@ -88,7 +89,8 @@ export function prophet_kiting(r,damageMap) {
     if (r.me.health > 10) {
         if (damageMap[r.me.y][r.me.x] === 10) {
             let attack = simple_attack(r,SPECS.PROPHET);
-            return r.attack(attack.x,attack.y);
+            if(attack !== undefined)
+                return r.attack(attack.x,attack.y);
         }
         for (let i = 0;i < moves.length;i++) {
             const next = {x:r.me.x + moves[i].x,y:r.me.y + moves[i].y};
@@ -99,7 +101,8 @@ export function prophet_kiting(r,damageMap) {
         }
     }
     let attack = simple_attack(r,SPECS.PROPHET);
-    return r.attack(attack.x,attack.y);
+    if(attack !== undefined)
+        return r.attack(attack.x,attack.y);
 
 
 
@@ -182,11 +185,31 @@ export function unitMap(r) {
     return map;
 }
 
+export function unitMap2(r) {
+
+    let map = util.create2dArray(r.size, r.size, false);
+    let enemyCastle = util.getReflectedCoord({x: r.me.x, y: r.me.y}, r);
+
+    for(let i=0;i<r.size;i++) {
+        for(let j=0;j<r.size;j++) {
+            if(i % 2 === 0 && j % 2 === 0 && r.map[j][i] && !r.karbonite_map[j][i] && !r.fuel_map[j][i]) {
+                let enemyCastleDir = util.directionTo(enemyCastle.x - r.me.x, enemyCastle.y - r.me.y);
+                let unitDir = util.directionTo(i - r.me.x, j - r.me.y);
+
+                if(util.similar(enemyCastleDir, unitDir))
+                    map[j][i] = true;
+            }
+        }
+    }
+    r.log(map);
+    return map;
+}
+
 export function unitLocationsQueue(r,radius) {
     let unit_location_queue = [];
 
     let location;
-    for (let i = 2;i < radius;i++) {
+    for (let i = radius;i >= 2;i--) {
 
         for (let j = -i;j <= i;j++) {
             location = {x:r.me.x + i, y:r.me.y + j};
