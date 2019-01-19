@@ -24,6 +24,7 @@ function init(r) {
 
 
 export function step(r) {
+    r.castleTalk(121);
     if (r.fuel < 300) return;
     if (r.mode !== constants.PROPHET_MODE.ATTACK && combat.enemyInRange(r)) {
         r.log("CHANGE MODE TO ATTACK");

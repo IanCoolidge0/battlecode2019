@@ -88,17 +88,8 @@ function init(r) {
     r.prophetQueue = [];
     r.crusaderQueue = [];
 
-    r.castleTalk(1);
+    //r.castleTalk(1);
     let robots = r.getVisibleRobots();
-    // r.multiplier = r.numOfCastle;
-    // for (let i = 0;i < robots.length;i++) {
-    //     if (robots[i].team === r.me.team && robots[i].castle_talk === 1) {
-    //         r.multiplier--;
-    //
-    //     }
-    //
-    // }
-    // r.log("karbon multi: " + r.multiplier);
 
     for(let i=0;i<3;i++) {
         r.buildQueue.push({unit: SPECS.PILGRIM, karbonite: 10, fuel: 50});
