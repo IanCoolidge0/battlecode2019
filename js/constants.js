@@ -27,5 +27,6 @@ export const PROPHET_JOBS = {
 export const PROPHET_MODE = {
     PATH_TO_GOAL: 0,
     DEFEND: 1,
+    ATTACK: 2
 };
 

@@ -35,18 +35,18 @@ function init(r) {
     r.fuelCoords = util.resourceCoords(r.map, r.fuel_map, {x:r.me.x, y:r.me.y}, util.getMoves(2));
     r.createdRobots = {};
     r.unitMap = combat.unitMap(r);
-    for (let i = 0;i < r.size;i++) {
-        let str = "";
-        for (let j = 0;j < r.size;j++) {
-            if (r.unitMap[i][j])
-                str += '1';
-            else
-                str += '0';
-        }
-        r.log(str);
-    }
+    // for (let i = 0;i < r.size;i++) {
+    //     let str = "";
+    //     for (let j = 0;j < r.size;j++) {
+    //         if (r.unitMap[i][j])
+    //             str += '1';
+    //         else
+    //             str += '0';
+    //     }
+    //     r.log(str);
+    // }
     //r.log(r.unitMap);
-    r.unitLocationQueue = combat.unitLocationsQueue(r,10);
+    r.unitLocationQueue = combat.unitLocationsQueue(r,20);
     r.log(r.unitLocationQueue.length + " possible units");
     r.buildQueue = [];
     r.pilgrimQueue = [];
@@ -54,6 +54,17 @@ function init(r) {
     r.prophetQueue = [];
     r.crusaderQueue = [];
 
+    r.castleTalk(1);
+    let robots = r.getVisibleRobots();
+    // r.multiplier = r.numOfCastle;
+    // for (let i = 0;i < robots.length;i++) {
+    //     if (robots[i].team === r.me.team && robots[i].castle_talk === 1) {
+    //         r.multiplier--;
+    //
+    //     }
+    //
+    // }
+    // r.log("karbon multi: " + r.multiplier);
 
     for(let i=0;i<3;i++) {
         r.buildQueue.push({unit: SPECS.PILGRIM, karbonite: 10, fuel: 50});
@@ -66,7 +77,7 @@ function init(r) {
 
     r.log("prophet job");
     for (let i=0;i<r.unitLocationQueue.length;i++) {
-        r.buildQueue.push({unit: SPECS.PROPHET,karbonite:25, fuel: 1000});
+        r.buildQueue.push({unit: SPECS.PROPHET,karbonite:25, fuel: 200});
         r.prophetQueue.push({x:r.unitLocationQueue[i].x, y: r.unitLocationQueue[i].y, code: constants.PROPHET_JOBS.DEFEND_GOAL});
     }
 
@@ -86,7 +97,7 @@ function step(r) {
 
     //build unit from queue
     if(r.buildQueue.length > 0) {
-        if(r.karbonite >= r.buildQueue[0].karbonite * r.numOfCastle && r.fuel >= r.buildQueue[0].fuel) {
+        if(r.karbonite >= r.buildQueue[0].karbonite  && r.fuel >= r.buildQueue[0].fuel + 200) {
             let robot_to_build = r.buildQueue.shift();
 
             switch(robot_to_build.unit) {
@@ -128,7 +139,9 @@ function step(r) {
 
 
 export function castle_step(r) {
-
+    if (r.step % 100 === 0) {
+        r.log("STEP: " + r.step);
+    }
     if (r.step === 0) {
         init(r);
     } else if (r.step > 0) {

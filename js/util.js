@@ -71,6 +71,21 @@ export function getMoves(r) {
     return moves;
 }
 
+export function getMoves2(r_squared) {
+    let r = Math.floor(Math.sqrt(r_squared));
+    let moves = [];
+    for(let i=-r;i<=r;i++) {
+        for(let j=-r;j<=r;j++) {
+            if(i === 0 && j === 0) continue;
+
+            if(i ** 2 + j ** 2 <= r_squared) {
+                moves.push({x:i,y:j});
+            }
+        }
+    }
+    return moves;
+}
+
 export function create2dArray(rows, cols, fill) {
     let arr = [];
 
@@ -277,6 +292,49 @@ export function getFuzzyMoves(r,dx,dy,radius,tolerance) {
 export function fuzzyMove(r,dx,dy,radius,tolerance) {
 
     let moves = getFuzzyMoves(r,dx,dy,radius,tolerance);
+    let rmap = r.getVisibleRobotMap();
+    for (let i = 0;i < moves.length;i++) {
+
+        const next = {x:r.me.x + moves[i].x,y:r.me.y + moves[i].y};
+
+        if (withInMap(next,r) && r.map[next.y][next.x] && rmap[next.y][next.x] === 0) {
+
+            return r.move(moves[i].x,moves[i].y);
+        }
+    }
+}
+
+export function getFuzzyMoves2(r,dx,dy,possibleMoves,tolerance) {
+
+
+    let dir = [directionTo(dx, dy, r)];
+
+
+    if (tolerance >= 1) {
+        dir.push(rotateRight(dir[0], 1));
+        dir.push(rotateLeft(dir[0], 1));
+
+    }
+    if (tolerance >= 2) {
+        dir.push(rotateRight(dir[0],2));
+        dir.push(rotateLeft(dir[0],2));
+
+    }
+
+    let moves = [];
+    for (let j = 0;j < dir.length;j++) {
+        for (let i = 0;i < possibleMoves.length;i++) {
+            let currentDir = directionTo(possibleMoves[i].x,possibleMoves[i].y,r);
+            if (currentDir.x === dir[j].x && currentDir.y === dir[j].y)
+                moves.push(possibleMoves[i]);
+        }
+    }
+    return moves;
+}
+
+export function fuzzyMove2(r,dx,dy,possibleMoves,tolerance) {
+
+    let moves = getFuzzyMoves(r,dx,dy,possibleMoves,tolerance);
     let rmap = r.getVisibleRobotMap();
     for (let i = 0;i < moves.length;i++) {
 
