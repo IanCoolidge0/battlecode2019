@@ -6,7 +6,8 @@ export const CLUSTER_RADIUS = 5;
 
 export const PILGRIM_JOBS = {
     MINE_KARBONITE: 0,
-    MINE_FUEL: 1
+    MINE_FUEL: 1,
+    BUILD_CHURCH: 2
 };
 
 export const PILGRIM_MODE = {

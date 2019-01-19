@@ -109,7 +109,25 @@ function turn1step(r) {
         }
     }
 
+    //find responsible fuel locs
+    for(let i=0;i<r.fuelCoords.length;i++) {
+        let amIresponsible = true;
+        for(let j=0;j<r.castles.length;j++) {
+            let dist = (r.castles[j].x - r.fuelCoords[i].x) ** 2 + (r.castles[j].y - r.fuelCoords[i].y) ** 2;
+            if(dist < (r.me.x - r.fuelCoords[i].x) ** 2 + (r.me.y - r.fuelCoords[i].y) ** 2) {
+                amIresponsible = false;
+                break;
+            }
+        }
+
+        if(amIresponsible) {
+            r.buildQueue.push({unit: SPECS.PILGRIM, karbonite: 10, fuel: 200});
+            r.pilgrimQueue.push({x: r.fuelCoords[i].x, y: r.fuelCoords[i].y, code: constants.PILGRIM_JOBS.MINE_FUEL});
+        }
+    }
+
     r.church_locations = util.sortClusters(util.getResourceClusters(r.karbonite_map, constants.CLUSTER_RADIUS, r), r.castles);
+    r.log(r.church_locations);
 }
 
 function step(r) {
@@ -137,12 +155,14 @@ function step(r) {
 
         if(!alive) {
             r.log("A unit died.");
-            if(robot.code === constants.PILGRIM_JOBS.MINE_KARBONITE) {
-                r.buildQueue.push({unit: SPECS.PILGRIM, karbonite: 10, fuel: 200});
-                r.pilgrimQueue.push({x: robot.x, y: robot.y, code: constants.PILGRIM_JOBS.MINE_KARBONITE});
-            } else if(robot.code === constants.PILGRIM_JOBS.MINE_FUEL) {
-                r.buildQueue.push({unit: SPECS.PILGRIM, karbonite: 10, fuel: 200});
-                r.pilgrimQueue.push({x: robot.x, y: robot.y, code: constants.PILGRIM_JOBS.MINE_FUEL});
+            if(robot.unit === SPECS.PILGRIM) {
+                if (robot.code === constants.PILGRIM_JOBS.MINE_KARBONITE) {
+                    r.buildQueue.push({unit: SPECS.PILGRIM, karbonite: 10, fuel: 200});
+                    r.pilgrimQueue.push({x: robot.x, y: robot.y, code: constants.PILGRIM_JOBS.MINE_KARBONITE});
+                } else if (robot.code === constants.PILGRIM_JOBS.MINE_FUEL) {
+                    r.buildQueue.push({unit: SPECS.PILGRIM, karbonite: 10, fuel: 200});
+                    r.pilgrimQueue.push({x: robot.x, y: robot.y, code: constants.PILGRIM_JOBS.MINE_FUEL});
+                }
             }
 
             toRemove.push(myRobots[i]);
@@ -158,7 +178,7 @@ function step(r) {
     //assignment
     for(let i=0;i<visible.length;i++) {
         if(visible[i].castle_talk === constants.INIT_CASTLETALK) {
-            r.createdRobots[visible[i].id] = r.currentAssignment;
+            r.createdRobots[visible[i].id] = {unit: r.unit, x: r.currentAssignment.x, y: r.currentAssignment.y, code: r.currentAssignment.code};
         }
     }
 

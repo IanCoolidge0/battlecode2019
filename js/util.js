@@ -253,13 +253,13 @@ export function churchScore(cluster, castle_pos) {
             minCastleDist = (castle_pos[i].x - cluster.x) ** 2 + (castle_pos[i].y - cluster.y) ** 2;
     }
 
-    return minCastleDist + cluster.count;
+    return cluster.count;
 }
 
 export function sortClusters(clusters, castle_pos) {
     return clusters.sort(function(a, b) {
         let x = churchScore(a, castle_pos);
         let y = churchScore(b, castle_pos);
-        return ((x < y) ? -1 : ((x > y) ? 1 : 0));
+        return ((x < y) ? 1 : ((x > y) ? -1 : 0));
     });
 }
