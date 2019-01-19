@@ -89,6 +89,7 @@ function init(r) {
     r.requestedReinforcements = false;
 }
 
+
 export function pilgrim_step(r) {
     if (r.step === 0) {
         init(r);

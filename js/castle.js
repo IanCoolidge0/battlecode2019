@@ -1,6 +1,7 @@
 import * as util from "./util.js";
 import * as constants from "./constants.js";
 import {SPECS} from 'battlecode';
+import * as combat from "./combat.js";
 
 function attempt_build(r, unit) {
     let dir_coord = [{x:-1,y:-1}, {x:-1,y:0}, {x:-1,y:1}, {x:0,y:1}, {x:1,y:1}, {x:1,y:0}, {x:1,y:-1}, {x:0,y:-1}];
@@ -11,6 +12,7 @@ function attempt_build(r, unit) {
         let newY = r.me.y + dir_coord[i].y;
 
         if(r.map[newY][newX] && vis_map[newY][newX] === 0) {
+
             return r.buildUnit(unit, dir_coord[i].x, dir_coord[i].y);
         }
     }
@@ -19,6 +21,7 @@ function attempt_build(r, unit) {
 function build_unit(r,unit_type,target_x,target_y,job) {
     r.currentAssignment = {x: target_x, y: target_y, code: job};
     r.signal(util.signalCoords(target_x, target_y, job), 2);
+    r.log("built " + unit_type + " at: " + target_x + ", " + target_y + "  job: " + job);
     return attempt_build(r, unit_type);
 }
 
@@ -52,6 +55,7 @@ function reassign_signal(unit_type, radius, r) {
 }
 
 function init(r) {
+
     r.size = r.map.length;
     r.numOfCastle = r.getVisibleRobots().length;
     r.HSymm = util.isHorizontallySymm(r);
@@ -59,6 +63,21 @@ function init(r) {
     r.karboniteCoords = util.resourceCoords(r.map, r.karbonite_map, {x:r.me.x, y:r.me.y}, util.getMoves(2), r);
     r.fuelCoords = util.resourceCoords(r.map, r.fuel_map, {x:r.me.x, y:r.me.y}, util.getMoves(2), r);
     r.createdRobots = {};
+
+    r.unitMap = combat.unitMap(r);
+    // for (let i = 0;i < r.size;i++) {
+    //     let str = "";
+    //     for (let j = 0;j < r.size;j++) {
+    //         if (r.unitMap[i][j])
+    //             str += '1';
+    //         else
+    //             str += '0';
+    //     }
+    //     r.log(str);
+    // }
+    //r.log(r.unitMap);
+    r.unitLocationQueue = combat.unitLocationsQueue(r,20);
+    r.log(r.unitLocationQueue.length + " possible units");
     r.castles = [];
     r.order = 0;
 
@@ -68,6 +87,34 @@ function init(r) {
     r.preacherQueue = [];
     r.prophetQueue = [];
     r.crusaderQueue = [];
+
+    r.castleTalk(1);
+    let robots = r.getVisibleRobots();
+    // r.multiplier = r.numOfCastle;
+    // for (let i = 0;i < robots.length;i++) {
+    //     if (robots[i].team === r.me.team && robots[i].castle_talk === 1) {
+    //         r.multiplier--;
+    //
+    //     }
+    //
+    // }
+    // r.log("karbon multi: " + r.multiplier);
+
+    for(let i=0;i<3;i++) {
+        r.buildQueue.push({unit: SPECS.PILGRIM, karbonite: 10, fuel: 50});
+        r.pilgrimQueue.push({x: r.karboniteCoords[i].x, y: r.karboniteCoords[i].y, code: constants.PILGRIM_JOBS.MINE_KARBONITE});
+    }
+    for(let i=0;i<3;i++) {
+        r.buildQueue.push({unit: SPECS.PILGRIM, karbonite: 10, fuel: 50});
+        r.pilgrimQueue.push({x: r.fuelCoords[i].x, y: r.fuelCoords[i].y, code: constants.PILGRIM_JOBS.MINE_FUEL});
+    }
+
+    r.log("prophet job");
+    for (let i=0;i<r.unitLocationQueue.length;i++) {
+        r.buildQueue.push({unit: SPECS.PROPHET,karbonite:25, fuel: 200});
+        r.prophetQueue.push({x:r.unitLocationQueue[i].x, y: r.unitLocationQueue[i].y, code: constants.PROPHET_JOBS.DEFEND_GOAL});
+    }
+
 
     //signal
     let signalingDist = Math.max(r.me.x, r.size - r.me.x) ** 2 + Math.max(r.me.y, r.size - r.me.y) ** 2;
@@ -127,11 +174,11 @@ function turn1step(r) {
     }
 
     r.church_locations = util.sortClusters(util.getResourceClusters(r.karbonite_map, constants.CLUSTER_RADIUS, r), r.castles);
-    r.log(r.church_locations);
 }
 
 function step(r) {
     let visible = r.getVisibleRobots();
+
 
     //queue reinforcements if requested by pilgrim
     for(let i=0;i<visible.length;i++) {
@@ -155,6 +202,7 @@ function step(r) {
 
         if(!alive) {
             r.log("A unit died.");
+
             if(robot.unit === SPECS.PILGRIM) {
                 if (robot.code === constants.PILGRIM_JOBS.MINE_KARBONITE) {
                     r.buildQueue.push({unit: SPECS.PILGRIM, karbonite: 10, fuel: 200});
@@ -226,8 +274,14 @@ function step(r) {
 
 }
 
-export function castle_step(r) {
 
+
+
+
+export function castle_step(r) {
+    if (r.step % 100 === 0) {
+        r.log("STEP: " + r.step);
+    }
     if (r.step === 0) {
         init(r);
     } else if (r.step > 0) {
