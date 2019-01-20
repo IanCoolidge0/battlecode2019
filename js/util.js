@@ -272,7 +272,7 @@ export function rotateRight(direction, amount) {
 export function findParentCastle(r) {
     let visible = r.getVisibleRobots();
     for(let i=0;i<visible.length;i++) {
-        if(visible[i].unit === SPECS.CASTLE && (visible[i].x - r.me.x) ** 2 + (visible[i].y - r.me.y) ** 2 <= 2)
+        if((visible[i].unit === SPECS.CASTLE || visible[i].unit === SPECS.CHURCH) && (visible[i].x - r.me.x) ** 2 + (visible[i].y - r.me.y) ** 2 <= 2)
             return visible[i];
     }
 }
