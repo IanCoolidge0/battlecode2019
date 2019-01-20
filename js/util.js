@@ -322,7 +322,7 @@ export function getFuzzyMoves(r,dx,dy,radius,tolerance) {
             }
         }
         shuffleArray(moves2);
-        moves.concat(moves2);
+        moves = moves.concat(moves2);
     }
     return moves;
 }

@@ -74,7 +74,7 @@ function init(r) {
     r.fuelCoords = util.resourceCoords(r.map, r.fuel_map, {x:r.me.x, y:r.me.y}, util.getMoves(2), r);
     r.createdRobots = {};
 
-    r.unitMap = combat.unitMap2(r, util.getReflectedCoord({x:r.me.x, y:r.me.y}, r));
+    r.unitMap = combat.unitMap2(r);
     // for (let i = 0;i < r.size;i++) {
     //     let str = "";
     //     for (let j = 0;j < r.size;j++) {

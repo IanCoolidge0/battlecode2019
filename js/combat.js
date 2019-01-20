@@ -407,7 +407,7 @@ export function unitLocationsQueue(r,radius) {
     let unit_location_queue = [];
 
     let location;
-    for (let i = 6;i < radius;i++) {
+    for (let i = 2;i <= radius;i++) {
 
         for (let j = -i;j <= i;j++) {
             location = {x:r.me.x + i, y:r.me.y + j};

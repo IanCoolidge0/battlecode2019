@@ -1,6 +1,7 @@
 import * as util from "./util.js"
 import {SPECS} from 'battlecode';
-import * as constants from "./constants";
+import * as constants from "./constants.js";
+import * as combat from "./combat";
 
 function attempt_build(r, unit,dir) {
     let dir_coord = [dir, util.rotateLeft(dir,1), util.rotateRight(dir,1), util.rotateLeft(dir,2),
@@ -32,6 +33,14 @@ function init(r) {
     r.preacherQueue = [];
     r.prophetQueue = [];
     r.crusaderQueue = [];
+    let dir_coord = [{x:-1,y:-1}, {x:-1,y:0}, {x:-1,y:1}, {x:0,y:1}, {x:1,y:1}, {x:1,y:0}, {x:1,y:-1}, {x:0,y:-1}];
+    r.unitMap = combat.unitMap(r);
+    r.unitLocationQueue = combat.unitLocationsQueue(r,2);
+
+    for (let i=0;i<r.unitLocationQueue.length;i++) {
+        r.buildQueue.push({unit: SPECS.PROPHET,karbonite:25, fuel: 200});
+        r.prophetQueue.push({x:r.unitLocationQueue[i].x, y: r.unitLocationQueue[i].y, code: constants.PROPHET_JOBS.DEFEND_GOAL});
+    }
 }
 
 function step(r) {
