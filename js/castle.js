@@ -225,7 +225,15 @@ function step(r) {
 
     //build unit from queue
     if(r.buildQueue.length > 0) {
-        if(r.karbonite >= r.buildQueue[0].karbonite && r.fuel >= r.buildQueue[0].fuel) {
+        let requiredKarbonite = r.buildQueue[0].karbonite;
+        let requiredFuel = r.buildQueue[0].fuel;
+
+        if(r.step % r.numOfCastle !== r.order) {
+            requiredKarbonite *= r.numOfCastle;
+            requiredFuel *= r.numOfCastle;
+        }
+
+        if(r.karbonite >= requiredKarbonite && r.fuel >= requiredFuel) {
             let robot_to_build = r.buildQueue.shift();
 
             switch(robot_to_build.unit) {
