@@ -74,7 +74,8 @@ function init(r) {
     r.fuelCoords = util.resourceCoords(r.map, r.fuel_map, {x:r.me.x, y:r.me.y}, util.getMoves(2), r);
     r.createdRobots = {};
 
-    r.unitMap = combat.unitMap2(r, util.getReflectedCoord({x:r.me.x, y:r.me.y}, r));
+    r.unitMap = combat.unitMap2(r);
+    r.unitMapOdd = combat.unitMap2_odd(r);
     // for (let i = 0;i < r.size;i++) {
     //     let str = "";
     //     for (let j = 0;j < r.size;j++) {
@@ -87,7 +88,9 @@ function init(r) {
     // }
     //r.log(r.unitMap);
     r.unit_location_distance =Math.floor(Math.sqrt((r.me.x - r.enemy_castle.x)**2 + (r.me.y - r.enemy_castle.y)**2) / 2);
-    r.unitLocationQueue = combat.unitLocationsQueue(r,r.unit_location_distance);
+    r.unitLocationQueue = combat.unitLocationsQueue(r, 3, r.unit_location_distance, r.unitMap, false);
+    r.unitLocationQueue = r.unitLocationQueue.concat(combat.unitLocationsQueue(r, 3, r.unit_location_distance, r.unitMapOdd, false));
+
     //r.log(r.unitLocationQueue.length + " possible units");
     r.castles = [];
     r.order = 0;

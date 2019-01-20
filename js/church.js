@@ -1,6 +1,6 @@
 import * as util from "./util.js"
 import {SPECS} from 'battlecode';
-import * as constants from "./constants";
+import * as constants from "./constants.js";
 
 function attempt_build(r, unit,dir) {
     let dir_coord = [dir, util.rotateLeft(dir,1), util.rotateRight(dir,1), util.rotateLeft(dir,2),

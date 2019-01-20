@@ -364,6 +364,25 @@ export function unitMap_odd(r) {
     return map;
 }
 
+export function unitMap2_odd(r) {
+    let map = util.create2dArray(r.size, r.size, false);
+    let enemyCastle = util.getReflectedCoord({x: r.me.x, y: r.me.y}, r);
+
+    for(let i=0;i<r.size;i++) {
+        for(let j=0;j<r.size;j++) {
+            if(i % 2 === 1 && j % 2 === 1 && r.map[j][i] && !r.karbonite_map[j][i] && !r.fuel_map[j][i]) {
+                let enemyCastleDir = util.directionTo(enemyCastle.x - r.me.x, enemyCastle.y - r.me.y);
+                let unitDir = util.directionTo(i - r.me.x, j - r.me.y);
+
+                if(util.similar(enemyCastleDir, unitDir))
+                    map[j][i] = true;
+            }
+        }
+    }
+    //r.log(map);
+    return map;
+}
+
 export function next_unitLocation_odd(r,direction,unitMap) {
     let location;
     for (let i = 2;i < r.map.length;i++) {
@@ -403,31 +422,58 @@ export function next_unitLocation_odd(r,direction,unitMap) {
     }
 }
 
-export function unitLocationsQueue(r,radius) {
+export function unitLocationsQueue(r, inRadius, outRadius, unitMap, inward) {
     let unit_location_queue = [];
 
     let location;
-    for (let i = 6;i < radius;i++) {
+    if (!inward) {
+        for (let i = inRadius; i < outRadius; i++) {
 
-        for (let j = -i;j <= i;j++) {
-            location = {x:r.me.x + i, y:r.me.y + j};
-            if (util.withInMap(location,r) && r.unitMap[location.y][location.x]) {
-                unit_location_queue.push(location);
+            for (let j = -i; j <= i; j++) {
+                location = {x: r.me.x + i, y: r.me.y + j};
+                if (util.withInMap(location, r) && unitMap[location.y][location.x]) {
+                    unit_location_queue.push(location);
+                }
+                location = {x: r.me.x - i, y: r.me.y + j};
+                if (util.withInMap(location, r) && unitMap[location.y][location.x]) {
+                    unit_location_queue.push(location);
+                }
             }
-            location = {x:r.me.x - i, y:r.me.y + j};
-            if (util.withInMap(location,r) && r.unitMap[location.y][location.x]) {
-                unit_location_queue.push(location);
+            for (let j = -i + 1; j <= i - 1; j++) {
+
+                location = {x: r.me.x + j, y: r.me.y + i};
+                if (util.withInMap(location, r) && unitMap[location.y][location.x]) {
+                    unit_location_queue.push(location);
+                }
+                location = {x: r.me.x + j, y: r.me.y - i};
+                if (util.withInMap(location, r) && unitMap[location.y][location.x]) {
+                    unit_location_queue.push(location);
+                }
             }
         }
-        for (let j = -i + 1;j <= i - 1;j++) {
+    } else {
+        for (let i = outRadius; i >= inRadius; i--) {
 
-            location = {x:r.me.x + j, y:r.me.y + i};
-            if (util.withInMap(location,r) && r.unitMap[location.y][location.x]) {
-                unit_location_queue.push(location);
+            for (let j = -i; j <= i; j++) {
+                location = {x: r.me.x + i, y: r.me.y + j};
+                if (util.withInMap(location, r) && unitMap[location.y][location.x]) {
+                    unit_location_queue.push(location);
+                }
+                location = {x: r.me.x - i, y: r.me.y + j};
+                if (util.withInMap(location, r) && r.unitMap[location.y][location.x]) {
+                    unit_location_queue.push(location);
+                }
             }
-            location = {x:r.me.x + j, y:r.me.y - i};
-            if (util.withInMap(location,r) && r.unitMap[location.y][location.x]) {
-                unit_location_queue.push(location);
+            for (let j = -i + 1; j <= i - 1; j++) {
+
+                location = {x: r.me.x + j, y: r.me.y + i};
+                if (util.withInMap(location, r) && r.unitMap[location.y][location.x]) {
+                    unit_location_queue.push(location);
+                }
+                location = {x: r.me.x + j, y: r.me.y - i};
+                if (util.withInMap(location, r) && r.unitMap[location.y][location.x]) {
+                    unit_location_queue.push(location);
+                }
             }
         }
     }
