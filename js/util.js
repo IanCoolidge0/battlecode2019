@@ -176,10 +176,11 @@ export function isHorizontallySymm(r) {
 
 export function getReflectedCoord(coord,r) {
 
-    if (r.HSymm) {
-        return {x:coord.x,y:r.map.length - 1 - coord.y};
+
+    if (isHorizontallySymm(r)) {
+        return {x:coord.x, y:r.map.length - 1 - coord.y};
     } else {
-        return {x:r.map.length - 1 - coord.x,y:coord.y};
+        return {x:r.map.length - 1 - coord.x, y:coord.y};
     }
 }
 export function directions(dir) {
@@ -191,6 +192,20 @@ export function directions(dir) {
     return dir_coord[dir]
 
 
+}
+
+export function similar(dir1, dir2) {
+    let dir_coord = [{x:-1,y:-1}, {x:-1,y:0}, {x:-1,y:1}, {x:0,y:1}, {x:1,y:1}, {x:1,y:0}, {x:1,y:-1}, {x:0,y:-1}];
+
+    let i = 0;
+    while(dir_coord[i].x !== dir1.x || dir_coord[i].y !== dir1.y)
+        i++;
+
+    let j = 0;
+    while(dir_coord[j].x !== dir2.x || dir_coord[j].y !== dir2.y)
+        j++;
+
+    return Math.abs(i - j) < 2;
 }
 
 export function directionTo(dx,dy) {
@@ -269,14 +284,23 @@ export function getFuzzyMoves(r,dx,dy,radius,tolerance) {
 
 
     if (tolerance >= 1) {
-        dir.push(rotateRight(dir[0], 1));
-        dir.push(rotateLeft(dir[0], 1));
+        if(Math.random() > 0.5) {
+            dir.push(rotateRight(dir[0], 1));
+            dir.push(rotateLeft(dir[0], 1));
+        } else {
+            dir.push(rotateLeft(dir[0], 1));
+            dir.push(rotateRight(dir[0], 1));
+        }
 
     }
     if (tolerance >= 2) {
-        dir.push(rotateRight(dir[0],2));
-        dir.push(rotateLeft(dir[0],2));
-
+        if(Math.random() > 0.5) {
+            dir.push(rotateRight(dir[0], 2));
+            dir.push(rotateLeft(dir[0], 2));
+        } else {
+            dir.push(rotateLeft(dir[0], 2));
+            dir.push(rotateRight(dir[0], 2));
+        }
     }
 
     let moves = [];
@@ -358,8 +382,10 @@ export function withInMap(coord,r) {
 
 
 
-export function getResourceClusters(resource_map, cluster_radius, r) {
-    let coords = resourceCoords(r.map, resource_map, {x: r.me.x, y: r.me.y}, getMoves(2), r);
+export function getResourceClusters(karb_map, fuel_map, cluster_radius, r) {
+    let karb_coords = resourceCoords(r.map, karb_map, {x: r.me.x, y: r.me.y}, getMoves(2), r);
+    let fuel_coords = resourceCoords(r.map, fuel_map, {x: r.me.x, y: r.me.y}, getMoves(2), r);
+    let coords = karb_coords.concat(fuel_coords);
 
     let centers = [];
 

@@ -12,7 +12,7 @@ function init(r) {
 
     r.parent_castle = util.findParentCastle(r);
     r.currentJob = util.decodeCoords(r.parent_castle.signal);
-    r.log(r.currentJob);
+    //r.log(r.currentJob);
     if(r.currentJob.code === constants.PROPHET_JOBS.REINFORCE_PILGRIM) {
         r.goal_map = util.BFSMap(r.map, {x: r.currentJob.x, y: r.currentJob.y}, util.getMoves(2));
     }

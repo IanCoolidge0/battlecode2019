@@ -19,9 +19,9 @@ function attempt_build(r, unit) {
 }
 
 function build_unit(r,unit_type,target_x,target_y,job) {
-    r.currentAssignment = {x: target_x, y: target_y, code: job};
+    r.currentAssignment = {unit: unit_type, x: target_x, y: target_y, code: job};
     r.signal(util.signalCoords(target_x, target_y, job), 2);
-    r.log("built " + unit_type + " at: " + target_x + ", " + target_y + "  job: " + job);
+    //r.log("built " + unit_type + " at: " + target_x + ", " + target_y + "  job: " + job);
     return attempt_build(r, unit_type);
 }
 
@@ -64,7 +64,7 @@ function init(r) {
     r.fuelCoords = util.resourceCoords(r.map, r.fuel_map, {x:r.me.x, y:r.me.y}, util.getMoves(2), r);
     r.createdRobots = {};
 
-    r.unitMap = combat.unitMap(r);
+    r.unitMap = combat.unitMap2(r, util.getReflectedCoord({x:r.me.x, y:r.me.y}, r));
     // for (let i = 0;i < r.size;i++) {
     //     let str = "";
     //     for (let j = 0;j < r.size;j++) {
@@ -76,10 +76,13 @@ function init(r) {
     //     r.log(str);
     // }
     //r.log(r.unitMap);
-    r.unitLocationQueue = combat.unitLocationsQueue(r,20);
+    r.unitLocationQueue = combat.unitLocationsQueue(r,Math.floor((Math.abs(r.me.x - r.enemy_castle.x) + Math.abs(r.me.y - r.enemy_castle.y)) / 2));
     r.log(r.unitLocationQueue.length + " possible units");
     r.castles = [];
     r.order = 0;
+    r.unitMap_odd = combat.unitMap_odd(r);
+    // r.log('unitMap odd');
+    // r.log(r.unitMap_odd);
 
     //queues
     r.buildQueue = [];
@@ -159,77 +162,108 @@ function turn1step(r) {
         r.prophetQueue.push({x:r.unitLocationQueue[i].x, y: r.unitLocationQueue[i].y, code: constants.PROPHET_JOBS.DEFEND_GOAL});
     }
 
-    r.church_locations = util.sortClusters(util.getResourceClusters(r.karbonite_map, constants.CLUSTER_RADIUS, r), r.castles);
+    r.church_locations = util.sortClusters(util.getResourceClusters(r.karbonite_map, r.fuel_map, constants.CLUSTER_RADIUS, r), r.castles);
 
 }
 
 
 function emergency_defense(r) {
     if (!combat.enemyCombatInRange(r)) return;
+    let enemyLocation;
+    let robots = r.getVisibleRobots();
+    for (let i = 0;i < robots.length;i++) {
+        let robot = robots[i];
+        if(!r.isVisible(robot) || r.me.team === robot.team) continue;
+        if (robot.unit === SPECS.PILGRIM || robot.unit === SPECS.CASTLE || robot.unit === SPECS.CHURCH) continue;
+        enemyLocation = {x:robot.x,y:robot.y};
+        break;
+
+    }
+    let enemyDirection = util.directionTo(enemyLocation.x - r.me.x,enemyLocation.y - r.me.y);
+    let unitLocation = combat.next_unitLocation_odd(r,enemyDirection,r.unitMap_odd);
+    if (unitLocation === undefined) {
+        unitLocation = enemyLocation;
+    } else {
+        r.unitMap_odd[unitLocation.y][unitLocation.x] = false;
+    }
+    r.buildQueue.push({unit: SPECS.PROPHET,karbonite:25, fuel: 50});
+    r.prophetQueue.push({x:unitLocation.x, y: unitLocation.y, code: constants.PROPHET_JOBS.DEFEND_GOAL});
+
+    r.log();
 
 }
 
 function step(r) {
+
     let visible = r.getVisibleRobots();
 
+    //r.log(r.createdRobots);
     //r.log("created robots");
     //r.log(r.createdRobots);
-
-
     //queue reinforcements if requested by pilgrim
     // for(let i=0;i<visible.length;i++) {
     //     if(visible[i].castle_talk === constants.PILGRIM_DANGER_CASTLETALK) {
     //         r.buildQueue.unshift({unit: SPECS.PROPHET, karbonite: 25, fuel: 200});
-    //         r.prophetQueue.unshift({x: r.createdRobots[visible[i].id].x, y: r.createdRobots[visible[i].id].y, code: constants.PROPHET_JOBS.REINFORCE_RESOURCE})
+    //         r.prophetQueue.unshift({x: r.createdRobots[visible[i].id].x, y: r.createdRobots[visible[i].id].y, code: constants.PROPHET_JOBS.REINFORCE_PILGRIM})
     //     }
     // }
 
     //replace dead units and remove them from r.createdRobots
-    // let myRobots = Object.keys(r.createdRobots);
-    // let toRemove = [];
-    // for(let i=0;i<myRobots.length;i++) {
-    //     let robot = r.createdRobots[myRobots[i]];
-    //     let alive = false;
-    //
-    //     for(let j=0;j<visible.length;j++) {
-    //         if(visible[j].id === myRobots[i])
-    //             alive = true;
-    //     }
-    //
-    //     if(!alive) {
-    //         r.log("A unit died.");
-    //
-    //         if(robot.unit === SPECS.PILGRIM) {
-    //             if (robot.code === constants.PILGRIM_JOBS.MINE_KARBONITE) {
-    //                 r.buildQueue.push({unit: SPECS.PILGRIM, karbonite: 10, fuel: 200});
-    //                 r.pilgrimQueue.push({x: robot.x, y: robot.y, code: constants.PILGRIM_JOBS.MINE_KARBONITE});
-    //             } else if (robot.code === constants.PILGRIM_JOBS.MINE_FUEL) {
-    //                 r.buildQueue.push({unit: SPECS.PILGRIM, karbonite: 10, fuel: 200});
-    //                 r.pilgrimQueue.push({x: robot.x, y: robot.y, code: constants.PILGRIM_JOBS.MINE_FUEL});
-    //             }
-    //         }
-    //
-    //         toRemove.push(myRobots[i]);
-    //     }
-    // }
-    //
-    // for(let i=0;i<toRemove.length;i++) {
-    //     delete r.createdRobots[toRemove[i]];
-    // }
+    let myRobots = Object.keys(r.createdRobots);
+
+    let toRemove = [];
+    for(let i=0;i<myRobots.length;i++) {
+        let robot = r.createdRobots[myRobots[i]];
+        let alive = false;
+
+        for (let j = 0; j < visible.length; j++) {
+            //DO NOT CHANGE THIS TO ===
+            if (visible[j].id == myRobots[i])
+                alive = true;
+        }
+
+        if (!alive) {
+            r.log("Unit " + myRobots[i] + " died.");
+
+            if (robot.unit === SPECS.PILGRIM) {
+                r.log("Replacing pilgrim at " + robot.x + "," + robot.y + ".");
+                if (robot.code === constants.PILGRIM_JOBS.MINE_KARBONITE) {
+                    r.buildQueue.unshift({unit: SPECS.PILGRIM, karbonite: 10, fuel: 200});
+                    r.pilgrimQueue.unshift({x: robot.x, y: robot.y, code: constants.PILGRIM_JOBS.MINE_KARBONITE});
+                } else if (robot.code === constants.PILGRIM_JOBS.MINE_FUEL) {
+                    r.buildQueue.unshift({unit: SPECS.PILGRIM, karbonite: 10, fuel: 200});
+                    r.pilgrimQueue.unshift({x: robot.x, y: robot.y, code: constants.PILGRIM_JOBS.MINE_FUEL});
+                }
+            }
+            toRemove.push(myRobots[i]);
+        }
+    }
+
+    for(let i=0;i<toRemove.length;i++) {
+        delete r.createdRobots[toRemove[i]];
+    }
 
     ///// GENERAL CASTLE CODE /////
 
     //assignment
     for(let i=0;i<visible.length;i++) {
-        if(visible[i].castle_talk === constants.INIT_CASTLETALK) {
-            r.log('added');
-            r.createdRobots[visible[i].id] = {unit: r.unit, x: r.currentAssignment.x, y: r.currentAssignment.y, code: r.currentAssignment.code};
+        if(visible[i].castle_talk === constants.INIT_CASTLETALK && (visible[i].x - r.me.x) ** 2 + (visible[i].y - r.me.y) ** 2 <= 2) {
+            //r.log('added');
+            r.createdRobots[visible[i].id] = {x: r.currentAssignment.x, y: r.currentAssignment.y, code: r.currentAssignment.code, unit: r.currentAssignment.unit};
         }
     }
 
     //build unit from queue
     if(r.buildQueue.length > 0) {
-        if(r.karbonite >= r.buildQueue[0].karbonite * (r.numOfCastle - r.order) && r.fuel >= r.buildQueue[0].fuel) {
+        let requiredKarbonite = r.buildQueue[0].karbonite;
+        let requiredFuel = r.buildQueue[0].fuel;
+
+        if(r.step % r.numOfCastle !== r.order) {
+            requiredKarbonite *= r.numOfCastle;
+            requiredFuel *= r.numOfCastle;
+        }
+
+        if(r.karbonite >= requiredKarbonite && r.fuel >= requiredFuel) {
             let robot_to_build = r.buildQueue.shift();
 
             switch(robot_to_build.unit) {
@@ -276,7 +310,9 @@ function step(r) {
 
 
 export function castle_step(r) {
+
     r.log("step: " + r.step);
+
     if (r.step === 0) {
         init(r);
     } else if (r.step > 0) {

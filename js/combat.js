@@ -89,7 +89,8 @@ export function prophet_kiting(r,damageMap) {
     }
     if (damageMap[r.me.y][r.me.x] === 0) {
         let attack = simple_attack(r,SPECS.PROPHET);
-        if (attack !== undefined)
+
+        if(attack !== undefined)
             return r.attack(attack.x,attack.y);
     }
     let moves = util.getMoves(2);
@@ -104,9 +105,8 @@ export function prophet_kiting(r,damageMap) {
     if (r.me.health > 10) {
         if (damageMap[r.me.y][r.me.x] === 10) {
             let attack = simple_attack(r,SPECS.PROPHET);
-            if (attack !== undefined)
+            if(attack !== undefined)
                 return r.attack(attack.x,attack.y);
-            return r.attack(attack.x,attack.y);
         }
         for (let i = 0;i < moves.length;i++) {
             const next = {x:r.me.x + moves[i].x,y:r.me.y + moves[i].y};
@@ -117,9 +117,10 @@ export function prophet_kiting(r,damageMap) {
         }
     }
     let attack = simple_attack(r,SPECS.PROPHET);
-    if (attack !== undefined)
+    if(attack !== undefined)
         return r.attack(attack.x,attack.y);
-    return r.attack(attack.x,attack.y);
+
+
 }
 
 
@@ -236,6 +237,77 @@ export function unitMap(r) {
 }
 
 
+export function unitMap2(r) {
+
+    let map = util.create2dArray(r.size, r.size, false);
+    let enemyCastle = util.getReflectedCoord({x: r.me.x, y: r.me.y}, r);
+
+    for(let i=0;i<r.size;i++) {
+        for(let j=0;j<r.size;j++) {
+            if(i % 2 === 0 && j % 2 === 0 && r.map[j][i] && !r.karbonite_map[j][i] && !r.fuel_map[j][i]) {
+                let enemyCastleDir = util.directionTo(enemyCastle.x - r.me.x, enemyCastle.y - r.me.y);
+                let unitDir = util.directionTo(i - r.me.x, j - r.me.y);
+
+                if(util.similar(enemyCastleDir, unitDir))
+                    map[j][i] = true;
+            }
+        }
+    }
+    //r.log(map);
+    return map;
+}
+
+export function unitMap_odd(r) {
+
+    let map = util.create2dArray(r.size,r.size,false);
+    for (let i = 0;i < r.size;i++) {
+        for (let j = 0;j < r.size;j++) {
+            if (i % 2 === 1 && j % 2 === 1 && r.map[j][i] && !r.karbonite_map[j][i] && !r.fuel_map[j][i]) {
+                map[j][i] = true;
+            }
+        }
+    }
+    return map;
+}
+
+export function next_unitLocation_odd(r,direction,unitMap) {
+    let location;
+    for (let i = 2;i < r.map.length;i++) {
+        for (let j = -i;j <= i;j++) {
+            location = {x:r.me.x + i, y:r.me.y + j};
+            if (util.withInMap(location,r) && unitMap[location.y][location.x]) {
+                let unitDir = util.directionTo(location.x - r.me.x, location.y - r.me.y);
+                if (util.similar(unitDir,direction)) {
+                    return location;
+                }
+            }
+            location = {x:r.me.x - i, y:r.me.y + j};
+            if (util.withInMap(location,r) && unitMap[location.y][location.x]) {
+                let unitDir = util.directionTo(location.x - r.me.x, location.y - r.me.y);
+                if (util.similar(unitDir,direction)) {
+                    return location;
+                }
+            }
+        }
+        for (let j = -i + 1;j <= i - 1;j++) {
+
+            location = {x:r.me.x + j, y:r.me.y + i};
+            if (util.withInMap(location,r) && unitMap[location.y][location.x]) {
+                let unitDir = util.directionTo(location.x - r.me.x, location.y - r.me.y);
+                if (util.similar(unitDir,direction)) {
+                    return location;
+                }
+            }
+            location = {x:r.me.x + j, y:r.me.y - i};
+            if (util.withInMap(location,r) && unitMap[location.y][location.x]) {
+                let unitDir = util.directionTo(location.x - r.me.x, location.y - r.me.y);
+                if (util.similar(unitDir,direction)) {
+                    return location;
+                }
+            }
+        }
+    }
+}
 
 export function unitLocationsQueue(r,radius) {
     let unit_location_queue = [];
