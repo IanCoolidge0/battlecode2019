@@ -42,6 +42,99 @@ export function simple_attack(r,unit) {
     }
 }
 
+export function preacher_best_attack(r) {
+    let dir_coord = [{x:-1,y:-1}, {x:-1,y:0}, {x:-1,y:1}, {x:0,y:1}, {x:1,y:1}, {x:1,y:0}, {x:1,y:-1}, {x:0,y:-1}];
+    let rmap = r.getVisibleRobotMap();
+    let attacks = util.getMoves(4);
+    let highest_value = -1;
+    let highest_value_index = -1;
+    let robot;
+    for (let i = 0;i < attacks.length;i++) {
+        let coord = {x:r.me.x + attacks[i].x, y:r.me.y + attacks[i].y};
+        let value = 0;
+        if (!util.withInMap(coord,r)) continue;
+
+        if (rmap[coord.y][coord.x] !== -1 && rmap[coord.y][coord.x] !== 0) {
+            robot = r.getRobot(rmap[coord.y][coord.x]);
+            if (robot.team === r.me.team) {
+                if (robot.unit === SPECS.CASTLE) {
+                    value -= 5;
+                } else {
+                    value -= 1.5;
+                }
+            } else {
+                value++;
+            }
+        }
+
+        //calculate splash value
+        for (let j = 0;j < dir_coord.length;j++) {
+            let splash_coord = {x:coord.x + dir_coord[j].x, y:coord.y + dir_coord[j].x};
+            if (!util.withInMap(splash_coord,r)) continue;
+
+            if (rmap[splash_coord.y][splash_coord.x] !== -1 && rmap[splash_coord.y][splash_coord.x] !== 0) {
+                robot = r.getRobot(rmap[splash_coord.y][splash_coord.x]);
+                if (robot.team === r.me.team) {
+                    if (robot.unit === SPECS.CASTLE) {
+                        value -= 5;
+                    } else {
+                        value -= 1.5;
+                    }
+                } else {
+                    value++;
+                }
+            }
+        }
+
+        if (value > highest_value) {
+            highest_value = value;
+            highest_value_index = i;
+        }
+    }
+
+    if (highest_value > 0) {
+        return attacks[highest_value_index];
+
+    }
+
+}
+
+export function amount_of_enemy(r) {
+    let robots = r.getVisibleRobots();
+    let count = {3:0,4:0,5:0};
+    for (let i = 0;i < robots.length;i++) {
+        let robot = robots[i];
+        if(!r.isVisible(robot) || r.me.team === robot.team) continue;
+        if (robot.unit === SPECS.PILGRIM || robot.unit === SPECS.CASTLE || robot.unit === SPECS.CHURCH) continue;
+        count[robot.unit]++;
+
+    }
+    return count;
+}
+
+export function attack_nearest_castle(r,unit,castleCoords) {
+    let robots = r.getVisibleRobots();
+    let nearest = 9999;
+    let coord;
+    for (let i = 0; i < robots.length;i++) {
+        let robot = robots[i];
+        if (!r.isVisible(robot) || robot.team === r.me.team) continue;
+        const distance = (r.me.x - robot.x) ** 2 + (r.me.y - robot.y) ** 2;
+        if (SPECS.UNITS[unit].ATTACK_RADIUS[0] <= distance && distance <= SPECS.UNITS[unit].ATTACK_RADIUS[1]) {
+            const castle_distance = (robot.x - castleCoords.x) ** 2 + (robot.y - castleCoords.y) ** 2;
+            if (castle_distance < nearest) {
+                nearest = castle_distance;
+                coord = {x:robot.x,y:robot.y};
+            }
+        }
+
+    }
+    if (nearest === 9999) return;
+
+    return  {x:coord.x - r.me.x,y:coord.y - r.me.y};
+
+}
+
 export function get_attacks(r,unit) {
     let robots = r.getVisibleRobots();
     let attacks = [];
@@ -89,7 +182,8 @@ export function prophet_kiting(r,damageMap) {
     }
     if (damageMap[r.me.y][r.me.x] === 0) {
         let attack = simple_attack(r,SPECS.PROPHET);
-
+        r.log('attack');
+        r.log(attack);
         if(attack !== undefined)
             return r.attack(attack.x,attack.y);
     }
@@ -277,14 +371,14 @@ export function next_unitLocation_odd(r,direction,unitMap) {
             location = {x:r.me.x + i, y:r.me.y + j};
             if (util.withInMap(location,r) && unitMap[location.y][location.x]) {
                 let unitDir = util.directionTo(location.x - r.me.x, location.y - r.me.y);
-                if (util.similar(unitDir,direction)) {
+                if (unitDir.x === direction.x && unitDir.y === direction.y) {
                     return location;
                 }
             }
             location = {x:r.me.x - i, y:r.me.y + j};
             if (util.withInMap(location,r) && unitMap[location.y][location.x]) {
                 let unitDir = util.directionTo(location.x - r.me.x, location.y - r.me.y);
-                if (util.similar(unitDir,direction)) {
+                if (unitDir.x === direction.x && unitDir.y === direction.y) {
                     return location;
                 }
             }
@@ -294,14 +388,14 @@ export function next_unitLocation_odd(r,direction,unitMap) {
             location = {x:r.me.x + j, y:r.me.y + i};
             if (util.withInMap(location,r) && unitMap[location.y][location.x]) {
                 let unitDir = util.directionTo(location.x - r.me.x, location.y - r.me.y);
-                if (util.similar(unitDir,direction)) {
+                if (unitDir.x === direction.x && unitDir.y === direction.y) {
                     return location;
                 }
             }
             location = {x:r.me.x + j, y:r.me.y - i};
             if (util.withInMap(location,r) && unitMap[location.y][location.x]) {
                 let unitDir = util.directionTo(location.x - r.me.x, location.y - r.me.y);
-                if (util.similar(unitDir,direction)) {
+                if (unitDir.x === direction.x && unitDir.y === direction.y) {
                     return location;
                 }
             }
@@ -337,7 +431,7 @@ export function unitLocationsQueue(r,radius) {
             }
         }
     }
-    r.log(unit_location_queue);
+    //r.log(unit_location_queue);
     return unit_location_queue;
 }
 

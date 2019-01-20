@@ -208,6 +208,7 @@ export function similar(dir1, dir2) {
     return Math.abs(i - j) < 2;
 }
 
+
 export function directionTo(dx,dy) {
     dy = -dy;
     if (dy === 0) {

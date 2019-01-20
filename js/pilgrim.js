@@ -126,7 +126,7 @@ export function flee(r) {
     for(let i=0;i<potential_moves.length;i++) {
         let next = {x:r.me.x - potential_moves[i].x, y:r.me.y - potential_moves[i].y};
         if (util.withInMap(next,r) && r.map[next.y][next.x] && damageMap[next.y][next.x] === 0 && rmap[next.y][next.x] === 0) {
-            r.log('flee move');
+            //r.log('flee move');
 
             return r.move(-potential_moves[i].x, -potential_moves[i].y);
 
@@ -146,7 +146,7 @@ export function flee(r) {
 
 
 export function pilgrim_step(r) {
-    r.log("x:" + r.me.x + "  y: " + r.me.y);
+    //r.log("x:" + r.me.x + "  y: " + r.me.y);
     if (r.step === 0) {
         init(r);
     } else

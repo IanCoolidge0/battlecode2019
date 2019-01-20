@@ -17,11 +17,13 @@ export function attack(r,unit) {
     return r.attack(attack.x,attack.y);
 }
 
-export function prophet_attack(r) {
-    let damageMap = combat.damageMap(r);
-    //r.log(damageMap);
-
-    return combat.prophet_kiting(r, damageMap);
+export function prophet_attack(r,castleCoords) {
+    // let damageMap = combat.damageMap(r);
+    // //r.log("damage to me: " + damageMap[r.me.y][r.me.x]);
+    //
+    // return combat.prophet_kiting(r, damageMap);
+    let attack = combat.attack_nearest_castle(r,SPECS.PROPHET,castleCoords);
+    return r.attack(attack.x,attack.y);
 }
 
 

@@ -21,6 +21,7 @@ export const PROPHET_JOBS = {
 
     REINFORCE_PILGRIM: 0,
     DEFEND_GOAL: 1,
+    DEFEND_CASTLE:2
 
 
 
@@ -30,8 +31,20 @@ export const PROPHET_MODE = {
     PATH_TO_GOAL: 0,
     DEFEND: 1,
     ATTACK: 2,
-    REINFORCE: 3
+    REINFORCE: 3,
+    DEFEND_CASTLE:4
 };
+
+
+export const PREACHER_JOBS = {
+    DEFEND_CASTLE:0
+}
+
+export const PREACHER_MODE = {
+    DEFEND_CASTLE:0,
+    ATTACK_CASTLE:1,
+
+}
 
 
 
