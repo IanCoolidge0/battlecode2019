@@ -5,6 +5,7 @@ import * as combat from "./combat.js";
 
 
 
+
 function init(r) {
     r.size = r.map.length;
 
@@ -22,8 +23,8 @@ function init(r) {
         // r.log('goal');
         // r.log(r.goal_map[r.me.y][r.me.x]);
         let move = util.directionTo(r.currentJob.x - r.me.x,r.currentJob.y - r.me.y);
-        r.log('enemy dir');
-        r.log(move);
+        //r.log('enemy dir');
+        //r.log(move);
         if(Math.random() > 0.5) {
             move = util.rotateRight(move, 1);
         } else {
@@ -46,6 +47,24 @@ function step(r) {
         }
     }
 }
+function step_over_50(r) {
+
+    let rmap = r.getVisibleRobotMap();
+    if (r.fuel < 300) return;
+    if (combat.enemyInRange(r)) {
+        let attack = combat.preacher_best_attack(r);
+        //r.log('attack');
+        //r.log(attack);
+        if (attack !== undefined) {
+            return r.attack(attack.x,attack.y);
+        }
+    }
+    let dir = r.goal_map[r.me.y][r.me.x];
+
+
+
+    return util.fuzzyMove(r,-dir.x,-dir.y,2,2);
+}
 
 export function preacher_step(r) {
 
@@ -54,7 +73,14 @@ export function preacher_step(r) {
     } else {
         r.castleTalk(124);
     }
+    if (r.step === 20) {
+        r.goal_map = util.BFSMap(r.map,util.getReflectedCoord(r.parent_castle_coords,r),util.getMoves(2));
+
+    } else if (r.step > 20) {
+        return step_over_50(r);
+    }
     return step(r);
+
 
 
 }

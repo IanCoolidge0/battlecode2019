@@ -338,7 +338,7 @@ export function unitMap2(r) {
 
     for(let i=0;i<r.size;i++) {
         for(let j=0;j<r.size;j++) {
-            if(i % 2 === 0 && j % 2 === 0 && r.map[j][i] && !r.karbonite_map[j][i] && !r.fuel_map[j][i]) {
+            if(((i % 2 === 0 &&  j % 2 == 0) || (i % 2 === 1 &&  j % 2 == 1) ) && r.map[j][i] && !r.karbonite_map[j][i] && !r.fuel_map[j][i]) {
                 let enemyCastleDir = util.directionTo(enemyCastle.x - r.me.x, enemyCastle.y - r.me.y);
                 let unitDir = util.directionTo(i - r.me.x, j - r.me.y);
 
@@ -371,6 +371,25 @@ export function unitMap2_odd(r) {
     for(let i=0;i<r.size;i++) {
         for(let j=0;j<r.size;j++) {
             if(i % 2 === 1 && j % 2 === 1 && r.map[j][i] && !r.karbonite_map[j][i] && !r.fuel_map[j][i]) {
+                let enemyCastleDir = util.directionTo(enemyCastle.x - r.me.x, enemyCastle.y - r.me.y);
+                let unitDir = util.directionTo(i - r.me.x, j - r.me.y);
+
+                if(util.similar(enemyCastleDir, unitDir))
+                    map[j][i] = true;
+            }
+        }
+    }
+    //r.log(map);
+    return map;
+}
+
+export function unitMap2_other(r) {
+    let map = util.create2dArray(r.size, r.size, false);
+    let enemyCastle = util.getReflectedCoord({x: r.me.x, y: r.me.y}, r);
+
+    for(let i=0;i<r.size;i++) {
+        for(let j=0;j<r.size;j++) {
+            if(((i % 2 === 1 &&  j % 2 == 0) || (i % 2 === 0 &&  j % 2 == 1) ) && r.map[j][i] && !r.karbonite_map[j][i] && !r.fuel_map[j][i]) {
                 let enemyCastleDir = util.directionTo(enemyCastle.x - r.me.x, enemyCastle.y - r.me.y);
                 let unitDir = util.directionTo(i - r.me.x, j - r.me.y);
 
@@ -426,8 +445,9 @@ export function unitLocationsQueue(r, inRadius, outRadius, unitMap, inward) {
     let unit_location_queue = [];
 
     let location;
+
     if (!inward) {
-        for (let i = inRadius; i < outRadius; i++) {
+        for (let i = inRadius; i <= outRadius; i++) {
 
             for (let j = -i; j <= i; j++) {
                 location = {x: r.me.x + i, y: r.me.y + j};
@@ -460,18 +480,18 @@ export function unitLocationsQueue(r, inRadius, outRadius, unitMap, inward) {
                     unit_location_queue.push(location);
                 }
                 location = {x: r.me.x - i, y: r.me.y + j};
-                if (util.withInMap(location, r) && r.unitMap[location.y][location.x]) {
+                if (util.withInMap(location, r) && unitMap[location.y][location.x]) {
                     unit_location_queue.push(location);
                 }
             }
             for (let j = -i + 1; j <= i - 1; j++) {
 
                 location = {x: r.me.x + j, y: r.me.y + i};
-                if (util.withInMap(location, r) && r.unitMap[location.y][location.x]) {
+                if (util.withInMap(location, r) && unitMap[location.y][location.x]) {
                     unit_location_queue.push(location);
                 }
                 location = {x: r.me.x + j, y: r.me.y - i};
-                if (util.withInMap(location, r) && r.unitMap[location.y][location.x]) {
+                if (util.withInMap(location, r) && unitMap[location.y][location.x]) {
                     unit_location_queue.push(location);
                 }
             }

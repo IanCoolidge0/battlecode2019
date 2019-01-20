@@ -2,6 +2,9 @@ import * as util from "./util.js"
 import {SPECS} from 'battlecode';
 import * as constants from "./constants.js";
 
+import * as combat from "./combat.js";
+
+
 function attempt_build(r, unit,dir) {
     let dir_coord = [dir, util.rotateLeft(dir,1), util.rotateRight(dir,1), util.rotateLeft(dir,2),
         util.rotateRight(dir,2), util.rotateLeft(dir,3), util.rotateRight(dir,3), util.rotateLeft(dir,4)];
@@ -26,12 +29,23 @@ function build_unit(r,unit_type,target_x,target_y,job) {
 }
 
 function init(r) {
+    r.size = r.map.length;
     r.buildQueue = [];
     
     r.pilgrimQueue = [];
     r.preacherQueue = [];
     r.prophetQueue = [];
     r.crusaderQueue = [];
+    let dir_coord = [{x:-1,y:-1}, {x:-1,y:0}, {x:-1,y:1}, {x:0,y:1}, {x:1,y:1}, {x:1,y:0}, {x:1,y:-1}, {x:0,y:-1}];
+    r.unitMap = combat.unitMap(r);
+    //r.log("UNITMAP_________________________________________")
+    //r.log(r.unitMap);
+    r.unitLocationQueue = combat.unitLocationsQueue(r,2,2,r.unitMap,true);
+
+    for (let i=0;i<r.unitLocationQueue.length;i++) {
+        r.buildQueue.push({unit: SPECS.PROPHET,karbonite:25, fuel: 200});
+        r.prophetQueue.push({x:r.unitLocationQueue[i].x, y: r.unitLocationQueue[i].y, code: constants.PROPHET_JOBS.DEFEND_GOAL});
+    }
 }
 
 function step(r) {
@@ -40,7 +54,7 @@ function step(r) {
         let requiredKarbonite = r.buildQueue[0].karbonite;
         let requiredFuel = r.buildQueue[0].fuel;
 
-        if((r.karbonite >= requiredKarbonite + 80 && r.fuel >= requiredFuel) || (r.buildQueue[0].priority && r.karbonite >=r.buildQueue[0].karbonite && r.fuel >= r.buildQueue[0].fuel)) {
+        if((r.karbonite >= requiredKarbonite + 70 && r.fuel >= requiredFuel) || (r.buildQueue[0].priority && r.karbonite >=r.buildQueue[0].karbonite && r.fuel >= r.buildQueue[0].fuel)) {
             let robot_to_build = r.buildQueue.shift();
 
             switch(robot_to_build.unit) {
