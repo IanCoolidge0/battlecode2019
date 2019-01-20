@@ -159,8 +159,8 @@ function turn1step(r) {
         r.prophetQueue.push({x:r.unitLocationQueue[i].x, y: r.unitLocationQueue[i].y, code: constants.PROPHET_JOBS.DEFEND_GOAL});
     }
 
-    r.church_locations = util.sortClusters(util.getResourceClusters(r.karbonite_map, r.fuel_map, constants.CLUSTER_RADIUS, r), r.castles);
-
+    r.church_locations = util.getResourceClusters(r.karbonite_map, r.fuel_map, constants.CLUSTER_RADIUS, r.castles, r);
+    r.log(r.church_locations);
 }
 
 function step(r) {
