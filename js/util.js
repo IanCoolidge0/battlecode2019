@@ -421,7 +421,9 @@ export function getResourceClusters(karb_map, fuel_map, cluster_radius, castles,
             real_centers.push(freeChurchTile(centers[i], karb_map, fuel_map));
     }
 
-    return real_centers;
+    return real_centers.sort(function(a,b) {
+        return b.count - a.count;
+    });
 }
 
 export function freeChurchTile(initial_pos, karb_map, fuel_map) {
@@ -436,7 +438,7 @@ export function freeChurchTile(initial_pos, karb_map, fuel_map) {
         dy += delta[1];
     }
 
-    return {x: initial_pos.x + dx, y: initial_pos.y + dy};
+    return {x: initial_pos.x + dx, y: initial_pos.y + dy, count: initial_pos.count};
 }
 
 export function churchScore(cluster, castle_pos) {
