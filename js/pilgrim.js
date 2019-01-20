@@ -9,6 +9,8 @@ function moveToResourceStep(r) {
             if (r.karbonite > 50 && r.fuel > 200) {
                 r.log("building church at (" + r.currentJob.x + "," + r.currentJob.y + ")");
                 r.mode = constants.PILGRIM_MODE.MOVE_TO_CASTLE;
+                r.parent_castle = util.getReflectedCoord(r.parent_castle, r);
+                r.castle_map = util.BFSMap(r.map, {x: r.parent_castle.x, y: r.parent_castle.y}, util.getMoves(2));
                 r.currentJob.code = constants.PILGRIM_JOBS.MINE_KARBONITE;
                 return r.buildUnit(SPECS.CHURCH, r.currentJob.x - r.me.x, r.currentJob.y - r.me.y);
             } else {
