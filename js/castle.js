@@ -57,7 +57,6 @@ function reassign_signal(unit_type, radius, r) {
 function init(r) {
 
     r.size = r.map.length;
-    r.numOfCastle = r.getVisibleRobots().length;
     r.HSymm = util.isHorizontallySymm(r);
     r.enemy_castle = util.getReflectedCoord(r.me, r);
     r.karboniteCoords = util.resourceCoords(r.map, r.karbonite_map, {x:r.me.x, y:r.me.y}, util.getMoves(2), r);
@@ -100,10 +99,9 @@ function init(r) {
 
     let visible = r.getVisibleRobots();
     for(let i=0;i<visible.length;i++) {
-        if(util.decodeCoords(visible[i].signal).code === constants.SIGNAL_CODE.CASTLE_POS) {
+        if(util.decodeCoords(visible[i].signal).code === constants.SIGNAL_CODE.CASTLE_POS && visible[i].team === r.me.team) {
             r.castles.push({id: visible[i].id, x: visible[i].x, y: visible[i].y});
-            if(r.me.team === visible[i].team)
-                r.order++;
+            r.order++;
         }
     }
 }
@@ -112,10 +110,11 @@ function turn1step(r) {
     let visible = r.getVisibleRobots();
     //get castle coords on step 1
     for(let i=0;i<visible.length;i++) {
-        if (util.decodeCoords(visible[i].signal).code === constants.SIGNAL_CODE.CASTLE_POS) {
+        if (util.decodeCoords(visible[i].signal).code === constants.SIGNAL_CODE.CASTLE_POS && visible[i].team === r.me.team) {
             r.castles.push({id: visible[i].id, x: visible[i].x, y: visible[i].y});
         }
     }
+    r.numOfCastle = r.castles.length;
 
     //find responsible karbonite locs
     for(let i=0;i<r.karboniteCoords.length;i++) {
@@ -155,7 +154,7 @@ function turn1step(r) {
 
     r.log("prophet job");
     for (let i=0;i<r.unitLocationQueue.length;i++) {
-        r.buildQueue.push({unit: SPECS.PROPHET,karbonite:25, fuel: 200});
+        r.buildQueue.push({unit: SPECS.PROPHET,karbonite:25, fuel: 500});
         r.prophetQueue.push({x:r.unitLocationQueue[i].x, y: r.unitLocationQueue[i].y, code: constants.PROPHET_JOBS.DEFEND_GOAL});
     }
 
@@ -225,7 +224,15 @@ function step(r) {
 
     //build unit from queue
     if(r.buildQueue.length > 0) {
-        if(r.karbonite >= r.buildQueue[0].karbonite && r.fuel >= r.buildQueue[0].fuel) {
+        let requiredKarbonite = r.buildQueue[0].karbonite;
+        let requiredFuel = r.buildQueue[0].fuel;
+
+        if(r.step % r.numOfCastle !== r.order) {
+            requiredKarbonite *= r.numOfCastle;
+            requiredFuel *= r.numOfCastle;
+        }
+
+        if(r.karbonite >= requiredKarbonite && r.fuel >= requiredFuel) {
             let robot_to_build = r.buildQueue.shift();
 
             switch(robot_to_build.unit) {
@@ -261,7 +268,7 @@ function step(r) {
     }
 
     for(let i=0;i<visible.length;i++) {
-        if(visible[i].team !== r.me.team)
+        if(visible[i].team !== r.me.team && (visible[i].x - r.me.x) ** 2 + (visible[i].y - r.me.y) ** 2 <= 64)
             return r.attack(visible[i].x - r.me.x, visible[i].y - r.me.y);
     }
 
