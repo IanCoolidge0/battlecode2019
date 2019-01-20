@@ -120,6 +120,9 @@ function turn1step(r) {
     }
     r.numOfCastle = r.castles.length;
 
+    r.church_locations = util.getResourceClusters(r.karbonite_map, r.fuel_map, constants.CLUSTER_RADIUS, r.castles, r);
+    r.log(r.church_locations);
+
     //find responsible karbonite locs
     for(let i=0;i<r.karboniteCoords.length;i++) {
         let amIresponsible = true;
@@ -136,8 +139,6 @@ function turn1step(r) {
             r.pilgrimQueue.push({x: r.karboniteCoords[i].x, y: r.karboniteCoords[i].y, code: constants.PILGRIM_JOBS.MINE_KARBONITE});
         }
     }
-
-
 
     //find responsible fuel locs
     for(let i=0;i<r.fuelCoords.length;i++) {
@@ -156,14 +157,29 @@ function turn1step(r) {
         }
     }
 
-    r.log("prophet job");
-    for (let i=0;i<r.unitLocationQueue.length;i++) {
-        r.buildQueue.push({unit: SPECS.PROPHET,karbonite:25, fuel: 500});
-        r.prophetQueue.push({x:r.unitLocationQueue[i].x, y: r.unitLocationQueue[i].y, code: constants.PROPHET_JOBS.DEFEND_GOAL});
+    //find responsible church locs
+    for(let i=0;i<r.church_locations.length;i++) {
+        let amIresponsible = true;
+        for(let j=0;j<r.castles.length;j++) {
+            let dist = (r.castles[j].x - r.church_locations[i].x) ** 2 + (r.castles[j].y - r.church_locations[i].y) ** 2;
+            if(dist < (r.me.x - r.church_locations[i].x) ** 2 + (r.me.y - r.church_locations[i].y) ** 2) {
+                amIresponsible = false;
+                break;
+            }
+        }
+
+        if(amIresponsible) {
+            r.log("putting church at " + r.church_locations[i].x + "," + r.church_locations[i].y + " on build queue");
+            r.buildQueue.push({unit: SPECS.PILGRIM, karbonite: 10, fuel: 200});
+            r.pilgrimQueue.push({x: r.church_locations[i].x, y: r.church_locations[i].y, code: constants.PILGRIM_JOBS.BUILD_CHURCH});
+        }
     }
 
-    r.church_locations = util.sortClusters(util.getResourceClusters(r.karbonite_map, r.fuel_map, constants.CLUSTER_RADIUS, r), r.castles);
-
+    r.log("prophet job");
+    for (let i=0;i<r.unitLocationQueue.length;i++) {
+       r.buildQueue.push({unit: SPECS.PROPHET,karbonite:25, fuel: 500});
+       r.prophetQueue.push({x:r.unitLocationQueue[i].x, y: r.unitLocationQueue[i].y, code: constants.PROPHET_JOBS.DEFEND_GOAL});
+    }
 }
 
 
@@ -343,7 +359,10 @@ function step(r) {
 
 export function castle_step(r) {
 
-    r.log("step: " + r.step);
+    if (r.step % 10 === 0) {
+        r.log("STEP: " + r.step);
+    }
+
 
     if (r.step === 0) {
         init(r);

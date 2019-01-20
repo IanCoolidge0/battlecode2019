@@ -383,7 +383,7 @@ export function withInMap(coord,r) {
 
 
 
-export function getResourceClusters(karb_map, fuel_map, cluster_radius, r) {
+export function getResourceClusters(karb_map, fuel_map, cluster_radius, castles, r) {
     let karb_coords = resourceCoords(r.map, karb_map, {x: r.me.x, y: r.me.y}, getMoves(2), r);
     let fuel_coords = resourceCoords(r.map, fuel_map, {x: r.me.x, y: r.me.y}, getMoves(2), r);
     let coords = karb_coords.concat(fuel_coords);
@@ -392,6 +392,7 @@ export function getResourceClusters(karb_map, fuel_map, cluster_radius, r) {
 
     while(coords.length > 0) {
         let center = coords[0];
+
         centers.unshift({x: 0, y: 0, count: 0});
 
         let j = 0;
@@ -409,7 +410,37 @@ export function getResourceClusters(karb_map, fuel_map, cluster_radius, r) {
         coords.length = j;
     }
 
-    return centers;
+    let real_centers = [];
+
+    for(let i=0;i<centers.length;i++) {
+        let close = false;
+        for(let j=0;j<castles.length;j++) {
+            if((centers[i].x - castles[j].x) ** 2 + (centers[i].y - castles[j].y) ** 2 <= cluster_radius ** 2)
+                close = true;
+        }
+
+        if(!close)
+            real_centers.push(freeChurchTile(centers[i], karb_map, fuel_map));
+    }
+
+    return real_centers.sort(function(a,b) {
+        return b.count - a.count;
+    });
+}
+
+export function freeChurchTile(initial_pos, karb_map, fuel_map) {
+    let dx = 0;
+    let dy = 0;
+    let delta = [0,-1];
+    while(karb_map[initial_pos.y + dy][initial_pos.x + dx] || fuel_map[initial_pos.y + dy][initial_pos.x + dx]) {
+        if(dx === dy || (dx < 0 && dx === -dy) || (dx > 0 && dx === 1 - dy))
+            delta = [-delta[1], delta[0]];
+
+        dx += delta[0];
+        dy += delta[1];
+    }
+
+    return {x: initial_pos.x + dx, y: initial_pos.y + dy, count: initial_pos.count};
 }
 
 export function churchScore(cluster, castle_pos) {
