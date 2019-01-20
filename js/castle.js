@@ -406,7 +406,7 @@ function step(r) {
 
 
 export function castle_step(r) {
-    if (r.step === 750) {
+    if (r.step === 950) {
         r.signal(15,r.map.length ** 2);
         r.log("CCCCCRRRRRUUUUUUUSSSSSAAAAADDDDDEEEEERRRRR AAAAAATTTTTTAAAAAAACCCCKKKKKK!!!!!!!!!!!!!!!!!!!!!!!!");
         return;
