@@ -71,6 +71,8 @@ function init(r) {
     r.unitMap = combat.unitMap2(r);
 
     r.unitMapOther = combat.unitMap2_other(r);
+    r.unitMap_crusader = combat.unitMap2_crusader(r);
+    r.unitMap_crusader2 = combat.unitMap2_crusader2(r);
     // for (let i = 0;i < r.size;i++) {
     //     let str = "";
     //     for (let j = 0;j < r.size;j++) {
@@ -83,12 +85,16 @@ function init(r) {
     // }
     //r.log(r.unitMap);
     r.unit_location_distance =Math.floor(Math.sqrt((r.me.x - r.enemy_castle.x)**2 + (r.me.y - r.enemy_castle.y)**2) / 2);
-    if (r.unit_location_distance > 10) {
-        r.unit_location_distance = 10;
+    if (r.unit_location_distance > 7) {
+        r.unit_location_distance = 7;
     }
     r.unitLocationQueue = combat.unitLocationsQueue(r, 3, r.unit_location_distance, r.unitMap, true);
 
     r.unitLocationQueue = r.unitLocationQueue.concat(combat.unitLocationsQueue(r, 3, r.unit_location_distance, r.unitMapOther, true));
+    r.unitLocationQueue_crusader = combat.unitLocationsQueue(r, 3, r.size, r.unitMap_crusader, true);
+    r.unitLocationQueue_crusader = r.unitLocationQueue_crusader.concat(combat.unitLocationsQueue(r, 3, r.unit_location_distance, r.unitMap_crusader2, true));
+
+
 
     //r.log(r.unitLocationQueue.length + " possible units");
     r.castles = [];
@@ -207,6 +213,17 @@ function turn1step(r) {
        r.buildQueue.push({unit: SPECS.PROPHET,karbonite:25, fuel: 500});
        r.prophetQueue.push({x:r.unitLocationQueue[i].x, y: r.unitLocationQueue[i].y, code: constants.PROPHET_JOBS.DEFEND_GOAL});
     }
+
+    for (let i = 0; i < r.unitLocationQueue_crusader.length; i++) {
+        r.buildQueue.push({unit: SPECS.CRUSADER, karbonite: 25, fuel: 2000});
+        r.crusaderQueue.push({
+            x: r.unitLocationQueue_crusader[i].x,
+            y: r.unitLocationQueue_crusader[i].y,
+            code: constants.CRUSADER_JOBS.DEFEND_GOAL
+        });
+    }
+
+
 }
 
 
@@ -308,7 +325,7 @@ function step(r) {
                 }
             }
             if (robot.unit === SPECS.PREACHER) {
-                r.buildQueue.unshift({unit: SPECS.PROPHET,karbonite:25, fuel: 50,priority:true});
+                r.buildQueue.unshift({unit: SPECS.PREACHER,karbonite:25, fuel: 50,priority:true});
                 r.preacherQueue.unshift({x: robot.x, y: robot.y, code: constants.PREACHER_JOBS.DEFEND_CASTLE});
             }
             toRemove.push(myRobots[i]);
@@ -389,6 +406,11 @@ function step(r) {
 
 
 export function castle_step(r) {
+    if (r.step === 750) {
+        r.signal(15,r.map.length ** 2);
+        r.log("CCCCCRRRRRUUUUUUUSSSSSAAAAADDDDDEEEEERRRRR AAAAAATTTTTTAAAAAAACCCCKKKKKK!!!!!!!!!!!!!!!!!!!!!!!!");
+        return;
+    }
 
     if (r.step % 10 === 0) {
         r.log("STEP: " + r.step);

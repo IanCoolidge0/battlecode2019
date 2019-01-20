@@ -402,6 +402,45 @@ export function unitMap2_other(r) {
     return map;
 }
 
+export function unitMap2_crusader(r) {
+    let map = util.create2dArray(r.size, r.size, false);
+    let enemyCastle = util.getReflectedCoord({x: r.me.x, y: r.me.y}, r);
+
+    for(let i=0;i<r.size;i++) {
+        for(let j=0;j<r.size;j++) {
+            if(r.map[j][i] && !r.karbonite_map[j][i] && !r.fuel_map[j][i]) {
+                let enemyCastleDir = util.directionTo(r.me.x - enemyCastle.x , r.me.y - enemyCastle.y );
+                let unitDir = util.directionTo(i - r.me.x, j - r.me.y);
+
+                if(util.similar(enemyCastleDir, unitDir))
+                    map[j][i] = true;
+            }
+        }
+    }
+    //r.log(map);
+    return map;
+}
+export function unitMap2_crusader2(r) {
+    let map = util.create2dArray(r.size, r.size, false);
+    let enemyCastle = util.getReflectedCoord({x: r.me.x, y: r.me.y}, r);
+
+    for(let i=0;i<r.size;i++) {
+        for(let j=0;j<r.size;j++) {
+            if(r.map[j][i] && !r.karbonite_map[j][i] && !r.fuel_map[j][i]) {
+                let enemyCastleDir = util.directionTo(r.me.x - enemyCastle.x , r.me.y - enemyCastle.y );
+                let enemyCastleDir2 = util.rotateRight(enemyCastleDir,1);
+                let enemyCastleDir3 = util.rotateLeft(enemyCastleDir,1)
+                let unitDir = util.directionTo(i - r.me.x, j - r.me.y);
+
+                if(util.similar(enemyCastleDir2, unitDir) || util.similar(enemyCastleDir3,unitDir));
+                    map[j][i] = true;
+            }
+        }
+    }
+    //r.log(map);
+    return map;
+}
+
 export function next_unitLocation_odd(r,direction,unitMap) {
     let location;
     for (let i = 2;i < r.map.length;i++) {

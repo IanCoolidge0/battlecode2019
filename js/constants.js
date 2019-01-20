@@ -45,6 +45,15 @@ export const PREACHER_MODE = {
     ATTACK_CASTLE:1,
 
 }
+export const CRUSADER_JOBS = {
+    DEFEND_GOAL: 0
+}
+export const CRUSADER_MODE = {
+    PATH_TO_GOAL: 0,
+    DEFEND: 1,
+    CHAAAAAAAARGE:2
+
+}
 
 
 
