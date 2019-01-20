@@ -4,6 +4,7 @@ import {SPECS} from 'battlecode';
 import * as combat from "./combat.js";
 
 
+
 function init(r) {
     r.size = r.map.length;
 
@@ -17,11 +18,20 @@ function init(r) {
 
         r.mode = constants.PREACHER_MODE.DEFEND_CASTLE;
 
-        // r.goal_map = util.BFSMap(r.map, {x: r.currentJob.x, y: r.currentJob.y}, util.getMoves(2));
-        // let move = r.goal[r.me.y][r.me.x];
-        //
-        // //r.log(move);
-        // return util.fuzzyMove(r,move.x,move.y,2,1);
+
+        // r.log('goal');
+        // r.log(r.goal_map[r.me.y][r.me.x]);
+        let move = util.directionTo(r.currentJob.x - r.me.x,r.currentJob.y - r.me.y);
+        r.log('enemy dir');
+        r.log(move);
+        if(Math.random() > 0.5) {
+            move = util.rotateRight(move, 1);
+        } else {
+            move = util.rotateLeft(move, 1);
+        }
+
+        //r.log(move);
+        return util.fuzzyMove(r,move.x,move.y,2,0);
     }
 
 }
@@ -40,7 +50,7 @@ function step(r) {
 export function preacher_step(r) {
 
     if (r.step === 0) {
-        init(r);
+        return init(r);
     } else {
         r.castleTalk(124);
     }

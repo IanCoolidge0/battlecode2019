@@ -172,7 +172,7 @@ export function flee(r) {
     let rmap = r.getVisibleRobotMap();
     let move = r.castle_map[r.me.y][r.me.x];
     let potential_moves = util.getFuzzyMoves(r, move.x, move.y, 2, 2);
-
+``
     for(let i=0;i<potential_moves.length;i++) {
         let next = {x:r.me.x - potential_moves[i].x, y:r.me.y - potential_moves[i].y};
         if (util.withInMap(next,r) && r.map[next.y][next.x] && damageMap[next.y][next.x] === 0 && rmap[next.y][next.x] === 0) {

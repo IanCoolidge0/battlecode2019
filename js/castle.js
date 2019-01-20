@@ -8,9 +8,19 @@ function attempt_build(r, unit,dir) {
         util.rotateRight(dir,2), util.rotateLeft(dir,3), util.rotateRight(dir,3), util.rotateLeft(dir,4)];
     let vis_map = r.getVisibleRobotMap();
 
+    if (unit === SPECS.PREACHER) {
+        r.log('enemy direction');
+        r.log(dir);
+    }
+
     for(let i=0;i<dir_coord.length;i++) {
         let newX = r.me.x + dir_coord[i].x;
         let newY = r.me.y + dir_coord[i].y;
+        if (unit === SPECS.PREACHER) {
+            r.log('direction');
+            r.log(dir_coord[i]);
+        }
+
 
         if(r.map[newY][newX] && vis_map[newY][newX] === 0) {
 
@@ -23,7 +33,7 @@ function build_unit(r,unit_type,target_x,target_y,job) {
     r.currentAssignment = {unit: unit_type, x: target_x, y: target_y, code: job};
     r.signal(util.signalCoords(target_x, target_y, job), 2);
     r.log("built " + unit_type + " at: " + target_x + ", " + target_y + "  job: " + job);
-    return attempt_build(r, unit_type,util.directionTo(target_x,target_y));
+    return attempt_build(r, unit_type,util.directionTo(target_x - r.me.x,target_y - r.me.y));
 }
 
 function reassign_signal(unit_type, radius, r) {
@@ -76,7 +86,8 @@ function init(r) {
     //     r.log(str);
     // }
     //r.log(r.unitMap);
-    r.unitLocationQueue = combat.unitLocationsQueue(r,Math.floor((Math.abs(r.me.x - r.enemy_castle.x) + Math.abs(r.me.y - r.enemy_castle.y)) / 2));
+    r.unit_location_distance =Math.floor(Math.sqrt((r.me.x - r.enemy_castle.x)**2 + (r.me.y - r.enemy_castle.y)**2) / 2);
+    r.unitLocationQueue = combat.unitLocationsQueue(r,r.unit_location_distance);
     //r.log(r.unitLocationQueue.length + " possible units");
     r.castles = [];
     r.order = 0;
@@ -322,7 +333,7 @@ function step(r) {
             requiredFuel *= r.numOfCastle;
         }
 
-        if((r.karbonite >= requiredKarbonite + 80 && r.fuel >= requiredFuel) || (r.buildQueue[0].priority && r.karbonite >=r.buildQueue[0].karbonite && r.fuel >= r.buildQueue[0].fuel)) {
+        if((r.karbonite >= requiredKarbonite + 70 && r.fuel >= requiredFuel) || (r.buildQueue[0].priority && r.karbonite >=r.buildQueue[0].karbonite && r.fuel >= r.buildQueue[0].fuel)) {
             let robot_to_build = r.buildQueue.shift();
 
             switch(robot_to_build.unit) {
