@@ -138,14 +138,15 @@ function turn1step(r) {
     r.log(r.church_locations);
 
     let karbIndex = 0;
-    while((r.karboniteCoords[karbIndex].x - r.me.x) ** 2 + (r.karboniteCoords[karbIndex].y - r.me.y) ** 2 <= constants.CLUSTER_RADIUS) {
+    while((r.karboniteCoords[karbIndex].x - r.me.x) ** 2 + (r.karboniteCoords[karbIndex].y - r.me.y) ** 2 <= constants.CLUSTER_RADIUS ** 2) {
+        r.log("KARBON: " + r.karboniteCoords[karbIndex]);
         r.buildQueue.push({unit: SPECS.PILGRIM, karbonite: 10, fuel: 200});
         r.pilgrimQueue.push({x: r.karboniteCoords[karbIndex].x, y: r.karboniteCoords[karbIndex].y, code: constants.PILGRIM_JOBS.MINE_KARBONITE});
         karbIndex++;
     }
 
     let fuelIndex = 0;
-    while((r.fuelCoords[fuelIndex].x - r.me.x) ** 2 + (r.fuelCoords[fuelIndex].y - r.me.y) ** 2 <= constants.CLUSTER_RADIUS) {
+    while((r.fuelCoords[fuelIndex].x - r.me.x) ** 2 + (r.fuelCoords[fuelIndex].y - r.me.y) ** 2 <= constants.CLUSTER_RADIUS ** 2) {
         r.buildQueue.push({unit: SPECS.PILGRIM, karbonite: 10, fuel: 200});
         r.pilgrimQueue.push({x: r.fuelCoords[fuelIndex].x, y: r.fuelCoords[fuelIndex].y, code: constants.PILGRIM_JOBS.MINE_FUEL});
         fuelIndex++;

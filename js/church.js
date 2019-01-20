@@ -35,14 +35,6 @@ function init(r) {
 }
 
 function step(r) {
-    //assignment
-    for(let i=0;i<visible.length;i++) {
-        if(visible[i].castle_talk === constants.INIT_CASTLETALK && (visible[i].x - r.me.x) ** 2 + (visible[i].y - r.me.y) ** 2 <= 2) {
-            //r.log('added');
-            r.createdRobots[visible[i].id] = {x: r.currentAssignment.x, y: r.currentAssignment.y, code: r.currentAssignment.code, unit: r.currentAssignment.unit};
-        }
-    }
-
     //build unit from queue
     if(r.buildQueue.length > 0) {
         let requiredKarbonite = r.buildQueue[0].karbonite;
