@@ -1,7 +1,9 @@
 import * as util from "./util.js"
 import {SPECS} from 'battlecode';
 import * as constants from "./constants.js";
-import * as combat from "./combat";
+
+import * as combat from "./combat.js";
+
 
 function attempt_build(r, unit,dir) {
     let dir_coord = [dir, util.rotateLeft(dir,1), util.rotateRight(dir,1), util.rotateLeft(dir,2),
@@ -27,6 +29,7 @@ function build_unit(r,unit_type,target_x,target_y,job) {
 }
 
 function init(r) {
+    r.size = r.map.length;
     r.buildQueue = [];
     
     r.pilgrimQueue = [];
@@ -35,7 +38,9 @@ function init(r) {
     r.crusaderQueue = [];
     let dir_coord = [{x:-1,y:-1}, {x:-1,y:0}, {x:-1,y:1}, {x:0,y:1}, {x:1,y:1}, {x:1,y:0}, {x:1,y:-1}, {x:0,y:-1}];
     r.unitMap = combat.unitMap(r);
-    r.unitLocationQueue = combat.unitLocationsQueue(r,2);
+    //r.log("UNITMAP_________________________________________")
+    //r.log(r.unitMap);
+    r.unitLocationQueue = combat.unitLocationsQueue(r,2,2,r.unitMap,true);
 
     for (let i=0;i<r.unitLocationQueue.length;i++) {
         r.buildQueue.push({unit: SPECS.PROPHET,karbonite:25, fuel: 200});
@@ -45,6 +50,7 @@ function init(r) {
 
 function step(r) {
     //assignment
+    let visible = r.getVisibleRobots();
     for(let i=0;i<visible.length;i++) {
         if(visible[i].castle_talk === constants.INIT_CASTLETALK && (visible[i].x - r.me.x) ** 2 + (visible[i].y - r.me.y) ** 2 <= 2) {
             //r.log('added');
@@ -57,7 +63,7 @@ function step(r) {
         let requiredKarbonite = r.buildQueue[0].karbonite;
         let requiredFuel = r.buildQueue[0].fuel;
 
-        if((r.karbonite >= requiredKarbonite + 80 && r.fuel >= requiredFuel) || (r.buildQueue[0].priority && r.karbonite >=r.buildQueue[0].karbonite && r.fuel >= r.buildQueue[0].fuel)) {
+        if((r.karbonite >= requiredKarbonite + 70 && r.fuel >= requiredFuel) || (r.buildQueue[0].priority && r.karbonite >=r.buildQueue[0].karbonite && r.fuel >= r.buildQueue[0].fuel)) {
             let robot_to_build = r.buildQueue.shift();
 
             switch(robot_to_build.unit) {

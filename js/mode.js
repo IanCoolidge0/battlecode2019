@@ -3,8 +3,12 @@ import {SPECS} from 'battlecode';
 import * as combat from "./combat.js";
 
 
+
 export function travel_to_goal(r,radius,tolerance,goalMap) {
     let dir = goalMap[r.me.y][r.me.x];
+    // return util.fuzzyMove(r,-dir.x,-dir.y,radius,tolerance);
+
+
     return util.fuzzyMove(r,-dir.x,-dir.y,radius,tolerance);
 }
 
@@ -23,7 +27,8 @@ export function prophet_attack(r,castleCoords) {
     //
     // return combat.prophet_kiting(r, damageMap);
     let attack = combat.attack_nearest_castle(r,SPECS.PROPHET,castleCoords);
-    return r.attack(attack.x,attack.y);
+    if (attack !== undefined)
+        return r.attack(attack.x,attack.y);
 }
 
 

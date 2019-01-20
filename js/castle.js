@@ -8,18 +8,12 @@ function attempt_build(r, unit,dir) {
         util.rotateRight(dir,2), util.rotateLeft(dir,3), util.rotateRight(dir,3), util.rotateLeft(dir,4)];
     let vis_map = r.getVisibleRobotMap();
 
-    if (unit === SPECS.PREACHER) {
-        r.log('enemy direction');
-        r.log(dir);
-    }
+
 
     for(let i=0;i<dir_coord.length;i++) {
         let newX = r.me.x + dir_coord[i].x;
         let newY = r.me.y + dir_coord[i].y;
-        if (unit === SPECS.PREACHER) {
-            r.log('direction');
-            r.log(dir_coord[i]);
-        }
+
 
 
         if(r.map[newY][newX] && vis_map[newY][newX] === 0) {
@@ -75,6 +69,8 @@ function init(r) {
     r.createdRobots = {};
 
     r.unitMap = combat.unitMap2(r);
+
+    r.unitMapOther = combat.unitMap2_other(r);
     // for (let i = 0;i < r.size;i++) {
     //     let str = "";
     //     for (let j = 0;j < r.size;j++) {
@@ -87,7 +83,13 @@ function init(r) {
     // }
     //r.log(r.unitMap);
     r.unit_location_distance =Math.floor(Math.sqrt((r.me.x - r.enemy_castle.x)**2 + (r.me.y - r.enemy_castle.y)**2) / 2);
-    r.unitLocationQueue = combat.unitLocationsQueue(r,r.unit_location_distance);
+    if (r.unit_location_distance > 10) {
+        r.unit_location_distance = 10;
+    }
+    r.unitLocationQueue = combat.unitLocationsQueue(r, 3, r.unit_location_distance, r.unitMap, true);
+
+    r.unitLocationQueue = r.unitLocationQueue.concat(combat.unitLocationsQueue(r, 3, r.unit_location_distance, r.unitMapOther, true));
+
     //r.log(r.unitLocationQueue.length + " possible units");
     r.castles = [];
     r.order = 0;
@@ -132,7 +134,7 @@ function turn1step(r) {
     r.numOfCastle = r.castles.length;
 
     r.church_locations = util.getResourceClusters(r.karbonite_map, r.fuel_map, constants.CLUSTER_RADIUS, r.castles, r);
-    r.log(r.church_locations);
+    //r.log(r.church_locations);
 
     let karbIndex = 0;
     while((r.karboniteCoords[karbIndex].x - r.me.x) ** 2 + (r.karboniteCoords[karbIndex].y - r.me.y) ** 2 <= constants.CLUSTER_RADIUS) {
@@ -160,7 +162,7 @@ function turn1step(r) {
         }
 
         if(amIresponsible) {
-            r.log("putting church at " + r.church_locations[i].x + "," + r.church_locations[i].y + " on build queue");
+            //r.log("putting church at " + r.church_locations[i].x + "," + r.church_locations[i].y + " on build queue");
             r.buildQueue.push({unit: SPECS.PILGRIM, karbonite: 10, fuel: 200});
             r.pilgrimQueue.push({x: r.church_locations[i].x, y: r.church_locations[i].y, code: constants.PILGRIM_JOBS.BUILD_CHURCH});
         }
@@ -200,7 +202,7 @@ function turn1step(r) {
         }
     }
 
-    r.log("prophet job");
+    //r.log("prophet job");
     for (let i=0;i<r.unitLocationQueue.length;i++) {
        r.buildQueue.push({unit: SPECS.PROPHET,karbonite:25, fuel: 500});
        r.prophetQueue.push({x:r.unitLocationQueue[i].x, y: r.unitLocationQueue[i].y, code: constants.PROPHET_JOBS.DEFEND_GOAL});
@@ -211,10 +213,10 @@ function turn1step(r) {
 function emergency_defense(r) {
     if (!combat.enemyCombatInRange(r)) return;
     let count = combat.amount_of_enemy(r);
-    r.log("COUNT:");
-    r.log(count);
-    r.log("EMERGENCY DEFENSE");
-    r.log(r.emergency_defense_units);
+    //r.log("COUNT:");
+    //r.log(count);
+    //r.log("EMERGENCY DEFENSE");
+    //r.log(r.emergency_defense_units);
     if (r.emergency_defense_units[SPECS.CRUSADER] >= count[SPECS.CRUSADER] &&
         r.emergency_defense_units[SPECS.PROPHET] >= count[SPECS.PROPHET] &&
         r.emergency_defense_units[SPECS.PREACHER] >= count[SPECS.PREACHER]) return;
@@ -236,7 +238,7 @@ function emergency_defense(r) {
 
     let enemyDirection = util.directionTo(enemyLocation.x - r.me.x,enemyLocation.y - r.me.y);
     let unitLocation = combat.next_unitLocation_odd(r,enemyDirection,r.unitMap_odd);
-    r.log("emergency unit at" + unitLocation.x + ", " + unitLocation.y);
+    //r.log("emergency unit at" + unitLocation.x + ", " + unitLocation.y);
     if (unitLocation === undefined) {
         unitLocation = enemyLocation;
     } else {
@@ -390,6 +392,7 @@ export function castle_step(r) {
 
 
     if (r.step === 0) {
+
         init(r);
     } else if (r.step > 0) {
         if(r.step === 1)

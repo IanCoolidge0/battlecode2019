@@ -327,6 +327,55 @@ export function getFuzzyMoves(r,dx,dy,radius,tolerance) {
     return moves;
 }
 
+export function getFuzzyMoves2(r,dx,dy,r_squared,tolerance) {
+
+    let possibleMoves = getMoves2(r_squared);
+    let dir = [directionTo(dx, dy, r)];
+
+
+    if (tolerance >= 1) {
+        if(Math.random() > 0.5) {
+            dir.push(rotateRight(dir[0], 1));
+            dir.push(rotateLeft(dir[0], 1));
+        } else {
+            dir.push(rotateLeft(dir[0], 1));
+            dir.push(rotateRight(dir[0], 1));
+        }
+
+    }
+    let moves = [];
+    for (let j = 0;j < dir.length;j++) {
+        for (let i = 0;i < possibleMoves.length;i++) {
+            let currentDir = directionTo(possibleMoves[i].x,possibleMoves[i].y,r);
+            if (currentDir.x === dir[j].x && currentDir.y === dir[j].y)
+                moves.push(possibleMoves[i]);
+        }
+    }
+    shuffleArray(moves);
+    moves.unshift(dir);
+
+    if (tolerance >= 2) {
+        if(Math.random() > 0.5) {
+            dir.push(rotateRight(dir[0], 2));
+            dir.push(rotateLeft(dir[0], 2));
+        } else {
+            dir.push(rotateLeft(dir[0], 2));
+            dir.push(rotateRight(dir[0], 2));
+        }
+        let moves2 = []
+        for (let j = 2;j < dir.length;j++) {
+            for (let i = 0;i < possibleMoves.length;i++) {
+                let currentDir = directionTo(possibleMoves[i].x,possibleMoves[i].y,r);
+                if (currentDir.x === dir[j].x && currentDir.y === dir[j].y)
+                    moves2.push(possibleMoves[i]);
+            }
+        }
+        shuffleArray(moves2);
+        moves = moves.concat(moves2);
+    }
+    return moves;
+}
+
 export function shuffleArray(array) {
     for (var i = array.length - 1; i > 0; i--) {
         var j = Math.floor(Math.random() * (i + 1));
@@ -335,7 +384,20 @@ export function shuffleArray(array) {
         array[j] = temp;
     }
 }
+export function fuzzyMove2(r,dx,dy,r_squared,tolerance) {
 
+    let moves = getFuzzyMoves2(r,dx,dy,r_squared,tolerance);
+    let rmap = r.getVisibleRobotMap();
+    for (let i = 0;i < moves.length;i++) {
+
+        const next = {x:r.me.x + moves[i].x,y:r.me.y + moves[i].y};
+
+        if (withInMap(next,r) && r.map[next.y][next.x] && rmap[next.y][next.x] === 0) {
+
+            return r.move(moves[i].x,moves[i].y);
+        }
+    }
+}
 
 export function fuzzyMove(r,dx,dy,radius,tolerance) {
 
@@ -352,48 +414,9 @@ export function fuzzyMove(r,dx,dy,radius,tolerance) {
     }
 }
 
-export function getFuzzyMoves2(r,dx,dy,possibleMoves,tolerance) {
 
 
-    let dir = [directionTo(dx, dy, r)];
 
-
-    if (tolerance >= 1) {
-        dir.push(rotateRight(dir[0], 1));
-        dir.push(rotateLeft(dir[0], 1));
-
-    }
-    if (tolerance >= 2) {
-        dir.push(rotateRight(dir[0],2));
-        dir.push(rotateLeft(dir[0],2));
-
-    }
-
-    let moves = [];
-    for (let j = 0;j < dir.length;j++) {
-        for (let i = 0;i < possibleMoves.length;i++) {
-            let currentDir = directionTo(possibleMoves[i].x,possibleMoves[i].y,r);
-            if (currentDir.x === dir[j].x && currentDir.y === dir[j].y)
-                moves.push(possibleMoves[i]);
-        }
-    }
-    return moves;
-}
-
-export function fuzzyMove2(r,dx,dy,possibleMoves,tolerance) {
-
-    let moves = getFuzzyMoves(r,dx,dy,possibleMoves,tolerance);
-    let rmap = r.getVisibleRobotMap();
-    for (let i = 0;i < moves.length;i++) {
-
-        const next = {x:r.me.x + moves[i].x,y:r.me.y + moves[i].y};
-
-        if (withInMap(next,r) && r.map[next.y][next.x] && rmap[next.y][next.x] === 0) {
-
-            return r.move(moves[i].x,moves[i].y);
-        }
-    }
-}
 
 
 export function withInMap(coord,r) {
