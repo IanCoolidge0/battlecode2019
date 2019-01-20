@@ -27,13 +27,13 @@ export function step(r) {
 
     if (r.fuel < 300) return;
     if (r.mode !== constants.PROPHET_MODE.ATTACK && combat.enemyInRange(r)) {
-        r.log("CHANGE MODE TO ATTACK");
+        //r.log("CHANGE MODE TO ATTACK");
         r.mode = constants.PROPHET_MODE.ATTACK;
     } else if (r.mode !== constants.PROPHET_MODE.DEFEND && r.me.x === r.currentJob.x && r.me.y === r.currentJob.y) {
-        r.log("CHANGE MODE TO ATTACK");
+        //r.log("CHANGE MODE TO DEFEND");
         r.mode = constants.PROPHET_MODE.DEFEND;
     } else if (r.mode !== constants.PROPHET_MODE.PATH_TO_GOAL && (r.me.x !== r.currentJob.x || r.me.y !== r.currentJob.y)) {
-        r.log("CHANGE MODE TO PATH TO GOAL");
+        //r.log("CHANGE MODE TO PATH TO GOAL");
         r.mode = constants.PROPHET_MODE.PATH_TO_GOAL;
     }
 

@@ -163,51 +163,59 @@ function turn1step(r) {
 
 }
 
+
+function emergency_defense(r) {
+    if (!combat.enemyCombatInRange(r)) return;
+
+}
+
 function step(r) {
     let visible = r.getVisibleRobots();
 
-    r.log("created robots");
-    r.log(r.createdRobots);
+    //r.log("created robots");
+    //r.log(r.createdRobots);
+
+
     //queue reinforcements if requested by pilgrim
-    for(let i=0;i<visible.length;i++) {
-        if(visible[i].castle_talk === constants.PILGRIM_DANGER_CASTLETALK) {
-            r.buildQueue.unshift({unit: SPECS.PROPHET, karbonite: 25, fuel: 200});
-            r.prophetQueue.unshift({x: r.createdRobots[visible[i].id].x, y: r.createdRobots[visible[i].id].y, code: constants.PROPHET_JOBS.REINFORCE_RESOURCE})
-        }
-    }
+    // for(let i=0;i<visible.length;i++) {
+    //     if(visible[i].castle_talk === constants.PILGRIM_DANGER_CASTLETALK) {
+    //         r.buildQueue.unshift({unit: SPECS.PROPHET, karbonite: 25, fuel: 200});
+    //         r.prophetQueue.unshift({x: r.createdRobots[visible[i].id].x, y: r.createdRobots[visible[i].id].y, code: constants.PROPHET_JOBS.REINFORCE_RESOURCE})
+    //     }
+    // }
 
     //replace dead units and remove them from r.createdRobots
-    let myRobots = Object.keys(r.createdRobots);
-    let toRemove = [];
-    for(let i=0;i<myRobots.length;i++) {
-        let robot = r.createdRobots[myRobots[i]];
-        let alive = false;
-
-        for(let j=0;j<visible.length;j++) {
-            if(visible[j].id === myRobots[i])
-                alive = true;
-        }
-
-        if(!alive) {
-            r.log("A unit died.");
-
-            if(robot.unit === SPECS.PILGRIM) {
-                if (robot.code === constants.PILGRIM_JOBS.MINE_KARBONITE) {
-                    r.buildQueue.push({unit: SPECS.PILGRIM, karbonite: 10, fuel: 200});
-                    r.pilgrimQueue.push({x: robot.x, y: robot.y, code: constants.PILGRIM_JOBS.MINE_KARBONITE});
-                } else if (robot.code === constants.PILGRIM_JOBS.MINE_FUEL) {
-                    r.buildQueue.push({unit: SPECS.PILGRIM, karbonite: 10, fuel: 200});
-                    r.pilgrimQueue.push({x: robot.x, y: robot.y, code: constants.PILGRIM_JOBS.MINE_FUEL});
-                }
-            }
-
-            toRemove.push(myRobots[i]);
-        }
-    }
-
-    for(let i=0;i<toRemove.length;i++) {
-        delete r.createdRobots[toRemove[i]];
-    }
+    // let myRobots = Object.keys(r.createdRobots);
+    // let toRemove = [];
+    // for(let i=0;i<myRobots.length;i++) {
+    //     let robot = r.createdRobots[myRobots[i]];
+    //     let alive = false;
+    //
+    //     for(let j=0;j<visible.length;j++) {
+    //         if(visible[j].id === myRobots[i])
+    //             alive = true;
+    //     }
+    //
+    //     if(!alive) {
+    //         r.log("A unit died.");
+    //
+    //         if(robot.unit === SPECS.PILGRIM) {
+    //             if (robot.code === constants.PILGRIM_JOBS.MINE_KARBONITE) {
+    //                 r.buildQueue.push({unit: SPECS.PILGRIM, karbonite: 10, fuel: 200});
+    //                 r.pilgrimQueue.push({x: robot.x, y: robot.y, code: constants.PILGRIM_JOBS.MINE_KARBONITE});
+    //             } else if (robot.code === constants.PILGRIM_JOBS.MINE_FUEL) {
+    //                 r.buildQueue.push({unit: SPECS.PILGRIM, karbonite: 10, fuel: 200});
+    //                 r.pilgrimQueue.push({x: robot.x, y: robot.y, code: constants.PILGRIM_JOBS.MINE_FUEL});
+    //             }
+    //         }
+    //
+    //         toRemove.push(myRobots[i]);
+    //     }
+    // }
+    //
+    // for(let i=0;i<toRemove.length;i++) {
+    //     delete r.createdRobots[toRemove[i]];
+    // }
 
     ///// GENERAL CASTLE CODE /////
 
@@ -268,9 +276,7 @@ function step(r) {
 
 
 export function castle_step(r) {
-    if (r.step % 100 === 0) {
-        r.log("STEP: " + r.step);
-    }
+    r.log("step: " + r.step);
     if (r.step === 0) {
         init(r);
     } else if (r.step > 0) {

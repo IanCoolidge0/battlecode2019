@@ -16,6 +16,18 @@ export function enemyInRange(r) {
     }
     return false;
 }
+export function enemyCombatInRange(r) {
+    let robots = r.getVisibleRobots();
+    for (let i =0;i < robots.length;i++) {
+        let robot = robots[i];
+
+        if (r.isVisible(robot) && robot.team !== r.me.team) {
+            if (robot.unit === SPECS.PILGRIM || robot.unit === SPECS.CASTLE || robot.unit === SPECS.CHURCH) continue;
+            return true;
+        }
+    }
+    return false;
+}
 
 export function simple_attack(r,unit) {
     let robots = r.getVisibleRobots();
@@ -72,9 +84,13 @@ export function get_attacks(r,unit) {
 
 
 export function prophet_kiting(r,damageMap) {
+    if (simple_attack(r,SPECS.PROPHET) === undefined) {
+
+    }
     if (damageMap[r.me.y][r.me.x] === 0) {
         let attack = simple_attack(r,SPECS.PROPHET);
-        return r.attack(attack.x,attack.y);
+        if (attack !== undefined)
+            return r.attack(attack.x,attack.y);
     }
     let moves = util.getMoves(2);
     let rmap = r.getVisibleRobotMap();
@@ -88,6 +104,8 @@ export function prophet_kiting(r,damageMap) {
     if (r.me.health > 10) {
         if (damageMap[r.me.y][r.me.x] === 10) {
             let attack = simple_attack(r,SPECS.PROPHET);
+            if (attack !== undefined)
+                return r.attack(attack.x,attack.y);
             return r.attack(attack.x,attack.y);
         }
         for (let i = 0;i < moves.length;i++) {
@@ -99,19 +117,19 @@ export function prophet_kiting(r,damageMap) {
         }
     }
     let attack = simple_attack(r,SPECS.PROPHET);
+    if (attack !== undefined)
+        return r.attack(attack.x,attack.y);
     return r.attack(attack.x,attack.y);
-
-
-
-
 }
 
 
 
 
 export function damageMap(r) {
-    let damageMap = util.create2dArray(r.size,r.size,0);
+    let damageMap = util.create2dArray(r.map.length,r.map.length,0);
+
     let robots = r.getVisibleRobots();
+
     for (let i = 0;i < robots.length;i++) {
 
         let robot = robots[i];
@@ -128,6 +146,41 @@ export function damageMap(r) {
         for (let j = 0;j < attackRange.length;j++) {
             let coord = {x:robot.x + attackRange[j].x,y:robot.y + attackRange[j].y};
             if (!util.withInMap(coord,r)) continue;
+            damageMap[coord.y][coord.x] += damage;
+        }
+    }
+    return  damageMap;
+
+}
+
+export function damageMap2(r) {
+    let damageMap = util.create2dArray(r.map.length,r.map.length,0);
+
+    let robots = r.getVisibleRobots();
+
+    for (let i = 0;i < robots.length;i++) {
+
+        let robot = robots[i];
+
+        r.log(robot.id);
+        if(!r.isVisible(robot) || r.me.team === robot.team) continue;
+        r.log("visible");
+        if (robot.unit === SPECS.PILGRIM || robot.unit === SPECS.CASTLE || robot.unit === SPECS.CHURCH) continue;
+        r.log("combat");
+        //r.log('enemy robot');
+        let attackRange = getAttackRange(robot.unit);
+        r.log(attackRange);
+        let damage = SPECS.UNITS[robot.unit].ATTACK_DAMAGE;
+        r.log("damage");
+        r.log(damage);
+
+        for (let j = 0;j < attackRange.length;j++) {
+
+            let coord = {x:robot.x + attackRange[j].x,y:robot.y + attackRange[j].y};
+            r.log(coord);
+            r.log(util.withInMap(coord,r));
+            if (!util.withInMap(coord,r)) continue;
+
             damageMap[coord.y][coord.x] += damage;
         }
     }
@@ -182,11 +235,13 @@ export function unitMap(r) {
     return map;
 }
 
+
+
 export function unitLocationsQueue(r,radius) {
     let unit_location_queue = [];
 
     let location;
-    for (let i = 2;i < radius;i++) {
+    for (let i = 6;i < radius;i++) {
 
         for (let j = -i;j <= i;j++) {
             location = {x:r.me.x + i, y:r.me.y + j};
@@ -197,9 +252,6 @@ export function unitLocationsQueue(r,radius) {
             if (util.withInMap(location,r) && r.unitMap[location.y][location.x]) {
                 unit_location_queue.push(location);
             }
-
-
-
         }
         for (let j = -i + 1;j <= i - 1;j++) {
 
@@ -211,12 +263,10 @@ export function unitLocationsQueue(r,radius) {
             if (util.withInMap(location,r) && r.unitMap[location.y][location.x]) {
                 unit_location_queue.push(location);
             }
-
-
         }
-
-
     }
     r.log(unit_location_queue);
     return unit_location_queue;
 }
+
+

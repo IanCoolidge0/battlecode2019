@@ -177,9 +177,9 @@ export function isHorizontallySymm(r) {
 export function getReflectedCoord(coord,r) {
 
     if (r.HSymm) {
-        return [coord[0],r.map.length - 1 - coord[1]];
+        return {x:coord.x,y:r.map.length - 1 - coord.y};
     } else {
-        return [r.map.length - 1 - coord[0],coord[1]];
+        return {x:r.map.length - 1 - coord.x,y:coord.y};
     }
 }
 export function directions(dir) {
@@ -352,7 +352,7 @@ export function fuzzyMove2(r,dx,dy,possibleMoves,tolerance) {
 
 export function withInMap(coord,r) {
 
-    return coord.x >= 0 && coord.y >= 0 && coord.x < r.size && coord.y < r.size;
+    return coord.x >= 0 && coord.y >= 0 && coord.x < r.map.length && coord.y < r.map.length;
 }
 
 

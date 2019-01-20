@@ -13,7 +13,8 @@ export const PILGRIM_JOBS = {
 export const PILGRIM_MODE = {
     MOVE_TO_RESOURCE: 0,
     MINE_RESOURCE: 1,
-    MOVE_TO_CASTLE: 2
+    MOVE_TO_CASTLE: 2,
+    FLEE: 3
 };
 
 export const PROPHET_JOBS = {

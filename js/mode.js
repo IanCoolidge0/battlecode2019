@@ -19,9 +19,12 @@ export function attack(r,unit) {
 
 export function prophet_attack(r) {
     let damageMap = combat.damageMap(r);
+    //r.log(damageMap);
 
     return combat.prophet_kiting(r, damageMap);
 }
+
+
 
 
 
