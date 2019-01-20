@@ -123,38 +123,18 @@ function turn1step(r) {
     r.church_locations = util.getResourceClusters(r.karbonite_map, r.fuel_map, constants.CLUSTER_RADIUS, r.castles, r);
     r.log(r.church_locations);
 
-    //find responsible karbonite locs
-    for(let i=0;i<r.karboniteCoords.length;i++) {
-        let amIresponsible = true;
-        for(let j=0;j<r.castles.length;j++) {
-            let dist = (r.castles[j].x - r.karboniteCoords[i].x) ** 2 + (r.castles[j].y - r.karboniteCoords[i].y) ** 2;
-            if(dist < (r.me.x - r.karboniteCoords[i].x) ** 2 + (r.me.y - r.karboniteCoords[i].y) ** 2) {
-                amIresponsible = false;
-                break;
-            }
-        }
-
-        if(amIresponsible) {
-            r.buildQueue.push({unit: SPECS.PILGRIM, karbonite: 10, fuel: 200});
-            r.pilgrimQueue.push({x: r.karboniteCoords[i].x, y: r.karboniteCoords[i].y, code: constants.PILGRIM_JOBS.MINE_KARBONITE});
-        }
+    let karbIndex = 0;
+    while((r.karboniteCoords[karbIndex].x - r.me.x) ** 2 + (r.karboniteCoords[karbIndex].y - r.me.y) ** 2 <= constants.CLUSTER_RADIUS) {
+        r.buildQueue.push({unit: SPECS.PILGRIM, karbonite: 10, fuel: 200});
+        r.pilgrimQueue.push({x: r.karboniteCoords[karbIndex].x, y: r.karboniteCoords[karbIndex].y, code: constants.PILGRIM_JOBS.MINE_KARBONITE});
+        karbIndex++;
     }
 
-    //find responsible fuel locs
-    for(let i=0;i<r.fuelCoords.length;i++) {
-        let amIresponsible = true;
-        for(let j=0;j<r.castles.length;j++) {
-            let dist = (r.castles[j].x - r.fuelCoords[i].x) ** 2 + (r.castles[j].y - r.fuelCoords[i].y) ** 2;
-            if(dist < (r.me.x - r.fuelCoords[i].x) ** 2 + (r.me.y - r.fuelCoords[i].y) ** 2) {
-                amIresponsible = false;
-                break;
-            }
-        }
-
-        if(amIresponsible) {
-            r.buildQueue.push({unit: SPECS.PILGRIM, karbonite: 10, fuel: 200});
-            r.pilgrimQueue.push({x: r.fuelCoords[i].x, y: r.fuelCoords[i].y, code: constants.PILGRIM_JOBS.MINE_FUEL});
-        }
+    let fuelIndex = 0;
+    while((r.fuelCoords[fuelIndex].x - r.me.x) ** 2 + (r.fuelCoords[fuelIndex].y - r.me.y) ** 2 <= constants.CLUSTER_RADIUS) {
+        r.buildQueue.push({unit: SPECS.PILGRIM, karbonite: 10, fuel: 200});
+        r.pilgrimQueue.push({x: r.fuelCoords[fuelIndex].x, y: r.fuelCoords[fuelIndex].y, code: constants.PILGRIM_JOBS.MINE_FUEL});
+        fuelIndex++;
     }
 
     //find responsible church locs
@@ -172,6 +152,40 @@ function turn1step(r) {
             r.log("putting church at " + r.church_locations[i].x + "," + r.church_locations[i].y + " on build queue");
             r.buildQueue.push({unit: SPECS.PILGRIM, karbonite: 10, fuel: 200});
             r.pilgrimQueue.push({x: r.church_locations[i].x, y: r.church_locations[i].y, code: constants.PILGRIM_JOBS.BUILD_CHURCH});
+        }
+    }
+
+    //find responsible karbonite locs
+    for(let i=karbIndex;i<r.karboniteCoords.length;i++) {
+        let amIresponsible = true;
+        for(let j=0;j<r.castles.length;j++) {
+            let dist = (r.castles[j].x - r.karboniteCoords[i].x) ** 2 + (r.castles[j].y - r.karboniteCoords[i].y) ** 2;
+            if(dist < (r.me.x - r.karboniteCoords[i].x) ** 2 + (r.me.y - r.karboniteCoords[i].y) ** 2) {
+                amIresponsible = false;
+                break;
+            }
+        }
+
+        if(amIresponsible) {
+            r.buildQueue.push({unit: SPECS.PILGRIM, karbonite: 10, fuel: 200});
+            r.pilgrimQueue.push({x: r.karboniteCoords[i].x, y: r.karboniteCoords[i].y, code: constants.PILGRIM_JOBS.MINE_KARBONITE});
+        }
+    }
+
+    //find responsible fuel locs
+    for(let i=fuelIndex;i<r.fuelCoords.length;i++) {
+        let amIresponsible = true;
+        for(let j=0;j<r.castles.length;j++) {
+            let dist = (r.castles[j].x - r.fuelCoords[i].x) ** 2 + (r.castles[j].y - r.fuelCoords[i].y) ** 2;
+            if(dist < (r.me.x - r.fuelCoords[i].x) ** 2 + (r.me.y - r.fuelCoords[i].y) ** 2) {
+                amIresponsible = false;
+                break;
+            }
+        }
+
+        if(amIresponsible) {
+            r.buildQueue.push({unit: SPECS.PILGRIM, karbonite: 10, fuel: 200});
+            r.pilgrimQueue.push({x: r.fuelCoords[i].x, y: r.fuelCoords[i].y, code: constants.PILGRIM_JOBS.MINE_FUEL});
         }
     }
 
@@ -270,8 +284,8 @@ function step(r) {
         if (!alive) {
             r.log("Unit " + myRobots[i] + " died.");
 
-            if (robot.unit === SPECS.PILGRIM) {
-                r.log("Replacing pilgrim at " + robot.x + "," + robot.y + ".");
+
+            if(robot.unit === SPECS.PILGRIM) {
                 if (robot.code === constants.PILGRIM_JOBS.MINE_KARBONITE) {
                     r.buildQueue.unshift({unit: SPECS.PILGRIM, karbonite: 10, fuel: 200});
                     r.pilgrimQueue.unshift({x: robot.x, y: robot.y, code: constants.PILGRIM_JOBS.MINE_KARBONITE});
