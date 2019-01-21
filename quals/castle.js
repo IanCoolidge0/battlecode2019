@@ -53,9 +53,11 @@ function initUnitMaps(r) {
     //prophet maps
     r.prophetMapGrid = combat.unitMap2(r);
     r.prophetMapFill = combat.unitMap2_other(r);
+    //r.prophetMapAgg = combat.unitMapAggressive(r, 8);
 
     r.prophetLocations = combat.unitLocationsQueue(r, 3, r.unit_location_distance, r.prophetMapGrid, true);
     r.prophetLocations = r.prophetLocations.concat(combat.unitLocationsQueue(r, 3, r.unit_location_distance, r.prophetMapFill, true));
+    //r.prophetLocations = combat.unitLocationsQueue(r, 3, Math.floor(Math.sqrt((r.me.x - r.enemy_castle.x)**2 + (r.me.y - r.enemy_castle.y)**2) / 2), r.prophetMapAgg, false);
 
     //crusader maps
     r.crusaderMapCenter = combat.unitMap2_crusader(r);
@@ -109,7 +111,7 @@ function initializeBuildQueue(r) {
     for(let i=-5;i<5;i++) {
         for(let j=-5;j<5;j++) {
             if(i ** 2 + j ** 2 > constants.CLUSTER_RADIUS ** 2) continue;
-            if(r.karbonite_map[r.me.y + j][r.me.x + i]) {
+            if(util.withInMap({x: r.me.x + i, y: r.me.y + j}, r) && r.karbonite_map[r.me.y + j][r.me.x + i]) {
                 r.buildQueue.push({unit: SPECS.PILGRIM, karbonite: 10, fuel: 200});
                 r.pilgrimQueue.push({x: r.me.x + i, y: r.me.y + j, code: constants.PILGRIM_JOBS.MINE_KARBONITE});
             }
@@ -120,7 +122,7 @@ function initializeBuildQueue(r) {
     for(let i=-5;i<5;i++) {
         for(let j=-5;j<5;j++) {
             if(i ** 2 + j ** 2 > constants.CLUSTER_RADIUS ** 2) continue;
-            if(r.fuel_map[r.me.y + j][r.me.x + i]) {
+            if(util.withInMap({x: r.me.x + i, y: r.me.y + j}, r) && r.fuel_map[r.me.y + j][r.me.x + i]) {
                 r.buildQueue.push({unit: SPECS.PILGRIM, karbonite: 10, fuel: 200});
                 r.pilgrimQueue.push({x: r.me.x + i, y: r.me.y + j, code: constants.PILGRIM_JOBS.MINE_FUEL});
             }
@@ -231,12 +233,12 @@ function emergency_defense(r) {
 
 
     let enemyDirection = util.directionTo(enemyLocation.x - r.me.x,enemyLocation.y - r.me.y);
-    let unitLocation = combat.next_unitLocation_odd(r,enemyDirection,r.unitMap_odd);
+    let unitLocation = combat.next_unitLocation_odd(r,enemyDirection,r.defenseMap);
     //r.log("emergency unit at" + unitLocation.x + ", " + unitLocation.y);
     if (unitLocation === undefined) {
         unitLocation = enemyLocation;
     } else {
-        r.unitMap_odd[unitLocation.y][unitLocation.x] = false;
+        r.defenseMap[unitLocation.y][unitLocation.x] = false;
     }
     if (r.emergency_defense_units[SPECS.PREACHER] < count[SPECS.PREACHER]) {
         r.emergency_defense_units[SPECS.PREACHER]++;

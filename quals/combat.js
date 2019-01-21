@@ -540,4 +540,55 @@ export function unitLocationsQueue(r, inRadius, outRadius, unitMap, inward) {
     return unit_location_queue;
 }
 
+export function unitPremap(r, radius) {
+    let map = util.create2dArray(r.size, r.size, false);
+
+    let coord = {x: r.me.x, y: r.me.y};
+    let enemy_coord = util.getReflectedCoord(coord, r);
+
+    let path_map = util.BFSMap(r.map, enemy_coord, util.getMoves(2));
+
+    let path = [coord];
+    while(coord.x !== enemy_coord.x || coord.y !== enemy_coord.y) {
+        const dir = path_map[coord.y][coord.x];
+        coord.x -= dir.x;
+        coord.y -= dir.y;
+
+        path.push(coord);
+    }
+
+    for(let i=0;i<path.length;i+=radius) {
+        for(let j=-radius;j<=radius;j++) {
+            for(let k=-radius;k<=radius;k++) {
+                if(j ** 2 + k ** 2 > radius ** 2) continue;
+
+                let newX = path[i].x + j;
+                let newY = path[i].y + k;
+
+                if(util.withInMap({x: newX, y: newY}, r) && r.map[newY][newX]) {
+                    map[newY][newX] = true;
+                }
+            }
+        }
+
+    }
+
+    return map;
+}
+
+export function unitMapAggressive(r, radius) {
+    let map = util.create2dArray(r.map.length, r.map.length, false);
+
+    let preMap = unitPremap(r, radius);
+
+    for(let i=0;i<r.map.length;i++) {
+        for(let j=0;j<r.map.length;j++) {
+            if(i % 2 === j % 2 && preMap[j][i] && !r.karbonite_map[j][i] && !r.fuel_map[j][i]) {
+                map[j][i] = true;
+            }
+        }
+    }
+
+    return map;
+}
 
