@@ -138,6 +138,12 @@ function init(r) {
 
     r.requestedReinforcements = false;
     r.my_church = undefined;
+
+    if(r.job === constants.PILGRIM_JOBS.PILLAGER) {
+        r.enemy_castle = util.getReflectedCoord({x: r.parent_castle.x, y: r.parent_castle.y}, r);
+        r.enemy_castle_map = util.BFSMap(r.map, {x: r.enemy_castle.x, y: r.enemy_castle.y}, util.getMoves(2));
+        r.mode = constants.PILGRIM_MODE.SNEAK;
+    }
 }
 
 
@@ -172,7 +178,7 @@ export function flee(r) {
     let rmap = r.getVisibleRobotMap();
     let move = r.castle_map[r.me.y][r.me.x];
     let potential_moves = util.getFuzzyMoves(r, move.x, move.y, 2, 2);
-``
+
     for(let i=0;i<potential_moves.length;i++) {
         let next = {x:r.me.x - potential_moves[i].x, y:r.me.y - potential_moves[i].y};
         if (util.withInMap(next,r) && r.map[next.y][next.x] && damageMap[next.y][next.x] === 0 && rmap[next.y][next.x] === 0) {
@@ -194,6 +200,9 @@ export function flee(r) {
     // }
 }
 
+function sneak(r) {
+    return util.getPilgrimBugMove(r, r.enemy_castle_map);
+}
 
 export function pilgrim_step(r) {
     //r.log("x:" + r.me.x + "  y: " + r.me.y);
@@ -204,6 +213,9 @@ export function pilgrim_step(r) {
 
     isEndangered(r);
 
+    if(r.mode === constants.PILGRIM_MODE.SNEAK) {
+        r.log("sneaking: " + r.me.x + "," + r.me.y);
+    }
 
     switch(r.mode) {
         case constants.PILGRIM_MODE.MOVE_TO_RESOURCE:
@@ -217,6 +229,9 @@ export function pilgrim_step(r) {
             break;
         case constants.PILGRIM_MODE.FLEE:
             return flee(r);
+            break;
+        case constants.PILGRIM_MODE.SNEAK:
+            return sneak(r);
             break;
 
     }

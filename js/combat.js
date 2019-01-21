@@ -310,6 +310,35 @@ export function getAttackRange(unit) {
     }
 }
 
+export function getAttackRangeWithCastle(unit) {
+    if(unit === SPECS.PILGRIM || unit === SPECS.CASTLE || unit === SPECS.CHURCH) {
+        return [];
+    } else if (unit === SPECS.CRUSADER) {
+        return util.getMoves(4);
+    } else if(unit === SPECS.PREACHER) {
+        let attackRange = util.getMoves(5);
+        let splashRange = [{x:5,y:1},{x:5,y:-1},{x:-5,y:1},{x:5,y:-1},{x:1,y:5},{x:-1,y:5},{x:1,y:-5},{x:-1,y:-5}];
+        return attackRange.concat(splashRange);
+    } else if(unit === SPECS.PROPHET) {
+        let attackRange = [];
+        let radius = 8;
+        let min = 16;
+        let max = 64;
+        for(let i=-radius;i<=radius;i++) {
+            for(let j=-radius;j<=radius;j++) {
+                if(i === 0 && j === 0) continue;
+                let distance = i ** 2 + j ** 2;
+                if(distance >= min && distance <= max) {
+                    attackRange.push({x:i,y:j});
+                }
+            }
+        }
+        return attackRange;
+    } else if(unit === SPECS.CASTLE) {
+        return util.getMoves(8);
+    }
+}
+
 export function bestCombatMoves(r,moves,damageMap) {
     let damageDict = {};
     for (let i  = 0;i < moves.length;i++) {}

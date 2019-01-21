@@ -208,20 +208,23 @@ function turn1step(r) {
         }
     }
 
-    //r.log("prophet job");
-    for (let i=0;i<r.unitLocationQueue.length;i++) {
-       r.buildQueue.push({unit: SPECS.PROPHET,karbonite:25, fuel: 500});
-       r.prophetQueue.push({x:r.unitLocationQueue[i].x, y: r.unitLocationQueue[i].y, code: constants.PROPHET_JOBS.DEFEND_GOAL});
-    }
+    r.buildQueue.push({unit: SPECS.PILGRIM, karbonite: 10, fuel: 200});
+    r.pilgrimQueue.push({x: r.me.x, y: r.me.y, code: constants.PILGRIM_JOBS.PILLAGER});
 
-    for (let i = 0; i < r.unitLocationQueue_crusader.length; i++) {
-        r.buildQueue.push({unit: SPECS.CRUSADER, karbonite: 25, fuel: 2000});
-        r.crusaderQueue.push({
-            x: r.unitLocationQueue_crusader[i].x,
-            y: r.unitLocationQueue_crusader[i].y,
-            code: constants.CRUSADER_JOBS.DEFEND_GOAL
-        });
-    }
+    //r.log("prophet job");
+    // for (let i=0;i<r.unitLocationQueue.length;i++) {
+    //    r.buildQueue.push({unit: SPECS.PROPHET,karbonite:25, fuel: 500});
+    //    r.prophetQueue.push({x:r.unitLocationQueue[i].x, y: r.unitLocationQueue[i].y, code: constants.PROPHET_JOBS.DEFEND_GOAL});
+    // }
+    //
+    // for (let i = 0; i < r.unitLocationQueue_crusader.length; i++) {
+    //     r.buildQueue.push({unit: SPECS.CRUSADER, karbonite: 25, fuel: 2000});
+    //     r.crusaderQueue.push({
+    //         x: r.unitLocationQueue_crusader[i].x,
+    //         y: r.unitLocationQueue_crusader[i].y,
+    //         code: constants.CRUSADER_JOBS.DEFEND_GOAL
+    //     });
+    // }
 
 
 }

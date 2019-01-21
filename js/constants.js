@@ -7,14 +7,16 @@ export const CLUSTER_RADIUS = 5;
 export const PILGRIM_JOBS = {
     MINE_KARBONITE: 0,
     MINE_FUEL: 1,
-    BUILD_CHURCH: 2
+    BUILD_CHURCH: 2,
+    PILLAGER: 3
 };
 
 export const PILGRIM_MODE = {
     MOVE_TO_RESOURCE: 0,
     MINE_RESOURCE: 1,
     MOVE_TO_CASTLE: 2,
-    FLEE: 3
+    FLEE: 3,
+    SNEAK: 4
 };
 
 export const PROPHET_JOBS = {
@@ -38,22 +40,22 @@ export const PROPHET_MODE = {
 
 export const PREACHER_JOBS = {
     DEFEND_CASTLE:0
-}
+};
 
 export const PREACHER_MODE = {
     DEFEND_CASTLE:0,
     ATTACK_CASTLE:1,
 
-}
+};
 export const CRUSADER_JOBS = {
     DEFEND_GOAL: 0
-}
+};
 export const CRUSADER_MODE = {
     PATH_TO_GOAL: 0,
     DEFEND: 1,
     CHAAAAAAAARGE:2
 
-}
+};
 
 
 

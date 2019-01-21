@@ -2,6 +2,7 @@
 
 
 import {SPECS} from 'battlecode';
+import {getAttackRangeWithCastle} from "./combat.js";
 
 // export function dijkstraMap(influenceMap,start,moves,r) {
 //     //r.log(start);
@@ -504,4 +505,70 @@ export function sortClusters(clusters, castle_pos) {
         let y = churchScore(b, castle_pos);
         return ((x < y) ? 1 : ((x > y) ? -1 : 0));
     });
+}
+
+export function getPilgrimBugList(move, r) {
+    let possibleMoves = getMoves2(4);
+    let dir = [directionTo(move.x, move.y, r)];
+    let moves = [];
+
+    for(let i=0;i<8;i++) {
+        dir.push(rotateRight(dir[0], i));
+        let moves2 = [];
+        for (let j = 2; j < dir.length; j++) {
+            for (let i = 0; i < possibleMoves.length; i++) {
+                let currentDir = directionTo(possibleMoves[i].x, possibleMoves[i].y, r);
+                if (currentDir.x === dir[j].x && currentDir.y === dir[j].y)
+                    moves2.push(possibleMoves[i]);
+            }
+        }
+        moves = moves.concat(moves2);
+    }
+
+    return moves;
+}
+
+export function getPilgrimBugMove(r, path_map) {
+    let visibleMap = r.getVisibleRobotMap();
+    let movementMap = create2dArray(r.map.length, r.map.length, true);
+    r.signal(4121, 4);
+    for(let i=-10;i<10;i++) {
+        for(let j=-10;j<10;j++) {
+            let newX = r.me.x + i;
+            let newY = r.me.y + j;
+
+            if(newX >= 0 && newY >= 0 && newX < r.map.length && newY < r.map.length && !r.map[newY][newX])
+                movementMap[newY][newX] = false;
+
+            if(newX < 0 || newY < 0 || newX >= r.map.length || newY >= r.map.length || !r.map[newY][newX] || visibleMap[newY][newX] === 0) {
+                continue;
+            }
+            if(visibleMap[newY][newX] > 0) {
+                let range = getAttackRangeWithCastle(r.getRobot(visibleMap[newY][newX]).unit);
+                
+                for (let k = 0; k < range.length; k++) {
+                    let att_x = range[k].x + i;
+                    let att_y = range[k].y + j;
+
+                    if (att_x < 0 || att_y < 0 || att_x >= r.map.length || att_y >= r.map.length) {
+                        continue;
+                    }
+
+                    movementMap[att_y][att_x] = false;
+                }
+            }
+        }
+    }
+
+    let move = path_map[r.me.y][r.me.x];
+    let potential_moves = getPilgrimBugList(move, r);
+
+    for(let i=0;i<potential_moves.length;i++) {
+        let newX = r.me.x - potential_moves[i].x;
+        let newY = r.me.y - potential_moves[i].y;
+
+        if(newX >= 0 && newY >= 0 && newX < r.map.length && newY < r.map.length && movementMap[newY][newX] && visibleMap[newY][newX] === 0) {
+            return r.move(-potential_moves[i].x, -potential_moves[i].y);
+        }
+    }
 }
