@@ -2,6 +2,7 @@
 
 
 import {SPECS} from 'battlecode';
+import * as constants from "./constants.js";
 
 // export function dijkstraMap(influenceMap,start,moves,r) {
 //     //r.log(start);
@@ -474,8 +475,14 @@ export function freeChurchTile(initial_pos, karb_map, fuel_map) {
     let dx = 0;
     let dy = 0;
     let delta = [0,-1];
-    while(karb_map[initial_pos.y + dy][initial_pos.x + dx] || fuel_map[initial_pos.y + dy][initial_pos.x + dx]) {
-        if(dx === dy || (dx < 0 && dx === -dy) || (dx > 0 && dx === 1 - dy))
+    for(let i=0;i<constants.CLUSTER_RADIUS**2;i++) {
+        let newX = initial_pos.x + dx;
+        let newY = initial_pos.y + dy;
+
+        if (newX >= 0 && newY >= 0 && newX < karb_map.length && newY < karb_map.length && !karb_map[newY][newX] && !fuel_map[newY][newX])
+            return {x: newX, y: newY, count: initial_pos.count};
+
+        if (dx === dy || (dx < 0 && dx === -dy) || (dx > 0 && dx === 1 - dy))
             delta = [-delta[1], delta[0]];
 
         dx += delta[0];
@@ -483,4 +490,59 @@ export function freeChurchTile(initial_pos, karb_map, fuel_map) {
     }
 
     return {x: initial_pos.x + dx, y: initial_pos.y + dy, count: initial_pos.count};
+}
+
+export function getNearestResourceTile(r) {
+    let dx = 0;
+    let dy = 0;
+    let delta = [0,-1];
+    for(let i=0;i<constants.CLUSTER_RADIUS**2;i++) {
+        let newX = r.me.x + dx;
+        let newY = r.me.y + dy;
+
+        if (withInMap({x: newX, y: newY}, r) && (r.karbonite_map[newY][newX] || r.fuel_map[newY][newX]))
+            return {x: newX, y: newY, code: r.karbonite_map[newY][newX] ? constants.PILGRIM_JOBS.MINE_KARBONITE : constants.PILGRIM_JOBS.MINE_FUEL};
+
+        if (dx === dy || (dx < 0 && dx === -dy) || (dx > 0 && dx === 1 - dy))
+            delta = [-delta[1], delta[0]];
+
+        dx += delta[0];
+        dy += delta[1];
+    }
+}
+
+//return a deep copy of a 2d array
+export function copy(array) {
+    let newArray = [];
+    for(let i=0;i<array.length;i++)
+        newArray[i] = array[i].slice();
+
+    return newArray;
+}
+
+export function safetyMap(r, enemy_castles) {
+    let map = copy(r.map);
+    r.log(enemy_castles);
+    for(let k=0;k<enemy_castles.length;k++) {
+
+        for(let i=-10;i<=10;i++) {
+            for(let j=-10;j<=10;j++) {
+                if(i ** 2 + j ** 2 > 100) continue;
+
+                let newX = enemy_castles[k].x + i;
+                let newY = enemy_castles[k].y + j;
+
+                if(withInMap({x: newX, y: newY}, r)) {
+                    map[newY][newX] = false;
+                }
+            }
+        }
+    }
+
+    return map;
+}
+
+export function isEnemyDepositSafe(r, location, safety_map) {
+    let path_map = BFSMap(safety_map, location, getMoves(2));
+    return !(path_map[r.me.y][r.me.x] === 0);
 }

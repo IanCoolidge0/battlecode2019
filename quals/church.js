@@ -46,6 +46,37 @@ function init(r) {
     //r.log(r.unitMap);
     r.unitLocationQueue = combat.unitLocationsQueue(r,2,2,r.unitMap,true);
 
+    r.builderJob = {};
+
+    let visible = r.getVisibleRobots();
+    for(let i=0;i<visible.length;i++) {
+        let sig = util.decodeCoords(visible[i].signal);
+        if(sig.code === 5) {
+            r.builderJob = sig;
+            break;
+        }
+    }
+
+    for(let i=-constants.CLUSTER_RADIUS;i<=constants.CLUSTER_RADIUS;i++) {
+        for(let j=-constants.CLUSTER_RADIUS;j<=constants.CLUSTER_RADIUS;j++) {
+            if(i ** 2 + j ** 2 > constants.CLUSTER_RADIUS ** 2) continue;
+            let newX = r.me.x + i;
+            let newY = r.me.y + j;
+
+            if(util.withInMap({x: newX, y: newY}, r) && (newX !== r.builderJob.x || newY !== r.builderJob.y)) {
+                if(r.fuel_map[newY][newX]) {
+                    r.buildQueue.push({unit: SPECS.PILGRIM, karbonite: 25, fuel: 100});
+                    r.pilgrimQueue.push({x: newX, y: newY, code: constants.PILGRIM_JOBS.MINE_FUEL});
+                }
+
+                if(r.karbonite_map[newY][newX]) {
+                    r.buildQueue.push({unit: SPECS.PILGRIM, karbonite: 25, fuel: 100});
+                    r.pilgrimQueue.push({x: newX, y: newY, code: constants.PILGRIM_JOBS.MINE_KARBONITE});
+                }
+            }
+        }
+    }
+
     for (let i=0;i<r.unitLocationQueue.length;i++) {
         r.buildQueue.push({unit: SPECS.PROPHET,karbonite:25, fuel: 200});
         r.prophetQueue.push({x:r.unitLocationQueue[i].x, y: r.unitLocationQueue[i].y, code: constants.PROPHET_JOBS.DEFEND_GOAL});

@@ -5,16 +5,23 @@ import * as combat from "./combat.js";
 import * as mode from "./mode.js";
 
 function moveToResourceStep(r) {
-    if(r.currentJob.code === constants.PILGRIM_JOBS.BUILD_CHURCH) {
+    if(r.currentJob.code === constants.PILGRIM_JOBS.BUILD_CHURCH || r.currentJob.code === constants.PILGRIM_JOBS.BUILD_ENEMY_CHURCH) {
         let dist = (r.me.x - r.currentJob.x) ** 2 + (r.me.y - r.currentJob.y) ** 2;
         if(dist <= 2 && dist > 0) {
             if (r.karbonite > 50 && r.fuel > 200) {
                 r.log("building church at (" + r.currentJob.x + "," + r.currentJob.y + ")");
-                r.mode = constants.PILGRIM_MODE.MOVE_TO_CASTLE;
-                r.parent_castle = util.getReflectedCoord(r.parent_castle, r);
-                r.castle_map = util.BFSMap(r.map, {x: r.parent_castle.x, y: r.parent_castle.y}, util.getMoves(2));
-                r.currentJob.code = constants.PILGRIM_JOBS.MINE_KARBONITE;
-                return r.buildUnit(SPECS.CHURCH, r.currentJob.x - r.me.x, r.currentJob.y - r.me.y);
+
+                let church_pos = {x: r.currentJob.x, y: r.currentJob.y};
+                r.mode = constants.PILGRIM_MODE.MOVE_TO_RESOURCE;
+                r.currentJob = util.getNearestResourceTile(r);
+
+                r.my_church = {x: church_pos.x, y: church_pos.y};
+                r.castle_map = util.BFSMap(r.map, {x: r.my_church.x, y: r.my_church.y}, util.getMoves(2));
+                r.resource_map = util.BFSMap(r.map, {x: r.currentJob.x, y: r.currentJob.y}, util.getMoves(2));
+
+                r.signal(util.signalCoords(r.currentJob.x, r.currentJob.y, 5), 2);
+
+                return r.buildUnit(SPECS.CHURCH, church_pos.x - r.me.x, church_pos.y - r.me.y);
             } else {
                 return;
             }
@@ -113,6 +120,19 @@ function init(r) {
 
     r.job = r.currentJob.code;
     r.mode = constants.PILGRIM_MODE.MOVE_TO_RESOURCE;
+
+    if(r.job === constants.PILGRIM_JOBS.BUILD_ENEMY_CHURCH) {
+        r.log("building enemy church");
+        r.safety_map = util.safetyMap(r, [util.getReflectedCoord({x: r.parent_castle.x, y: r.parent_castle.y}, r)]);
+        // for(let i=0;i<r.map.length;i++){
+        //     let s = "";
+        //     for(let j=0;j<r.map.length;j++){
+        //         s += (r.safety_map[i][j] ? "1" : "0");
+        //     }
+        //     r.log(s);
+        // }
+        r.resource_map = util.BFSMap(r.safety_map, {x: r.currentJob.x, y: r.currentJob.y}, util.getMoves(2));
+    }
 
     r.requestedReinforcements = false;
     r.my_church = undefined;

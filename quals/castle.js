@@ -46,6 +46,9 @@ function initVariables(r) {
     }
 
     r.castles = [];
+
+
+
     r.order = 0;
 }
 
@@ -53,11 +56,11 @@ function initUnitMaps(r) {
     //prophet maps
     r.prophetMapGrid = combat.unitMap2(r);
     r.prophetMapFill = combat.unitMap2_other(r);
-    //r.prophetMapAgg = combat.unitMapAggressive(r, 8);
+    r.prophetMapAgg = combat.unitMapAggressive(r, 6);
 
-    r.prophetLocations = combat.unitLocationsQueue(r, 3, r.unit_location_distance, r.prophetMapGrid, true);
-    r.prophetLocations = r.prophetLocations.concat(combat.unitLocationsQueue(r, 3, r.unit_location_distance, r.prophetMapFill, true));
-    //r.prophetLocations = combat.unitLocationsQueue(r, 3, Math.floor(Math.sqrt((r.me.x - r.enemy_castle.x)**2 + (r.me.y - r.enemy_castle.y)**2) / 2), r.prophetMapAgg, false);
+    //r.prophetLocations = combat.unitLocationsQueue(r, 3, r.unit_location_distance, r.prophetMapGrid, true);
+    //r.prophetLocations = r.prophetLocations.concat(combat.unitLocationsQueue(r, 3, r.unit_location_distance, r.prophetMapFill, true));
+    r.prophetLocations = combat.unitLocationsQueue(r, 3, Math.floor(Math.sqrt((r.me.x - r.enemy_castle.x)**2 + (r.me.y - r.enemy_castle.y)**2) / 2), r.prophetMapAgg, false);
 
     //crusader maps
     r.crusaderMapCenter = combat.unitMap2_crusader(r);
@@ -82,8 +85,8 @@ function init(r) {
     r.crusaderQueue = [];
 
     //signal to all other castles for counting and order
-    let signalingDist = Math.max(r.me.x, r.size - r.me.x) ** 2 + Math.max(r.me.y, r.size - r.me.y) ** 2;
-    r.signal(util.signalCoords(r.me.x, r.me.y, constants.SIGNAL_CODE.CASTLE_POS), signalingDist);
+    r.signalingDist = Math.max(r.me.x, r.size - r.me.x) ** 2 + Math.max(r.me.y, r.size - r.me.y) ** 2;
+    r.signal(util.signalCoords(r.me.x, r.me.y, constants.SIGNAL_CODE.CASTLE_POS), r.signalingDist);
 
     let visible = r.getVisibleRobots();
     for(let i=0;i<visible.length;i++) {
@@ -103,9 +106,51 @@ function initializeCastles(r) {
         }
     }
     r.numOfCastle = r.castles.length;
+
+    r.enemy_castles = [];
+    for(let i=0;i<r.numOfCastle;i++)
+        r.enemy_castles.push(util.getReflectedCoord({x: r.castles[i].x, y: r.castles[i].y}, r));
+
+    r.safety_map = util.safetyMap(r, r.enemy_castles);
+}
+
+function initializeChurches(r) {
+    r.church_locations = util.getResourceClusters(r.karbonite_map, r.fuel_map, constants.CLUSTER_RADIUS, r.castles, r);
+
+    r.enemy_church_locations = [];
+    for(let i=0;i<r.church_locations.length;i++)
+        r.enemy_church_locations.push(util.getReflectedCoord({x: r.church_locations[i].x, y: r.church_locations[i].y}, r));
+
+    r.safe_enemy_churches = [];
+    for(let i=0;i<r.enemy_church_locations.length;i++) {
+        if(util.isEnemyDepositSafe(r, r.enemy_church_locations[i], r.safety_map)) {
+            //r.log("enemy location " + r.enemy_church_locations[i].x + "," + r.enemy_church_locations[i].y + " is safe");
+            r.safe_enemy_churches.push(r.enemy_church_locations[i]);
+        }
+    }
 }
 
 function initializeBuildQueue(r) {
+
+    for(let i=0;i<Math.min(r.safe_enemy_churches.length, 2);i++) {
+        let amIresponsible = true;
+
+        for(let j=0;j<r.castles.length;j++) {
+            let dist = (r.castles[j].x - r.safe_enemy_churches[i].x) ** 2 + (r.castles[j].y - r.safe_enemy_churches[i].y) ** 2;
+            if(dist < (r.me.x - r.safe_enemy_churches[i].x) ** 2 + (r.me.y - r.safe_enemy_churches[i].y) ** 2) {
+                amIresponsible = false;
+                break;
+            }
+        }
+
+        if(amIresponsible) {
+            r.buildQueue.push({unit: SPECS.PILGRIM, karbonite: 10, fuel: 50, priority: true});
+            r.pilgrimQueue.push({x: r.safe_enemy_churches[i].x, y: r.safe_enemy_churches[i].y, code: constants.PILGRIM_JOBS.BUILD_ENEMY_CHURCH});
+
+            r.buildQueue.push({unit: SPECS.CRUSADER, karbonite: 20, fuel: 50, priority: true});
+            r.crusaderQueue.push({x: r.safe_enemy_churches[i].x, y: r.safe_enemy_churches[i].y, code: constants.CRUSADER_JOBS.DEFEND_ENEMY_CHURCH});
+        }
+    }
 
     //queue nearby karbonite locations
     for(let i=-5;i<5;i++) {
@@ -147,40 +192,6 @@ function initializeBuildQueue(r) {
         }
     }
 
-    //find responsible karbonite locs
-    for(let i=0;i<r.karboniteCoords.length;i++) {
-        let amIresponsible = true;
-        for(let j=0;j<r.castles.length;j++) {
-            let dist = (r.castles[j].x - r.karboniteCoords[i].x) ** 2 + (r.castles[j].y - r.karboniteCoords[i].y) ** 2;
-            if(dist < (r.me.x - r.karboniteCoords[i].x) ** 2 + (r.me.y - r.karboniteCoords[i].y) ** 2) {
-                amIresponsible = false;
-                break;
-            }
-        }
-
-        if(amIresponsible && (r.me.x - r.karboniteCoords[i].x) ** 2 + (r.me.y - r.karboniteCoords[i].y) ** 2 > constants.CLUSTER_RADIUS ** 2) {
-            r.buildQueue.push({unit: SPECS.PILGRIM, karbonite: 10, fuel: 200});
-            r.pilgrimQueue.push({x: r.karboniteCoords[i].x, y: r.karboniteCoords[i].y, code: constants.PILGRIM_JOBS.MINE_KARBONITE});
-        }
-    }
-
-    //find responsible fuel locs
-    for(let i=0;i<r.fuelCoords.length;i++) {
-        let amIresponsible = true;
-        for(let j=0;j<r.castles.length;j++) {
-            let dist = (r.castles[j].x - r.fuelCoords[i].x) ** 2 + (r.castles[j].y - r.fuelCoords[i].y) ** 2;
-            if(dist < (r.me.x - r.fuelCoords[i].x) ** 2 + (r.me.y - r.fuelCoords[i].y) ** 2) {
-                amIresponsible = false;
-                break;
-            }
-        }
-
-        if(amIresponsible && (r.me.x - r.fuelCoords[i].x) ** 2 + (r.me.y - r.fuelCoords[i].y) ** 2 > constants.CLUSTER_RADIUS ** 2) {
-            r.buildQueue.push({unit: SPECS.PILGRIM, karbonite: 10, fuel: 200});
-            r.pilgrimQueue.push({x: r.fuelCoords[i].x, y: r.fuelCoords[i].y, code: constants.PILGRIM_JOBS.MINE_FUEL});
-        }
-    }
-
     //queue prophet lattice
     for (let i=0;i<r.prophetLocations.length;i++) {
         r.buildQueue.push({unit: SPECS.PROPHET, karbonite:25, fuel: 500});
@@ -200,7 +211,7 @@ function initializeBuildQueue(r) {
 
 function turn1step(r) {
     initializeCastles(r);
-    r.church_locations = util.getResourceClusters(r.karbonite_map, r.fuel_map, constants.CLUSTER_RADIUS, r.castles, r);
+    initializeChurches(r);
 
     initializeBuildQueue(r);
 }
@@ -372,7 +383,6 @@ export function castle_step(r) {
     if (r.step % 10 === 0) {
         r.log("STEP: " + r.step);
     }
-
 
     if (r.step === 0) {
         init(r);

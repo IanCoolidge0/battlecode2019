@@ -17,6 +17,10 @@ function init(r) {
     if(r.currentJob.code === constants.CRUSADER_JOBS.DEFEND_GOAL) {
         r.mode = constants.CRUSADER_JOBS.PATH_TO_GOAL;
         r.goal_map = util.BFSMap(r.map, {x: r.currentJob.x, y: r.currentJob.y}, util.getMoves(2));
+    } else if(r.currentJob.code === constants.CRUSADER_JOBS.DEFEND_ENEMY_CHURCH) {
+        r.mode = constants.CRUSADER_MODE.PATH_TO_GOAL;
+        r.safety_map = util.safetyMap(r, [util.getReflectedCoord(r.parent_castle_coords, r)]);
+        r.goal_map = util.BFSMap(r.safety_map, {x: r.currentJob.x, y: r.currentJob.y}, util.getMoves(2));
     }
 }
 
@@ -31,7 +35,7 @@ export function step(r) {
             r.goal_map = util.BFSMap(r.map, util.getReflectedCoord(r.parent_castle_coords,r), util.getMoves(3));
         }
     }
-    if (r.fuel < 300) return;
+    if (r.fuel < 300 && r.currentJob.code !== constants.CRUSADER_JOBS.DEFEND_ENEMY_CHURCH) return;
     if (r.mode === constants.CRUSADER_MODE.CHAAAAAAAARGE) {
         let attack = combat.attack_nearest_castle(r,SPECS.CRUSADER,r.parent_castle_coords);
         if (attack !== undefined) {
@@ -47,6 +51,10 @@ export function step(r) {
     if (r.mode !== constants.CRUSADER_MODE.DEFEND &&
         ((r.currentJob.x === r.me.x && r.currentJob.y === r.me.y) ||(rmap[r.currentJob.y][r.currentJob.x] > 0 && distance_to_goal <= 2))) {
         //r.log("CHANGE MODE TO DEFEND");
+        r.mode = constants.CRUSADER_MODE.DEFEND;
+    } else if(r.currentJob.code === constants.CRUSADER_JOBS.DEFEND_ENEMY_CHURCH && distance_to_goal <= 4) {
+        r.currentJob.x = r.me.x;
+        r.currentJob.y = r.me.y;
         r.mode = constants.CRUSADER_MODE.DEFEND;
     } else if (r.mode !== constants.CRUSADER_MODE.PATH_TO_GOAL && distance_to_goal > 2) {
         //r.log("CHANGE MODE TO PATH TO GOAL");

@@ -545,19 +545,16 @@ export function unitPremap(r, radius) {
 
     let coord = {x: r.me.x, y: r.me.y};
     let enemy_coord = util.getReflectedCoord(coord, r);
-
     let path_map = util.BFSMap(r.map, enemy_coord, util.getMoves(2));
 
     let path = [coord];
-    while(coord.x !== enemy_coord.x || coord.y !== enemy_coord.y) {
-        const dir = path_map[coord.y][coord.x];
-        coord.x -= dir.x;
-        coord.y -= dir.y;
+    while(path[path.length - 1].x !== enemy_coord.x || path[path.length - 1].y !== enemy_coord.y) {
+        const dir = path_map[path[path.length - 1].y][path[path.length - 1].x];
 
-        path.push(coord);
+        path.push({x: path[path.length - 1].x - dir.x, y: path[path.length - 1].y - dir.y});
     }
 
-    for(let i=0;i<path.length;i+=radius) {
+    for(let i=0;i<path.length;i++) {
         for(let j=-radius;j<=radius;j++) {
             for(let k=-radius;k<=radius;k++) {
                 if(j ** 2 + k ** 2 > radius ** 2) continue;
