@@ -546,3 +546,11 @@ export function isEnemyDepositSafe(r, location, safety_map) {
     let path_map = BFSMap(safety_map, location, getMoves(2));
     return !(path_map[r.me.y][r.me.x] === 0);
 }
+
+export function symmDistance(r, x, y) {
+    if(isHorizontallySymm(r)) {
+        return Math.abs(y - Math.floor(r.map.length / 2));
+    } else {
+        return Math.abs(x - Math.floor(r.map.length / 2));
+    }
+}

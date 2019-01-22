@@ -48,6 +48,8 @@ function init(r) {
 
     r.builderJob = {};
 
+    r.createdRobots = {};
+
     let visible = r.getVisibleRobots();
     for(let i=0;i<visible.length;i++) {
         let sig = util.decodeCoords(visible[i].signal);
@@ -90,6 +92,7 @@ function step(r) {
         if(visible[i].castle_talk === constants.INIT_CASTLETALK && (visible[i].x - r.me.x) ** 2 + (visible[i].y - r.me.y) ** 2 <= 2) {
             //r.log('added');
             r.createdRobots[visible[i].id] = {x: r.currentAssignment.x, y: r.currentAssignment.y, code: r.currentAssignment.code, unit: r.currentAssignment.unit};
+            r.log(r.createdRobots);
         }
     }
 

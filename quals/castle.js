@@ -95,6 +95,8 @@ function init(r) {
             r.order++;
         }
     }
+
+    r.log(util.isHorizontallySymm(r));
 }
 
 function initializeCastles(r) {
@@ -132,6 +134,17 @@ function initializeChurches(r) {
 
 function initializeBuildQueue(r) {
 
+    //queue nearby karbonite locations
+    for(let i=-5;i<5;i++) {
+        for(let j=-5;j<5;j++) {
+            if(i ** 2 + j ** 2 > constants.CLUSTER_RADIUS ** 2) continue;
+            if(util.withInMap({x: r.me.x + i, y: r.me.y + j}, r) && r.karbonite_map[r.me.y + j][r.me.x + i]) {
+                r.buildQueue.push({unit: SPECS.PILGRIM, karbonite: 10, fuel: 200});
+                r.pilgrimQueue.push({x: r.me.x + i, y: r.me.y + j, code: constants.PILGRIM_JOBS.MINE_KARBONITE});
+            }
+        }
+    }
+
     for(let i=0;i<Math.min(r.safe_enemy_churches.length, 2);i++) {
         let amIresponsible = true;
 
@@ -149,16 +162,10 @@ function initializeBuildQueue(r) {
 
             r.buildQueue.push({unit: SPECS.CRUSADER, karbonite: 20, fuel: 50, priority: true});
             r.crusaderQueue.push({x: r.safe_enemy_churches[i].x, y: r.safe_enemy_churches[i].y, code: constants.CRUSADER_JOBS.DEFEND_ENEMY_CHURCH});
-        }
-    }
 
-    //queue nearby karbonite locations
-    for(let i=-5;i<5;i++) {
-        for(let j=-5;j<5;j++) {
-            if(i ** 2 + j ** 2 > constants.CLUSTER_RADIUS ** 2) continue;
-            if(util.withInMap({x: r.me.x + i, y: r.me.y + j}, r) && r.karbonite_map[r.me.y + j][r.me.x + i]) {
-                r.buildQueue.push({unit: SPECS.PILGRIM, karbonite: 10, fuel: 200});
-                r.pilgrimQueue.push({x: r.me.x + i, y: r.me.y + j, code: constants.PILGRIM_JOBS.MINE_KARBONITE});
+            for(let j=0;j<r.church_locations.length;j++) {
+                if((r.church_locations[j].x - r.safe_enemy_churches[i].x) ** 2 + (r.church_locations[j].y - r.safe_enemy_churches[i].y) ** 2 <= constants.CLUSTER_RADIUS ** 2)
+                    r.church_locations[j].alreadyVisited = true;
             }
         }
     }
@@ -176,6 +183,8 @@ function initializeBuildQueue(r) {
 
     //find responsible church locs
     for(let i=0;i<r.church_locations.length;i++) {
+        if(r.church_locations[i].alreadyVisited) continue;
+
         let amIresponsible = true;
         for(let j=0;j<r.castles.length;j++) {
             let dist = (r.castles[j].x - r.church_locations[i].x) ** 2 + (r.castles[j].y - r.church_locations[i].y) ** 2;
