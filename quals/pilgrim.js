@@ -86,6 +86,18 @@ function mineResourceStep(r) {
         r.mode = constants.PILGRIM_MODE.MOVE_TO_CASTLE;
     }
 
+    if(r.step < 20) {
+        let visible = r.getVisibleRobots();
+        for (let i = 0; i < visible.length; i++) {
+            if (visible[i].unit === SPECS.PREACHER && visible[i].team === r.me.team && (r.me.x - visible[i].x) ** 2 + (r.me.y - visible[i].y) ** 2 <= constants.CLUSTER_RADIUS ** 2) {
+                //oh shit
+
+                if(r.currentJob.code === constants.PILGRIM_JOBS.MINE_KARBONITE && r.me.karbonite >= 8)
+                    r.mode = constants.PILGRIM_MODE.MOVE_TO_CASTLE;
+            }
+        }
+    }
+
     return r.mine();
 }
 
