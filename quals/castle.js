@@ -95,8 +95,6 @@ function init(r) {
             r.order++;
         }
     }
-
-    r.log(util.isHorizontallySymm(r));
 }
 
 function initializeCastles(r) {

@@ -15,8 +15,8 @@ function moveToResourceStep(r) {
                 r.mode = constants.PILGRIM_MODE.MOVE_TO_RESOURCE;
                 r.currentJob = util.getNearestResourceTile(r);
 
-                r.my_church = {x: church_pos.x, y: church_pos.y};
-                r.castle_map = util.BFSMap(r.map, {x: r.my_church.x, y: r.my_church.y}, util.getMoves(2));
+                r.parent_building = {x: church_pos.x, y: church_pos.y};
+                r.castle_map = util.BFSMap(r.map, {x: r.parent_building.x, y: r.parent_building.y}, util.getMoves(2));
                 r.resource_map = util.BFSMap(r.map, {x: r.currentJob.x, y: r.currentJob.y}, util.getMoves(2));
 
                 r.signal(util.signalCoords(r.currentJob.x, r.currentJob.y, 5), 2);
@@ -50,8 +50,8 @@ function searchForChurch(r, deposit_radius) {
     let visible = r.getVisibleRobots();
     for(let i=0;i<visible.length;i++) {
         if(visible[i].unit === SPECS.CHURCH && (r.me.x - visible[i].x) ** 2 + (r.me.y - visible[i].y) ** 2 <= deposit_radius ** 2) {
-            r.my_church = {x: visible[i].x, y: visible[i].y};
-            r.castle_map = util.BFSMap(r.map, {x: r.my_church.x, y: r.my_church.y}, util.getMoves(2));
+            r.parent_building = {x: visible[i].x, y: visible[i].y};
+            r.castle_map = util.BFSMap(r.map, {x: r.parent_building.x, y: r.parent_building.y}, util.getMoves(2));
             return;
         }
     }
@@ -73,16 +73,10 @@ function mineResourceStep(r) {
     // }
 
     if(r.currentJob.code === constants.PILGRIM_JOBS.MINE_KARBONITE && r.me.karbonite >= 18) {
-        if(r.my_church === undefined)
-            searchForChurch(r, 5);
-
         r.mode = constants.PILGRIM_MODE.MOVE_TO_CASTLE;
     }
 
     if(r.currentJob.code === constants.PILGRIM_JOBS.MINE_FUEL && r.me.fuel >= 90) {
-        if(r.my_church === undefined)
-            searchForChurch(r, 5);
-
         r.mode = constants.PILGRIM_MODE.MOVE_TO_CASTLE;
     }
 
@@ -102,8 +96,8 @@ function mineResourceStep(r) {
 }
 
 function moveToCastleStep(r) {
-    let px = (r.my_church === undefined) ? r.parent_castle.x : r.my_church.x;
-    let py = (r.my_church === undefined) ? r.parent_castle.y : r.my_church.y;
+    let px = r.parent_building.x;
+    let py = r.parent_building.y;
 
     if((r.me.x - px) ** 2 + (r.me.y - py) ** 2 > 2) {
         return mode.travel_to_goal(r, 2, 2, r.castle_map);
@@ -123,11 +117,12 @@ function moveToCastleStep(r) {
 function init(r) {
     r.last_mode = constants.PILGRIM_MODE.MOVE_TO_RESOURCE;
     r.castleTalk(constants.INIT_CASTLETALK);
+    r.signal(util.signalCoords(0, 0, constants.SIGNAL_CODE.INIT_SIGNAL), 2);
 
-    r.parent_castle = util.findParentCastle(r);
-    r.currentJob = util.decodeCoords(r.parent_castle.signal);
+    r.parent_building = util.findParentCastle(r);
+    r.currentJob = util.decodeCoords(r.parent_building.signal);
 
-    r.castle_map = util.BFSMap(r.map, {x: r.parent_castle.x, y: r.parent_castle.y}, util.getMoves(2));
+    r.castle_map = util.BFSMap(r.map, {x: r.parent_building.x, y: r.parent_building.y}, util.getMoves(2));
     r.resource_map = util.BFSMap(r.map, {x: r.currentJob.x, y: r.currentJob.y}, util.getMoves(2));
 
     r.job = r.currentJob.code;
@@ -135,7 +130,7 @@ function init(r) {
 
     if(r.job === constants.PILGRIM_JOBS.BUILD_ENEMY_CHURCH) {
         r.log("building enemy church");
-        r.safety_map = util.safetyMap(r, [util.getReflectedCoord({x: r.parent_castle.x, y: r.parent_castle.y}, r)]);
+        r.safety_map = util.safetyMap(r, [util.getReflectedCoord({x: r.parent_building.x, y: r.parent_building.y}, r)]);
         // for(let i=0;i<r.map.length;i++){
         //     let s = "";
         //     for(let j=0;j<r.map.length;j++){
@@ -147,7 +142,6 @@ function init(r) {
     }
 
     r.requestedReinforcements = false;
-    r.my_church = undefined;
 }
 
 
@@ -209,11 +203,11 @@ export function pilgrim_step(r) {
     //r.log("x:" + r.me.x + "  y: " + r.me.y);
     if (r.step === 0) {
         init(r);
+        return;
     } else
         r.castleTalk(124);
 
     isEndangered(r);
-
 
     switch(r.mode) {
         case constants.PILGRIM_MODE.MOVE_TO_RESOURCE:

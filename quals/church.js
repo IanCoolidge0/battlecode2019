@@ -55,6 +55,10 @@ function init(r) {
         let sig = util.decodeCoords(visible[i].signal);
         if(sig.code === 5) {
             r.builderJob = sig;
+
+            r.createdRobots[visible[i].id] = {unit: SPECS.PILGRIM, x: sig.x, y: sig.y,
+                code: r.karbonite_map[sig.y][sig.x] ? constants.PILGRIM_JOBS.MINE_KARBONITE : constants.PILGRIM_JOBS.MINE_FUEL};
+
             break;
         }
     }
@@ -85,14 +89,51 @@ function init(r) {
     }
 }
 
+function replaceDeadUnit(robot, r) {
+    if(robot.unit === SPECS.PILGRIM) {
+        if (robot.code === constants.PILGRIM_JOBS.MINE_KARBONITE) {
+            r.buildQueue.unshift({unit: SPECS.PILGRIM, karbonite: 10, fuel: 200});
+            r.pilgrimQueue.unshift({x: robot.x, y: robot.y, code: constants.PILGRIM_JOBS.MINE_KARBONITE});
+        } else if (robot.code === constants.PILGRIM_JOBS.MINE_FUEL) {
+            r.buildQueue.unshift({unit: SPECS.PILGRIM, karbonite: 10, fuel: 200});
+            r.pilgrimQueue.unshift({x: robot.x, y: robot.y, code: constants.PILGRIM_JOBS.MINE_FUEL});
+        }
+    }
+}
+
 function step(r) {
-    //assignment
+
     let visible = r.getVisibleRobots();
+
+    //replace dead units and remove them from r.createdRobots
+    let myRobots = Object.keys(r.createdRobots);
+    let toRemove = [];
+    for(let i=0;i<myRobots.length;i++) {
+        let robot = r.createdRobots[myRobots[i]];
+        let alive = false;
+
+        for (let j = 0; j < visible.length; j++) {
+            //DO NOT CHANGE THIS TO ===
+            if (visible[j].id == myRobots[i])
+                alive = true;
+        }
+
+        if (!alive) {
+            r.log("replacing");
+            replaceDeadUnit(robot, r);
+            toRemove.push(myRobots[i]);
+        }
+    }
+    for(let i=0;i<toRemove.length;i++) {
+        delete r.createdRobots[toRemove[i]];
+    }
+
+    //assignment
     for(let i=0;i<visible.length;i++) {
-        if(visible[i].castle_talk === constants.INIT_CASTLETALK && (visible[i].x - r.me.x) ** 2 + (visible[i].y - r.me.y) ** 2 <= 2) {
-            //r.log('added');
+        //r.log(visible);
+        if(util.decodeCoords(visible[i].signal).code === constants.SIGNAL_CODE.INIT_SIGNAL && (visible[i].x - r.me.x) ** 2 + (visible[i].y - r.me.y) ** 2 <= 2) {
             r.createdRobots[visible[i].id] = {x: r.currentAssignment.x, y: r.currentAssignment.y, code: r.currentAssignment.code, unit: r.currentAssignment.unit};
-            r.log(r.createdRobots);
+            //r.log(Object.keys(r.createdRobots).length);
         }
     }
 

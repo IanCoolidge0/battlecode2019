@@ -63,6 +63,8 @@ export const CRUSADER_MODE = {
 
 export const SIGNAL_CODE = {
     REQUEST_REASSIGN: 0,
-    CASTLE_POS: 1
+    CASTLE_POS: 1,
+    INIT_SIGNAL: 2,
+    ALIVE_SIGNAL: 3
 };
 

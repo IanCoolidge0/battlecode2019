@@ -522,7 +522,7 @@ export function copy(array) {
 
 export function safetyMap(r, enemy_castles) {
     let map = copy(r.map);
-    r.log(enemy_castles);
+
     for(let k=0;k<enemy_castles.length;k++) {
 
         for(let i=-10;i<=10;i++) {
