@@ -284,7 +284,7 @@ export function damageMap2(r) {
 }
 
 export function getAttackRange(unit) {
-    if(unit === SPECS.PILGRIM || unit === SPECS.CASTLE || unit === SPECS.CHURCH) {
+    if(unit === SPECS.PILGRIM  || unit === SPECS.CHURCH) {
         return [];
     } else if (unit === SPECS.CRUSADER) {
         return util.getMoves(4);
@@ -307,6 +307,8 @@ export function getAttackRange(unit) {
             }
         }
         return attackRange;
+    } else if (unit === SPECS.CASTLE) {
+        return util. getMoves(8);
     }
 }
 
@@ -331,7 +333,7 @@ export function unitMap(r) {
 }
 
 
-export function unitMap2(r) {
+export function unitMap2(r,tolerance) {
 
     let map = util.create2dArray(r.size, r.size, false);
     let enemyCastle = util.getReflectedCoord({x: r.me.x, y: r.me.y}, r);
@@ -342,7 +344,7 @@ export function unitMap2(r) {
                 let enemyCastleDir = util.directionTo(enemyCastle.x - r.me.x, enemyCastle.y - r.me.y);
                 let unitDir = util.directionTo(i - r.me.x, j - r.me.y);
 
-                if(util.similar(enemyCastleDir, unitDir))
+                if(util.similar_with_tolerance(enemyCastleDir, unitDir,tolerance))
                     map[j][i] = true;
             }
         }
@@ -588,4 +590,8 @@ export function unitMapAggressive(r, radius) {
 
     return map;
 }
+
+
+
+
 

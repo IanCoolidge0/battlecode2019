@@ -55,7 +55,34 @@ import * as constants from "./constants.js";
 //
 //
 // }
+export function BFSMap_with_rmap(pass_map, start, moves, r) {
+    let rmap = r.getVisibleRobotMap();
+    rmap[r.me.y][r.me.x] = 0;
+    rmap[start.y][start.x] = 0;
 
+    let size = pass_map.length;
+    let path_finding_map = create2dArray(size,size,0);
+
+    path_finding_map[start.y][start.x] = 9999999999;
+    let current_locations = [start];
+    while (current_locations.length > 0) {
+        //r.log(current_locations);
+        let location = current_locations.shift();
+        for (let i = 0;i < moves.length;i++) {
+
+            let next_location = {x: location.x + moves[i].x, y: location.y + moves[i].y};
+            if ( next_location.x >= 0 && next_location.y >= 0 && next_location.x < size && next_location.y < size
+                && path_finding_map[next_location.y][next_location.x] === 0 && pass_map[next_location.y][next_location.x] === true && rmap[next_location.y][next_location.x] <= 0) {
+                //r.log("reached");
+                path_finding_map[next_location.y][next_location.x] = moves[i];
+                //r.log("reached 2")
+                current_locations.push(next_location);
+            }
+        }
+    }
+    //r.log(path_finding_map);
+    return path_finding_map
+}
 
 
 export function getMoves(r) {
@@ -207,6 +234,20 @@ export function similar(dir1, dir2) {
         j++;
 
     return Math.abs(i - j) < 2;
+}
+
+export function similar_with_tolerance(dir1, dir2,tolerance) {
+    let dir_coord = [{x:-1,y:-1}, {x:-1,y:0}, {x:-1,y:1}, {x:0,y:1}, {x:1,y:1}, {x:1,y:0}, {x:1,y:-1}, {x:0,y:-1}];
+
+    let i = 0;
+    while(dir_coord[i].x !== dir1.x || dir_coord[i].y !== dir1.y)
+        i++;
+
+    let j = 0;
+    while(dir_coord[j].x !== dir2.x || dir_coord[j].y !== dir2.y)
+        j++;
+
+    return Math.abs(i - j) <= tolerance;
 }
 
 
@@ -553,4 +594,19 @@ export function symmDistance(r, x, y) {
     } else {
         return Math.abs(x - Math.floor(r.map.length / 2));
     }
+}
+
+//passable, karbonite, and fuel map combined
+export function combinedMap(r) {
+    let map = copy(r.map);
+    let kmap = r.karbonite_map;
+    let fmap = r.fuel_map;
+    for (let i = 0;i < map.length;i++) {
+        for (let j = 0;j < map.length;j++) {
+            if (kmap[j][i] || fmap[j][i]) {
+                map[j][i] = false;
+            }
+        }
+    }
+    return map;
 }

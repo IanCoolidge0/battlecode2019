@@ -38,12 +38,17 @@ export const PROPHET_MODE = {
 
 
 export const PREACHER_JOBS = {
-    DEFEND_CASTLE:0
+    DEFEND_CASTLE:0,
+    DEFEND_GOAL: 1
 };
 
 export const PREACHER_MODE = {
     DEFEND_CASTLE:0,
     ATTACK_CASTLE:1,
+    PATH_TO_GOAL: 0,
+    DEFEND: 1,
+    ATTACK: 2,
+    REINFORCE: 3,
 
 };
 export const CRUSADER_JOBS = {
