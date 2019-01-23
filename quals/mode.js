@@ -9,6 +9,7 @@ export function travel_to_goal(r,radius,tolerance,goalMap) {
 
     return util.fuzzyMove(r,-dir.x,-dir.y,radius,tolerance);
 }
+
 export function travel_to_goal5(r,moves) {
     if (r.wait == undefined) r.wait = 0;
     let rmap = r.getVisibleRobotMap();

@@ -41,11 +41,10 @@ function init(r) {
     r.prophetQueue = [];
     r.crusaderQueue = [];
     let dir_coord = [{x:-1,y:-1}, {x:-1,y:0}, {x:-1,y:1}, {x:0,y:1}, {x:1,y:1}, {x:1,y:0}, {x:1,y:-1}, {x:0,y:-1}];
-    r.unitMap = combat.unitMap2(r,2);
+    r.unitMap = combat.unitMap(r);
     //r.log("UNITMAP_________________________________________")
     //r.log(r.unitMap);
-    r.unitLocationQueue_prophet = combat.unitLocationsQueue(r,4,7,r.unitMap,true);
-    r.unitLocationQueue_preacher = combat.unitLocationsQueue(r,3,3,r.unitMap,true);
+    r.unitLocationQueue = combat.unitLocationsQueue(r,2,2,r.unitMap,true);
 
     r.builderJob = {};
 
@@ -84,13 +83,9 @@ function init(r) {
         }
     }
 
-    for (let i=0;i<r.unitLocationQueue_prophet.length;i++) {
+    for (let i=0;i<r.unitLocationQueue.length;i++) {
         r.buildQueue.push({unit: SPECS.PROPHET,karbonite:25, fuel: 200});
-        r.prophetQueue.push({x:r.unitLocationQueue_prophet[i].x, y: r.unitLocationQueue_prophet[i].y, code: constants.PROPHET_JOBS.DEFEND_GOAL});
-    }
-    for (let i=0;i<r.unitLocationQueue_preacher.length;i++) {
-        r.buildQueue.push({unit: SPECS.PREACHER,karbonite:30, fuel: 200});
-        r.preacherQueue.push({x:r.unitLocationQueue_preacher[i].x, y: r.unitLocationQueue_preacher[i].y, code: constants.PROPHET_JOBS.DEFEND_GOAL});
+        r.prophetQueue.push({x:r.unitLocationQueue[i].x, y: r.unitLocationQueue[i].y, code: constants.PROPHET_JOBS.DEFEND_GOAL});
     }
 }
 
@@ -106,15 +101,6 @@ function replaceDeadUnit(robot, r) {
     }
 }
 
-// function defenseQueue(r) {
-//     if (r.buildQueue.length > 0) return;
-//     r.log("add defensive prophet");
-//     let enemyCoord = util.getReflectedCoord({x:r.me.x, y:r.me.y},r);
-//     let direction = util.directionTo(enemyCoord.x - r.me.x, enemyCoord.y - r.me.y);
-//     let location = combat.next_unitLocation_within_vision(r,direction,6,2);
-//     r.buildQueue.push({unit: SPECS.PROPHET,karbonite:25, fuel: 200});
-//     r.prophetQueue.push({x:location.x, y: location.y, code: constants.PROPHET_JOBS.DEFEND_GOAL});
-// }
 function step(r) {
 
     let visible = r.getVisibleRobots();
