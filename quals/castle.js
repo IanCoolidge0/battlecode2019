@@ -115,7 +115,7 @@ function initializeCastles(r) {
 }
 
 function initializeChurches(r) {
-    r.church_locations = util.getResourceClusters(r.karbonite_map, r.fuel_map, constants.CLUSTER_RADIUS, r.castles, r);
+    r.church_locations = util.getResourceClusters(r.karboniteCoords, r.fuelCoords, constants.CLUSTER_RADIUS, r.castles,r,r.karbonite_map,r.fuel_map);
 
     r.enemy_church_locations = [];
     for(let i=0;i<r.church_locations.length;i++)
@@ -214,6 +214,9 @@ function initializeBuildQueue(r) {
     //         code: constants.CRUSADER_JOBS.DEFEND_GOAL
     //     });
     // }
+}
+function calculateEmergencyFund(r) {
+
 }
 
 function turn1step(r) {

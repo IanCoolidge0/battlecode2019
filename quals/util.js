@@ -467,9 +467,8 @@ export function withInMap(coord,r) {
     return coord.x >= 0 && coord.y >= 0 && coord.x < r.map.length && coord.y < r.map.length;
 }
 
-export function getResourceClusters(karb_map, fuel_map, cluster_radius, castles, r) {
-    let karb_coords = resourceCoords(r.map, karb_map, {x: r.me.x, y: r.me.y}, getMoves(2), r);
-    let fuel_coords = resourceCoords(r.map, fuel_map, {x: r.me.x, y: r.me.y}, getMoves(2), r);
+export function getResourceClusters(karb_coords, fuel_coords, cluster_radius, castles, r,karb_map,fuel_map) {
+
     let coords = karb_coords.concat(fuel_coords);
 
     let centers = [];
@@ -508,6 +507,7 @@ export function getResourceClusters(karb_map, fuel_map, cluster_radius, castles,
     }
 
     return real_centers.sort(function(a,b) {
+
         return b.count - a.count;
     });
 }
@@ -566,9 +566,9 @@ export function safetyMap(r, enemy_castles) {
 
     for(let k=0;k<enemy_castles.length;k++) {
 
-        for(let i=-10;i<=10;i++) {
-            for(let j=-10;j<=10;j++) {
-                if(i ** 2 + j ** 2 > 100) continue;
+        for(let i=-8;i<=8;i++) {
+            for(let j=-8;j<=8;j++) {
+                if(i ** 2 + j ** 2 > 64) continue;
 
                 let newX = enemy_castles[k].x + i;
                 let newY = enemy_castles[k].y + j;
