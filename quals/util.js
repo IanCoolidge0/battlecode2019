@@ -63,7 +63,7 @@ export function BFSMap_with_rmap(pass_map, start, moves, r) {
     let size = pass_map.length;
     let path_finding_map = create2dArray(size,size,0);
 
-    path_finding_map[start.y][start.x] = 9999999999;
+    path_finding_map[start.y][start.x] = 99;
     let current_locations = [start];
     while (current_locations.length > 0) {
         //r.log(current_locations);

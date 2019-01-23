@@ -18,6 +18,7 @@ function moveToResourceStep(r) {
                 r.parent_building = {x: church_pos.x, y: church_pos.y};
                 r.castle_map = util.BFSMap(r.map, {x: r.parent_building.x, y: r.parent_building.y}, util.getMoves(2));
                 r.resource_map = util.BFSMap(r.map, {x: r.currentJob.x, y: r.currentJob.y}, util.getMoves(2));
+                r.goal_map = r.resource_map;
 
                 r.signal(util.signalCoords(r.currentJob.x, r.currentJob.y, 5), 2);
 
@@ -39,7 +40,7 @@ function moveToResourceStep(r) {
     }
 
     if(r.me.x !== r.currentJob.x || r.me.y !== r.currentJob.y) {
-        return mode.travel_to_goal(r, 2, 2, r.resource_map);
+        return mode.travel_to_goal5(r, util.getMoves(2));
     } else {
         r.mode = constants.PILGRIM_MODE.MINE_RESOURCE;
         return r.mine();
@@ -74,10 +75,12 @@ function mineResourceStep(r) {
 
     if(r.currentJob.code === constants.PILGRIM_JOBS.MINE_KARBONITE && r.me.karbonite >= 18) {
         r.mode = constants.PILGRIM_MODE.MOVE_TO_CASTLE;
+        r.goal_map = r.castle_map;
     }
 
     if(r.currentJob.code === constants.PILGRIM_JOBS.MINE_FUEL && r.me.fuel >= 90) {
         r.mode = constants.PILGRIM_MODE.MOVE_TO_CASTLE;
+        r.goal_map = r.castle_map;
     }
 
     if(r.step < 20) {
@@ -100,7 +103,7 @@ function moveToCastleStep(r) {
     let py = r.parent_building.y;
 
     if((r.me.x - px) ** 2 + (r.me.y - py) ** 2 > 2) {
-        return mode.travel_to_goal(r, 2, 2, r.castle_map);
+        return mode.travel_to_goal5(r, util.getMoves(2));
     } else {
         r.mode = constants.PILGRIM_MODE.MOVE_TO_RESOURCE;
 
@@ -127,6 +130,7 @@ function init(r) {
 
     r.job = r.currentJob.code;
     r.mode = constants.PILGRIM_MODE.MOVE_TO_RESOURCE;
+    r.goal_map = r.resource_map;
 
     if(r.job === constants.PILGRIM_JOBS.BUILD_ENEMY_CHURCH) {
         r.log("building enemy church");
@@ -139,6 +143,7 @@ function init(r) {
         //     r.log(s);
         // }
         r.resource_map = util.BFSMap(r.safety_map, {x: r.currentJob.x, y: r.currentJob.y}, util.getMoves(2));
+        r.goal_map = r.resource_map;
     }
 
     r.requestedReinforcements = false;

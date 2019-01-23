@@ -65,7 +65,10 @@ export function step(r) {
 
 
     if (r.mode === constants.CRUSADER_MODE.PATH_TO_GOAL) {
-        return mode.travel_to_goal(r,2,2,r.goal_map);
+        if(r.currentJob.code === constants.CRUSADER_JOBS.DEFEND_ENEMY_CHURCH)
+            return mode.travel_to_goal5(r, util.getMoves(3));
+        else
+            return mode.travel_to_goal5(r, util.getMoves(2));
     }
     if (r.mode === constants.CRUSADER_MODE.DEFEND) {
         return;
