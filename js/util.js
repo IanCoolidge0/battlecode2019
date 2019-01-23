@@ -122,6 +122,35 @@ export function BFSMap(pass_map,start,moves) {
     return path_finding_map
 }
 
+export function BFSMap_with_rmap(pass_map, start, moves, r) {
+    let rmap = r.getVisibleRobotMap();
+    rmap[r.me.y][r.me.x] = 0;
+    rmap[start.y][start.x] = 0;
+
+    let size = pass_map.length;
+    let path_finding_map = create2dArray(size,size,0);
+
+    path_finding_map[start.y][start.x] = 9999999999;
+    let current_locations = [start];
+    while (current_locations.length > 0) {
+        //r.log(current_locations);
+        let location = current_locations.shift();
+        for (let i = 0;i < moves.length;i++) {
+
+            let next_location = {x: location.x + moves[i].x, y: location.y + moves[i].y};
+            if ( next_location.x >= 0 && next_location.y >= 0 && next_location.x < size && next_location.y < size
+                && path_finding_map[next_location.y][next_location.x] === 0 && pass_map[next_location.y][next_location.x] === true && rmap[next_location.y][next_location.x] <= 0) {
+                //r.log("reached");
+                path_finding_map[next_location.y][next_location.x] = moves[i];
+                //r.log("reached 2")
+                current_locations.push(next_location);
+            }
+        }
+    }
+    //r.log(path_finding_map);
+    return path_finding_map
+}
+
 export function resourceCoords(pass_map, resource_map, start, moves, r) {
     let size = pass_map.length;
     let queue = [start];

@@ -2,22 +2,22 @@ import * as util from "./util.js";
 import * as constants from "./constants.js";
 import {SPECS} from 'battlecode';
 import * as combat from "./combat.js";
+import * as logging from "./logging.js";
+import * as nav from "./nav.js";
 
-function attempt_build(r, unit,dir) {
+function attempt_build(r, unit, dir) {
     let dir_coord = [dir, util.rotateLeft(dir,1), util.rotateRight(dir,1), util.rotateLeft(dir,2),
         util.rotateRight(dir,2), util.rotateLeft(dir,3), util.rotateRight(dir,3), util.rotateLeft(dir,4)];
     let vis_map = r.getVisibleRobotMap();
-
-
 
     for(let i=0;i<dir_coord.length;i++) {
         let newX = r.me.x + dir_coord[i].x;
         let newY = r.me.y + dir_coord[i].y;
 
-
+        if(newX < 0 || newY < 0 || newX >= r.map.length || newY >= r.map.length)
+            continue;
 
         if(r.map[newY][newX] && vis_map[newY][newX] === 0) {
-
             return r.buildUnit(unit, dir_coord[i].x, dir_coord[i].y);
         }
     }
@@ -26,7 +26,8 @@ function attempt_build(r, unit,dir) {
 function build_unit(r,unit_type,target_x,target_y,job) {
     r.currentAssignment = {unit: unit_type, x: target_x, y: target_y, code: job};
     r.signal(util.signalCoords(target_x, target_y, job), 2);
-    r.log("built " + unit_type + " at: " + target_x + ", " + target_y + "  job: " + job);
+    logging.logBuiltUnit(r, unit_type, target_x, target_y, job);
+
     return attempt_build(r, unit_type,util.directionTo(target_x - r.me.x,target_y - r.me.y));
 }
 
@@ -85,14 +86,14 @@ function init(r) {
     // }
     //r.log(r.unitMap);
     r.unit_location_distance =Math.floor(Math.sqrt((r.me.x - r.enemy_castle.x)**2 + (r.me.y - r.enemy_castle.y)**2) / 2);
-    if (r.unit_location_distance > 7) {
-        r.unit_location_distance = 7;
+    if (r.unit_location_distance > 10) {
+        r.unit_location_distance = 10;
     }
     r.unitLocationQueue = combat.unitLocationsQueue(r, 3, r.unit_location_distance, r.unitMap, true);
 
-    r.unitLocationQueue = r.unitLocationQueue.concat(combat.unitLocationsQueue(r, 3, r.unit_location_distance, r.unitMapOther, true));
-    r.unitLocationQueue_crusader = combat.unitLocationsQueue(r, 3, r.size, r.unitMap_crusader, true);
-    r.unitLocationQueue_crusader = r.unitLocationQueue_crusader.concat(combat.unitLocationsQueue(r, 3, r.unit_location_distance, r.unitMap_crusader2, true));
+    //r.unitLocationQueue = r.unitLocationQueue.concat(combat.unitLocationsQueue(r, 3, r.unit_location_distance, r.unitMapOther, true));
+    //r.unitLocationQueue_crusader = combat.unitLocationsQueue(r, 3, r.size, r.unitMap_crusader, true);
+    //r.unitLocationQueue_crusader = r.unitLocationQueue_crusader.concat(combat.unitLocationsQueue(r, 3, r.unit_location_distance, r.unitMap_crusader2, true));
 
 
 
@@ -208,20 +209,24 @@ function turn1step(r) {
         }
     }
 
-    //r.log("prophet job");
+    r.log("prophet job");
     for (let i=0;i<r.unitLocationQueue.length;i++) {
        r.buildQueue.push({unit: SPECS.PROPHET,karbonite:25, fuel: 500});
-       r.prophetQueue.push({x:r.unitLocationQueue[i].x, y: r.unitLocationQueue[i].y, code: constants.PROPHET_JOBS.DEFEND_GOAL});
-    }
+        //r.prophetQueue.push({x:r.unitLocationQueue[0].x, y: r.unitLocationQueue[0].y, code: constants.PROPHET_JOBS.DEFEND_GOAL});
 
-    for (let i = 0; i < r.unitLocationQueue_crusader.length; i++) {
-        r.buildQueue.push({unit: SPECS.CRUSADER, karbonite: 25, fuel: 2000});
-        r.crusaderQueue.push({
-            x: r.unitLocationQueue_crusader[i].x,
-            y: r.unitLocationQueue_crusader[i].y,
-            code: constants.CRUSADER_JOBS.DEFEND_GOAL
-        });
+        r.prophetQueue.push({x:r.unitLocationQueue[i].x, y: r.unitLocationQueue[i].y, code: constants.PROPHET_JOBS.DEFEND_GOAL});
     }
+    //    r.buildQueue.push({unit: SPECS.PROPHET,karbonite:25, fuel: 500});
+    //    r.prophetQueue.push({x:24, y: 3, code: constants.PROPHET_JOBS.DEFEND_GOAL});
+
+    // for (let i = 0; i < r.unitLocationQueue_crusader.length; i++) {
+    //     r.buildQueue.push({unit: SPECS.CRUSADER, karbonite: 25, fuel: 2000});
+    //     r.crusaderQueue.push({
+    //         x: r.unitLocationQueue_crusader[i].x,
+    //         y: r.unitLocationQueue_crusader[i].y,
+    //         code: constants.CRUSADER_JOBS.DEFEND_GOAL
+    //     });
+    // }
 
 
 }
@@ -406,6 +411,27 @@ function step(r) {
 
 
 export function castle_step(r) {
+    if (r.step === 0 ) {
+
+        // for (let y = 0;y < r.map.length;y++) {
+        //     let str = "";
+        //     for (let x = 0;x < r.map.length;x++) {
+        //         str += BFS_multiple_path_map[y][x].length;
+        //     }
+        //     r.log(str);
+        // }
+    }
+
+    // let dict = {};
+    // if (dict[4] === undefined) {
+    //     dict[4] = [5];
+    // } else {
+    //     dict[4].push(23);
+    // }
+    //
+    //
+    // r.log(dict);
+
     if (r.step === 950) {
         r.signal(15,r.map.length ** 2);
         r.log("CCCCCRRRRRUUUUUUUSSSSSAAAAADDDDDEEEEERRRRR AAAAAATTTTTTAAAAAAACCCCKKKKKK!!!!!!!!!!!!!!!!!!!!!!!!");
@@ -418,6 +444,8 @@ export function castle_step(r) {
 
 
     if (r.step === 0) {
+
+
 
         init(r);
     } else if (r.step > 0) {

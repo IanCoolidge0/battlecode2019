@@ -3,6 +3,7 @@ import * as constants from "./constants.js";
 import {SPECS} from 'battlecode';
 import * as mode from "./mode.js";
 import * as combat from "./combat.js";
+import * as nav from "./nav.js";
 
 
 function init(r) {
@@ -13,6 +14,8 @@ function init(r) {
     r.parent_castle = util.findParentCastle(r);
     r.parent_castle_coords = {x:r.parent_castle.x,y:r.parent_castle.y};
     r.currentJob = util.decodeCoords(r.parent_castle.signal);
+    r.log("signal  " + r.parent_castle.signal);
+    r.signal(r.parent_castle.signal,4);
     //r.log(r.currentJob);
     if(r.currentJob.code === constants.PROPHET_JOBS.REINFORCE_PILGRIM) {
         r.mode = constants.PROPHET_MODE.PATH_TO_GOAL;
@@ -20,8 +23,15 @@ function init(r) {
     }
     if(r.currentJob.code === constants.PROPHET_JOBS.DEFEND_GOAL) {
         r.mode = constants.PROPHET_MODE.PATH_TO_GOAL;
-        r.goal_map = util.BFSMap(r.map, {x: r.currentJob.x, y: r.currentJob.y}, util.getMoves(2));
+        r.goal_map = util.BFSMap_with_rmap(r.map, {x: r.currentJob.x, y: r.currentJob.y}, util.getMoves2(2),r);
+        //r.log(r.goal_map[r.me.y][r.me.x]);
+        //r.log(r.goal_map);
+        //r.path_map = nav.BFS_Multiple_Path_Map(r,{x:r.me.x,y:r.me.y},{x: r.currentJob.x, y: r.currentJob.y},util.getMoves2(2));
+
+
+
     }
+
 }
 
 
@@ -32,8 +42,7 @@ export function step(r) {
     if (r.mode !== constants.PROPHET_MODE.ATTACK && combat.enemyInRange(r)) {
         //r.log("CHANGE MODE TO ATTACK");
         r.mode = constants.PROPHET_MODE.ATTACK;
-    } else if (r.mode !== constants.PROPHET_MODE.DEFEND &&
-        ((r.currentJob.x === r.me.x && r.currentJob.y === r.me.y) ||(rmap[r.currentJob.y][r.currentJob.x] > 0 && distance_to_goal <= 2))) {
+    } else if (r.mode !== constants.PROPHET_MODE.DEFEND && r.currentJob.x === r.me.x && r.currentJob.y === r.me.y) {
         //r.log("CHANGE MODE TO DEFEND");
         r.mode = constants.PROPHET_MODE.DEFEND;
     } else if (r.mode !== constants.PROPHET_MODE.PATH_TO_GOAL && distance_to_goal > 2) {
@@ -45,14 +54,12 @@ export function step(r) {
 
 
     if (r.mode === constants.PROPHET_MODE.PATH_TO_GOAL) {
-        return mode.travel_to_goal(r,2,2,r.goal_map);
+        return mode.travel_to_goal5(r,util.getMoves2(2));
     }
     if (r.mode === constants.PROPHET_MODE.DEFEND) {
         return;
     }
     if (r.mode === constants.PROPHET_MODE.ATTACK) {
-        //r.log("parent");
-        //r.log(r.parent_castle_coords);
         return mode.prophet_attack(r,r.parent_castle_coords);
     }
 
@@ -101,6 +108,7 @@ function pathToGoalStep(r) {
 }
 
 export function prophet_step(r) {
+
     if (r.step === 0) {
         init(r);
     } else
