@@ -131,7 +131,7 @@ export function BFSMap(pass_map,start,moves) {
     let size = pass_map.length;
     let path_finding_map = create2dArray(size,size,0);
 
-    path_finding_map[start.y][start.x] = 9999999999;
+    path_finding_map[start.y][start.x] = 99;
     let current_locations = [start];
     while (current_locations.length > 0) {
         //r.log(current_locations);
@@ -533,6 +533,21 @@ export function getResourceClusters(karb_map, fuel_map, cluster_radius, castles,
     return real_centers
 }
 
+function hasAdjacentResourceTile(x, y, karb_map, fuel_map) {
+    let dir_coord = [{x:0,y:-1}, {x:1,y:-1}, {x:1,y:0}, {x:1,y:1}, {x:0,y:1}, {x:-1,y:1}, {x:-1,y:0}, {x:-1,y:-1}];
+
+    for(let i=0;i<dir_coord.length;i++) {
+        let newX = x + dir_coord[i].x;
+        let newY = y + dir_coord[i].y;
+
+        if(newX >= 0 && newY >= 0 && newX < karb_map.length && newY < karb_map.length && (karb_map[newY][newX] || fuel_map[newY][newX])) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
 export function freeChurchTile(initial_pos, karb_map, fuel_map) {
     let dx = 0;
     let dy = 0;
@@ -541,7 +556,7 @@ export function freeChurchTile(initial_pos, karb_map, fuel_map) {
         let newX = initial_pos.x + dx;
         let newY = initial_pos.y + dy;
 
-        if (newX >= 0 && newY >= 0 && newX < karb_map.length && newY < karb_map.length && !karb_map[newY][newX] && !fuel_map[newY][newX])
+        if (newX >= 0 && newY >= 0 && newX < karb_map.length && newY < karb_map.length && !karb_map[newY][newX] && !fuel_map[newY][newX] && hasAdjacentResourceTile(newX, newY, karb_map, fuel_map))
             return {x: newX, y: newY, karb_count: initial_pos.karb_count,fuel_count: initial_pos.fuel_count};
 
         if (dx === dy || (dx < 0 && dx === -dy) || (dx > 0 && dx === 1 - dy))
