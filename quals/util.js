@@ -477,20 +477,25 @@ export function getResourceClusters(karb_map, fuel_map, cluster_radius, castles,
     while(coords.length > 0) {
         let center = coords[0];
 
-        centers.unshift({x: 0, y: 0, count: 0});
+        centers.unshift({x: 0, y: 0, karb_count: 0,fuel_count:0});
 
         let j = 0;
         for(let i=0;i<coords.length;i++) {
             if((coords[i].x - center.x) ** 2 + (coords[i].y - center.y) ** 2 >= cluster_radius ** 2) {
                 coords[j++] = coords[i];
             } else {
-                centers[0].count++;
+
+                if (karb_map[coords[i].y][coords[i].x]) {
+                    centers[0].karb_count++;
+                } else {
+                    centers[0].fuel_count++;
+                }
                 centers[0].x += coords[i].x;
                 centers[0].y += coords[i].y;
             }
         }
-        centers[0].x = Math.floor(centers[0].x / centers[0].count);
-        centers[0].y = Math.floor(centers[0].y / centers[0].count);
+        centers[0].x = Math.floor(centers[0].x / (centers[0].karb_count + centers[0].fuel_count));
+        centers[0].y = Math.floor(centers[0].y / (centers[0].karb_count + centers[0].fuel_count));
         coords.length = j;
     }
 
@@ -507,9 +512,25 @@ export function getResourceClusters(karb_map, fuel_map, cluster_radius, castles,
             real_centers.push(freeChurchTile(centers[i], karb_map, fuel_map));
     }
 
-    return real_centers.sort(function(a,b) {
-        return b.count - a.count;
+
+    real_centers =  real_centers.sort(function(a,b) {
+
+        let a_sym_distance = symmDistance(r,a.x,a.y);
+        let b_sym_distance = symmDistance(r,b.x,b.y);
+        let a_value = a.karb_count + a.fuel_count * 1.5;
+        let b_value = b.karb_count + b.fuel_count * 1.5;
+
+        if (a_sym_distance < 5)  a_value *= 2;
+        if (b_sym_distance < 5) b_value *= 2;
+
+        a_value -= a_sym_distance * 0.05;
+        b_value -= b_sym_distance * 0.05;
+
+        return b_value - a_value;
     });
+    r.log('real centers');
+    r.log(real_centers);
+    return real_centers
 }
 
 export function freeChurchTile(initial_pos, karb_map, fuel_map) {
@@ -521,7 +542,7 @@ export function freeChurchTile(initial_pos, karb_map, fuel_map) {
         let newY = initial_pos.y + dy;
 
         if (newX >= 0 && newY >= 0 && newX < karb_map.length && newY < karb_map.length && !karb_map[newY][newX] && !fuel_map[newY][newX])
-            return {x: newX, y: newY, count: initial_pos.count};
+            return {x: newX, y: newY, karb_count: initial_pos.karb_count,fuel_count: initial_pos.fuel_count};
 
         if (dx === dy || (dx < 0 && dx === -dy) || (dx > 0 && dx === 1 - dy))
             delta = [-delta[1], delta[0]];
@@ -530,7 +551,7 @@ export function freeChurchTile(initial_pos, karb_map, fuel_map) {
         dy += delta[1];
     }
 
-    return {x: initial_pos.x + dx, y: initial_pos.y + dy, count: initial_pos.count};
+    return {x: initial_pos.x + dx, y: initial_pos.y + dy, karb_count: initial_pos.karb_count,fuel_count: initial_pos.fuel_count};
 }
 
 export function getNearestResourceTile(r) {
