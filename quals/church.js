@@ -72,7 +72,7 @@ function init(r) {
 
             if(util.withInMap({x: newX, y: newY}, r) && (newX !== r.builderJob.x || newY !== r.builderJob.y)) {
                 if(r.fuel_map[newY][newX]) {
-                    r.buildQueue.push({unit: SPECS.PILGRIM, karbonite: 25, fuel: 100});
+                    r.buildQueue.push({unit: SPECS.PILGRIM, karbonite: 25, fuel: 100, priority: true});
                     r.pilgrimQueue.push({x: newX, y: newY, code: constants.PILGRIM_JOBS.MINE_FUEL});
                 }
 

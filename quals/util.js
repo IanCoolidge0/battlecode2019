@@ -552,6 +552,25 @@ export function getNearestResourceTile(r) {
     }
 }
 
+export function getNearestResourceTile2(r, pos) {
+    let dx = 0;
+    let dy = 0;
+    let delta = [0,-1];
+    for(let i=0;i<constants.CLUSTER_RADIUS**2;i++) {
+        let newX = pos.x + dx;
+        let newY = pos.y + dy;
+
+        if (withInMap({x: newX, y: newY}, r) && (r.karbonite_map[newY][newX] || r.fuel_map[newY][newX]))
+            return {x: newX, y: newY, code: r.karbonite_map[newY][newX] ? constants.PILGRIM_JOBS.MINE_KARBONITE : constants.PILGRIM_JOBS.MINE_FUEL};
+
+        if (dx === dy || (dx < 0 && dx === -dy) || (dx > 0 && dx === 1 - dy))
+            delta = [-delta[1], delta[0]];
+
+        dx += delta[0];
+        dy += delta[1];
+    }
+}
+
 //return a deep copy of a 2d array
 export function copy(array) {
     let newArray = [];
