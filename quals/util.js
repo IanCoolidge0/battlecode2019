@@ -528,8 +528,8 @@ export function getResourceClusters(karb_map, fuel_map, cluster_radius, castles,
 
         return b_value - a_value;
     });
-    r.log('real centers');
-    r.log(real_centers);
+    //r.log('real centers');
+    //r.log(real_centers);
     return real_centers
 }
 
