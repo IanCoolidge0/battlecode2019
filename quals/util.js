@@ -63,7 +63,7 @@ export function BFSMap_with_rmap(pass_map, start, moves, r) {
     let size = pass_map.length;
     let path_finding_map = create2dArray(size,size,0);
 
-    path_finding_map[start.y][start.x] = 9999999999;
+    path_finding_map[start.y][start.x] = 99;
     let current_locations = [start];
     while (current_locations.length > 0) {
         //r.log(current_locations);
@@ -82,6 +82,35 @@ export function BFSMap_with_rmap(pass_map, start, moves, r) {
     }
     //r.log(path_finding_map);
     return path_finding_map
+}
+
+export function location_within_attackRange(pass_map, start, end, moves, range_squared) {
+
+
+    let size = pass_map.length;
+    let path_finding_map = create2dArray(size,size,0);
+
+    path_finding_map[start.y][start.x] = 99;
+    let current_locations = [start];
+    while (current_locations.length > 0) {
+        //r.log(current_locations);
+        let location = current_locations.shift();
+        let distance = (end.x - location.x) ** 2 + (end.y - location.y) ** 2;
+        if (distance <= range_squared) return location;
+        for (let i = 0;i < moves.length;i++) {
+
+            let next_location = {x: location.x + moves[i].x, y: location.y + moves[i].y};
+            if ( next_location.x >= 0 && next_location.y >= 0 && next_location.x < size && next_location.y < size
+                && path_finding_map[next_location.y][next_location.x] === 0 && pass_map[next_location.y][next_location.x] === true ) {
+                //r.log("reached");
+                path_finding_map[next_location.y][next_location.x] = moves[i];
+                //r.log("reached 2")
+                current_locations.push(next_location);
+            }
+        }
+    }
+    r.log("ERRRRRRROOOORRRRRRRRRRRR");
+    r.log("UNREACHABLE");
 }
 
 
@@ -218,8 +247,14 @@ export function directions(dir) {
         return dir_coord[dir_name.indexOf(dir)];
     }
     return dir_coord[dir]
+}
 
-
+export function directionIndex(dir) {
+    let dir_coord = [{x:0,y:-1}, {x:1,y:-1}, {x:1,y:0}, {x:1,y:1}, {x:0,y:1}, {x:-1,y:1}, {x:-1,y:0}, {x:-1,y:-1}];
+    let i = 0;
+    while(dir_coord[i].x !== dir.x || dir_coord[i].y !== dir.y)
+        i++;
+    return i;
 }
 
 export function similar(dir1, dir2) {

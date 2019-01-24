@@ -9,48 +9,46 @@ import * as mode from "./mode.js";
 
 function init(r) {
     r.size = r.map.length;
-
+    r.wait = 0;
     r.castleTalk(constants.INIT_CASTLETALK);
 
     r.parent_castle = util.findParentCastle(r);
     r.parent_castle_coords = {x:r.parent_castle.x,y:r.parent_castle.y};
     r.currentJob = util.decodeCoords(r.parent_castle.signal);
     r.log(r.currentJob);
-    if(r.currentJob.code === constants.PREACHER_JOBS.DEFEND_CASTLE) {
+    if(r.currentJob.code < 8) {
 
         r.mode = constants.PREACHER_MODE.DEFEND_CASTLE;
 
-
+        r.wait = 5;
         // r.log('goal');
         // r.log(r.goal_map[r.me.y][r.me.x]);
-        let move = util.directionTo(r.currentJob.x - r.me.x,r.currentJob.y - r.me.y);
-        //r.log('enemy dir');
-        //r.log(move);
-        if(Math.random() > 0.5) {
-            move = util.rotateRight(move, 1);
-        } else {
-            move = util.rotateLeft(move, 1);
-        }
-
-        //r.log(move);
-        return util.fuzzyMove(r,move.x,move.y,2,0);
+        r.moves = util.getMoves(2);
+        r.goal_map = util.BFSMap_with_rmap(r.map, {x: r.currentJob.x, y: r.currentJob.y}, r.moves, r);
+        return mode.travel_to_goal5(r,r.moves);
     }
+
+
     if (r.currentJob.code === constants.PREACHER_JOBS.DEFEND_GOAL) {
         r.mode = constants.PREACHER_MODE.PATH_TO_GOAL;
-        r.moves = util.getMoves2(2);
+        r.moves = util.getMoves(2);
         r.goal_map = util.BFSMap_with_rmap(r.map, {x: r.currentJob.x, y: r.currentJob.y}, r.moves, r);
     }
 
 }
 function step(r) {
     if (r.mode === constants.PREACHER_MODE.DEFEND_CASTLE) {
-        //r.log('attacking');
+        if (r.wait === 0) {
+            r.mode = constants.PREACHER_MODE.PATH_TO_GOAL;
+        }
+        r.wait--;
         let attack = combat.preacher_best_attack(r);
-        //r.log('attack');
-        //r.log(attack);
         if (attack !== undefined) {
             return r.attack(attack.x,attack.y);
+        } else {
+            return;
         }
+
     }
 
     let distance_to_goal = (r.me.x - r.currentJob.x) ** 2 + (r.me.y - r.currentJob.y) ** 2;

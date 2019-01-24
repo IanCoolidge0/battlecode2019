@@ -3,6 +3,9 @@ export const INIT_CASTLETALK = 255;
 export const PILGRIM_DANGER_CASTLETALK = 1;
 
 export const CLUSTER_RADIUS = 5;
+export const ENEMY_PREACHER = 15;
+export const ENEMY_PROPHET = 14;
+export const ENEMY_CRUSADER = 13;
 
 export const PILGRIM_JOBS = {
     MINE_KARBONITE: 0,
@@ -19,11 +22,9 @@ export const PILGRIM_MODE = {
 };
 
 export const PROPHET_JOBS = {
-
-    REINFORCE_PILGRIM: 0,
-    DEFEND_GOAL: 1,
-    DEFEND_CASTLE:2
-
+    DEFEND_CASTLE:[0,1,2,3,4,5,6,7],
+    REINFORCE_PILGRIM: 8,
+    DEFEND_GOAL: 9,
 
 
 };
@@ -33,13 +34,14 @@ export const PROPHET_MODE = {
     DEFEND: 1,
     ATTACK: 2,
     REINFORCE: 3,
-    DEFEND_CASTLE:4
+    DEFEND_CASTLE:4,
+    MOVE_AWAY:5,
 };
 
 
 export const PREACHER_JOBS = {
-    DEFEND_CASTLE:0,
-    DEFEND_GOAL: 1
+    DEFEND_CASTLE:[0,1,2,3,4,5,6,7],
+    DEFEND_GOAL: 8
 };
 
 export const PREACHER_MODE = {

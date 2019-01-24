@@ -17,7 +17,7 @@ export function travel_to_goal5(r,moves) {
 
     //r.log(move);
 
-    if (move === 0) {
+    if (move === 0 && move == 99) {
         r.wait++;
         return;
     }
@@ -28,7 +28,7 @@ export function travel_to_goal5(r,moves) {
         r.log("SOMEONE IS AT: " + next.y + ", " + next.x);
         r.wait = 0;
         return r.move(-move.x,-move.y);
-    } else if (r.wait > 10 && r.me.time > 100) {
+    } else if (r.wait > 5 && r.me.time > 100) {
         r.log("REROUTING to" + r.currentJob.x + ', ' + r.currentJob.y);
         r.wait = 0;
         r.goal_map = util.BFSMap_with_rmap(r.map, {x: r.currentJob.x, y: r.currentJob.y}, moves,r);

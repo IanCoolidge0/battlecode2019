@@ -99,15 +99,21 @@ export function preacher_best_attack(r) {
 
 }
 
-export function amount_of_enemy(r) {
+export function amount_of_enemy_per_direction(r) {
     let robots = r.getVisibleRobots();
-    let count = {3:0,4:0,5:0};
+    let count = {3: [0,0,0,0,0,0,0,0], 4: [0,0,0,0,0,0,0,0], 5: [0,0,0,0,0,0,0,0]};
     for (let i = 0;i < robots.length;i++) {
         let robot = robots[i];
         if(!r.isVisible(robot) || r.me.team === robot.team) continue;
         if (robot.unit === SPECS.PILGRIM || robot.unit === SPECS.CASTLE || robot.unit === SPECS.CHURCH) continue;
-        count[robot.unit]++;
+        let enemyLocation = {x:robot.x,y:robot.y};
 
+        let enemyMoves = robot.unit === SPECS.CRUSADER ? util.getMoves(3):util.getMoves(2);
+        let enemyRange = SPECS.UNITS[robot.unit].ATTACK_RADIUS[1];
+        let enemyAttackLocation = util.location_within_attackRange(r.map,enemyLocation,{x:r.me.x,y:r.me.y},enemyMoves,enemyRange);
+        let enemyDirection = util.directionTo(enemyAttackLocation.x - r.me.x,enemyAttackLocation.y - r.me.y);
+
+        count[robot.unit][util.directionIndex(enemyDirection)]++;
     }
     return count;
 }
@@ -324,7 +330,7 @@ export function unitMap(r) {
     let map = util.create2dArray(r.size,r.size,false);
     for (let i = 0;i < r.size;i++) {
         for (let j = 0;j < r.size;j++) {
-            if (i % 2 == 0 && j % 2 === 0 && r.map[j][i] && !r.karbonite_map[j][i] && !r.fuel_map[j][i]) {
+            if (((i % 2 == 0 && j % 2 === 0) || (i % 2 == 1 && j % 2 === 1)) && r.map[j][i] && !r.karbonite_map[j][i] && !r.fuel_map[j][i]) {
                 map[j][i] = true;
             }
         }
@@ -481,20 +487,31 @@ export function next_unitLocation_odd(r,direction,unitMap) {
         }
     }
 }
-
-export function next_unitLocation(r,coord,direction,tolerance) {
+function onGrid(coord) {
+    return (coord.y % 2 === 0 && coord.x % 2 === 0) || (coord.y % 2 === 1 && coord.x % 2 ===0)
+}
+export function next_emergency_Location(r,coord,unit,direction,tolerance,currentUnitMap,unitMap) {
     let location;
-    for (let i = 2;i < r.map.length;i++) {
+    let min;
+    let max;
+    if (unit === SPECS.PREACHER) {
+         min = 2;
+         max = 3;
+    } else if (unit === SPECS.PROPHET) {
+        min = 4;
+        max = 7;
+    }
+    for (let i = min;i <= max;i++) {
         for (let j = -i;j <= i;j++) {
             location = {x:coord.x + i, y:coord.y + j};
-            if (util.withInMap(location,r) && unitMap[location.y][location.x]) {
+            if (util.withInMap(location,r) && unitMap[location.y][location.x] && !currentUnitMap[location.y][location.x]) {
                 let unitDir = util.directionTo(location.x - r.me.x, location.y - r.me.y);
                 if (util.similar_with_tolerance(unitDir,direction,tolerance)) {
                     return location;
                 }
             }
             location = {x:coord.x - i, y:coord.y + j};
-            if (util.withInMap(location,r) && unitMap[location.y][location.x]) {
+            if (util.withInMap(location,r) && unitMap[location.y][location.x] && !currentUnitMap[location.y][location.x]) {
                 let unitDir = util.directionTo(location.x - r.me.x, location.y - r.me.y);
                 if (util.similar_with_tolerance(unitDir,direction,tolerance)) {
                     return location;
@@ -504,14 +521,14 @@ export function next_unitLocation(r,coord,direction,tolerance) {
         for (let j = -i + 1;j <= i - 1;j++) {
 
             location = {x:coord.x + j, y:coord.y + i};
-            if (util.withInMap(location,r) && unitMap[location.y][location.x]) {
+            if (util.withInMap(location,r) && unitMap[location.y][location.x] && !currentUnitMap[location.y][location.x]) {
                 let unitDir = util.directionTo(location.x - r.me.x, location.y - r.me.y);
                 if (util.similar_with_tolerance(unitDir,direction,tolerance)) {
                     return location;
                 }
             }
             location = {x:coord.x + j, y:coord.y - i};
-            if (util.withInMap(location,r) && unitMap[location.y][location.x]) {
+            if (util.withInMap(location,r) && unitMap[location.y][location.x] && !currentUnitMap[location.y][location.x]) {
                 let unitDir = util.directionTo(location.x - r.me.x, location.y - r.me.y);
                 if (util.similar_with_tolerance(unitDir,direction,tolerance)) {
                     return location;
