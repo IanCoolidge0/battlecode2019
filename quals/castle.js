@@ -34,7 +34,7 @@ function build_unit(r,unit_type,target_x,target_y,job) {
     r.signal(util.signalCoords(target_x, target_y, job), 2);
     logging.logBuiltUnit(r, unit_type, target_x, target_y, job);
 
-    return attempt_build(r, unit_type,util.directionTo(target_x - r.me.x,target_y - r.me.y),target_x,target_y);
+    return attempt_build(r, unit_type,util.directionTo(target_x - r.me.x,target_y - r.me.y),target_x,target_y,job);
 }
 
 function initVariables(r) {
@@ -64,7 +64,7 @@ function initUnitMaps(r) {
     //r.prophetMapGrid = combat.unitMap2(r);
     //r.prophetMapFill = combat.unitMap2_other(r);
     r.currentUnitMap = util.create2dArray(r.map.length,r.map.length,false);
-    r.prophetMapAgg = combat.unitMapAggressive(r, 6);
+    //r.prophetMapAgg = combat.unitMapAggressive(r, 6);
     //r.prophetLocations = combat.unitLocationsQueue(r, 3, r.unit_location_distance, r.prophetMapGrid, true);
     //r.prophetLocations = r.prophetLocations.concat(combat.unitLocationsQueue(r, 3, r.unit_location_distance, r.prophetMapFill, true));
     r.prophetLocations = combat.unitLocationsQueue(r, 3, Math.floor(Math.sqrt((r.me.x - r.enemy_castle.x)**2 + (r.me.y - r.enemy_castle.y)**2) / 2), r.prophetMapAgg, false);
@@ -88,7 +88,7 @@ function initUnitMaps(r) {
     //r.crusaderLocations = r.crusaderLocations.concat(combat.unitLocationsQueue(r, 3, r.size, r.crusaderMapEdge, true));
 
     //defense map
-    r.defenseMap = combat.unitMap(r)
+    r.defenseMap = combat.unitMap(r);
 }
 
 function init(r) {
