@@ -60,6 +60,7 @@ function initVariables(r) {
 
 function initUnitMaps(r) {
     //prophet maps
+
     //r.prophetMapGrid = combat.unitMap2(r);
     //r.prophetMapFill = combat.unitMap2_other(r);
     r.currentUnitMap = util.create2dArray(r.map.length,r.map.length,false);
@@ -67,6 +68,16 @@ function initUnitMaps(r) {
     //r.prophetLocations = combat.unitLocationsQueue(r, 3, r.unit_location_distance, r.prophetMapGrid, true);
     //r.prophetLocations = r.prophetLocations.concat(combat.unitLocationsQueue(r, 3, r.unit_location_distance, r.prophetMapFill, true));
     r.prophetLocations = combat.unitLocationsQueue(r, 3, Math.floor(Math.sqrt((r.me.x - r.enemy_castle.x)**2 + (r.me.y - r.enemy_castle.y)**2) / 2), r.prophetMapAgg, false);
+
+    r.prophetMapGrid = combat.unitMap2(r);
+    r.prophetMapFill = combat.unitMap2_other(r);
+
+    //r.prophetMapAgg = combat.unitMapAggressive(r, 6);
+    r.prophetLocations = combat.unitLocationsQueue(r, 3, r.unit_location_distance, r.prophetMapGrid, true);
+
+    r.prophetLocations = r.prophetLocations.concat(combat.unitLocationsQueue(r, 3, r.unit_location_distance, r.prophetMapFill, true));
+    //r.prophetLocations = combat.unitLocationsQueue(r, 3, Math.floor(Math.sqrt((r.me.x - r.enemy_castle.x)**2 + (r.me.y - r.enemy_castle.y)**2) / 2), r.prophetMapAgg, false);
+
     //r.prophetLocations = [];
 
     //crusader maps
@@ -433,6 +444,12 @@ export function castle_step(r) {
 
         if(r.step === 1)
             turn1step(r);
+
+        if(r.step === 100) {
+            let enemyCastle = util.getReflectedCoord({x: r.me.x, y: r.me.y}, r);
+            r.buildQueue.unshift({unit: SPECS.PILGRIM, karbonite: 10, fuel: 200});
+            r.pilgrimQueue.unshift({x: enemyCastle.x, y: enemyCastle.y, code: constants.PILGRIM_JOBS.OFFENSIVE});
+        }
 
         if (r.step === 950) {
             r.signal(15,r.map.length ** 2);

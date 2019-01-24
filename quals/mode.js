@@ -25,7 +25,7 @@ export function travel_to_goal5(r,moves) {
     let next = {x:r.me.x - move.x,y:r.me.y - move.y};
     //r.log(next);
     if (rmap[next.y][next.x] === 0) {
-        r.log("SOMEONE IS AT: " + next.y + ", " + next.x);
+        //r.log("SOMEONE IS AT: " + next.y + ", " + next.x);
         r.wait = 0;
         return r.move(-move.x,-move.y);
     } else if (r.wait > 5 && r.me.time > 100) {

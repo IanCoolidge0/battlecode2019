@@ -360,7 +360,6 @@ export function getFuzzyMoves(r,dx,dy,radius,tolerance) {
     let possibleMoves = getMoves(radius);
     let dir = [directionTo(dx, dy, r)];
 
-
     if (tolerance >= 1) {
         if(Math.random() > 0.5) {
             dir.push(rotateRight(dir[0], 1));
@@ -390,7 +389,7 @@ export function getFuzzyMoves(r,dx,dy,radius,tolerance) {
             dir.push(rotateLeft(dir[0], 2));
             dir.push(rotateRight(dir[0], 2));
         }
-        let moves2 = []
+        let moves2 = [];
         for (let j = 2;j < dir.length;j++) {
             for (let i = 0;i < possibleMoves.length;i++) {
                 let currentDir = directionTo(possibleMoves[i].x,possibleMoves[i].y,r);
@@ -604,6 +603,28 @@ export function freeChurchTile(initial_pos, karb_map, fuel_map) {
     return {x: initial_pos.x + dx, y: initial_pos.y + dy, karb_count: initial_pos.karb_count,fuel_count: initial_pos.fuel_count};
 }
 
+export function freeOffensiveChurch(r) {
+    let dx = 0;
+    let dy = 0;
+    let delta = [0,-1];
+    let initial_pos = {x: r.me.x, y: r.me.y};
+    let visibleMap = r.getVisibleRobotMap();
+
+    for(let i=0;i<constants.CLUSTER_RADIUS**2;i++) {
+        let newX = initial_pos.x + dx;
+        let newY = initial_pos.y + dy;
+
+        if (newX >= 0 && newY >= 0 && newX < r.map.length && newY < r.map.length && r.map[newY][newX] && visibleMap[newY][newX] === 0)
+            return {x: newX, y: newY};
+
+        if (dx === dy || (dx < 0 && dx === -dy) || (dx > 0 && dx === 1 - dy))
+            delta = [-delta[1], delta[0]];
+
+        dx += delta[0];
+        dy += delta[1];
+    }
+}
+
 export function getNearestResourceTile(r) {
     let dx = 0;
     let dy = 0;
@@ -658,7 +679,7 @@ export function safetyMap(r, enemy_castles) {
 
         for(let i=-10;i<=10;i++) {
             for(let j=-10;j<=10;j++) {
-                if(i ** 2 + j ** 2 > 100) continue;
+                if(i ** 2 + j ** 2 > 64) continue;
 
                 let newX = enemy_castles[k].x + i;
                 let newY = enemy_castles[k].y + j;
@@ -722,5 +743,17 @@ export function crusaderLocation(r,enemyCastles,location) {
 
         dx += delta[0];
         dy += delta[1];
+    }
+}
+
+export function offensivePilgrimGoal(r, coord) {
+    if(isHorizontallySymm(r)) {
+        let goalX = coord.x;
+        let goalY = (coord.y < r.map.length / 2) ? r.map.length - 1 : 0;
+        return {x: goalX, y: goalY};
+    } else {
+        let goalX = (coord.x < r.map.length / 2) ? r.map.length - 1 : 0;
+        let goalY = coord.y;
+        return {x: goalX, y: goalY};
     }
 }

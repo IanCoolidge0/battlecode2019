@@ -1,4 +1,5 @@
 
+export const LATTICE_RADIUS = 6;
 export const INIT_CASTLETALK = 255;
 export const PILGRIM_DANGER_CASTLETALK = 1;
 
@@ -11,14 +12,16 @@ export const PILGRIM_JOBS = {
     MINE_KARBONITE: 0,
     MINE_FUEL: 1,
     BUILD_CHURCH: 2,
-    BUILD_ENEMY_CHURCH: 3
+    BUILD_ENEMY_CHURCH: 3,
+    OFFENSIVE: 4
 };
 
 export const PILGRIM_MODE = {
     MOVE_TO_RESOURCE: 0,
     MINE_RESOURCE: 1,
     MOVE_TO_CASTLE: 2,
-    FLEE: 3
+    FLEE: 3,
+    MOVE_OFFENSIVE: 4
 };
 
 export const PROPHET_JOBS = {
@@ -73,6 +76,7 @@ export const SIGNAL_CODE = {
     REQUEST_REASSIGN: 0,
     CASTLE_POS: 1,
     INIT_SIGNAL: 2,
-    ALIVE_SIGNAL: 3
+    ALIVE_SIGNAL: 3,
+    CREATE_OFFENSIVE_CHURCH: 6
 };
 

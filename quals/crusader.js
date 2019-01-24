@@ -27,7 +27,6 @@ function init(r) {
 }
 
 export function step(r) {
-
     let rmap = r.getVisibleRobotMap();
 
 
@@ -97,7 +96,7 @@ export function step(r) {
 
 
     if (r.mode === constants.CRUSADER_MODE.DEFEND) {
-        return;
+        return combat.crusader_attack(r);
     }
 
 
