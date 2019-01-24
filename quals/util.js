@@ -631,3 +631,27 @@ export function combinedMap(r) {
     }
     return map;
 }
+
+
+export function crusaderLocation(r,enemyCastles,location) {
+    // let nearest_castle = enemyCastles[0];
+    // let nearest_distance = (location.y - enemyCastles[0].y) ** 2 + (location.x - enemyCastles[0].x) ** 2;
+    // for (let i = 1;i < enemyCastles.length;i++) {
+    //     let distance = (location.y - enemyCastles[i].y) ** 2 + (location.x - enemyCastles[i].x) ** 2;
+    //     if (distance )
+    //
+    // }
+    for(let i=0;i<constants.CLUSTER_RADIUS**2;i++) {
+        let newX = initial_pos.x + dx;
+        let newY = initial_pos.y + dy;
+
+        if (newX >= 0 && newY >= 0 && newX < karb_map.length && newY < karb_map.length && !karb_map[newY][newX] && !fuel_map[newY][newX])
+            return {x: newX, y: newY, karb_count: initial_pos.karb_count,fuel_count: initial_pos.fuel_count};
+
+        if (dx === dy || (dx < 0 && dx === -dy) || (dx > 0 && dx === 1 - dy))
+            delta = [-delta[1], delta[0]];
+
+        dx += delta[0];
+        dy += delta[1];
+    }
+}
