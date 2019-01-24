@@ -25,6 +25,7 @@ function attempt_build(r, unit, dir) {
 }
 
 function build_unit(r,unit_type,target_x,target_y,job) {
+    if(r.offensiveChurch) r.log("offensive church building!");
     r.currentAssignment = {unit: unit_type, x: target_x, y: target_y, code: job};
     r.signal(util.signalCoords(target_x, target_y, job), 2);
     logging.logBuiltUnit(r, unit_type, target_x, target_y, job);
@@ -105,6 +106,8 @@ function init(r) {
     r.builderJob = {};
 
     r.createdRobots = {};
+    r.offensiveChurch = false;
+    r.offenseDirection = undefined;
 
     let visible = r.getVisibleRobots();
     for(let i=0;i<visible.length;i++) {
@@ -117,8 +120,32 @@ function init(r) {
 
             break;
         }
+        if(sig.code === constants.SIGNAL_CODE.CREATE_OFFENSIVE_CHURCH) {
+            r.offensiveChurch = true;
+            r.offenseDirection = {x: sig.x, y: sig.y};
+        }
     }
 
+    if(!r.offensiveChurch) {
+        initializeDefensiveBuildQueue(r);
+    } else {
+        initializeOffensiveBuildQueue(r);
+    }
+
+}
+
+function initializeOffensiveBuildQueue(r) {
+    let latticeMap = combat.unitMapAggressive(r, constants.LATTICE_RADIUS, r.offenseDirection);
+    let latticeQueue = combat.unitLocationsQueue(r, 3, 2 * constants.LATTICE_RADIUS, latticeMap, false);
+
+    for(let i=0;i<latticeQueue.length;i++) {
+        r.log(latticeQueue.length + " potential units");
+        r.buildQueue.push({unit: SPECS.PROPHET, karbonite: 30, fuel: 200});
+        r.prophetQueue.push({x: latticeQueue[i].x, y: latticeQueue[i].y, code: constants.PROPHET_JOBS.DEFEND_GOAL});
+    }
+}
+
+function initializeDefensiveBuildQueue(r) {
     for(let i=-constants.CLUSTER_RADIUS;i<=constants.CLUSTER_RADIUS;i++) {
         for(let j=-constants.CLUSTER_RADIUS;j<=constants.CLUSTER_RADIUS;j++) {
             if(i ** 2 + j ** 2 > constants.CLUSTER_RADIUS ** 2) continue;
@@ -150,6 +177,7 @@ function init(r) {
 }
 
 function replaceDeadUnit(robot, r) {
+    if(r.offensiveChurch) return;
     if(robot.unit === SPECS.PILGRIM) {
         if (robot.code === constants.PILGRIM_JOBS.MINE_KARBONITE) {
             r.buildQueue.unshift({unit: SPECS.PILGRIM, karbonite: 10, fuel: 200});

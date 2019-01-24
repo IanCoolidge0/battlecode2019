@@ -16,6 +16,27 @@ export function enemyInRange(r) {
     }
     return false;
 }
+
+export function nearestEnemy(r) {
+    let robots = r.getVisibleRobots();
+
+    let nearestRobot = robots[0];
+    let nearestDist = (r.me.x - nearestRobot.x) ** 2 + (r.me.y - nearestRobot.y) ** 2;
+
+    for(let i=0;i < robots.length;i++) {
+        let robot = robots[i];
+        if(!r.isVisible(robot) || robot.team === r.me.team) continue;
+
+        const distance = (r.me.x - robot.x) ** 2 + (r.me.y - robot.y) ** 2;
+        if(distance < nearestDist) {
+            nearestDist = distance;
+            nearestRobot = robot;
+        }
+    }
+
+    return nearestRobot;
+}
+
 export function enemyCombatInRange(r) {
     let robots = r.getVisibleRobots();
     for (let i =0;i < robots.length;i++) {
@@ -40,6 +61,27 @@ export function simple_attack(r,unit) {
         }
 
     }
+}
+
+export function crusader_attack(r) {
+    let visible = r.getVisibleRobots();
+    let best_attack = undefined;
+
+    for (let i=1;i<visible.length;i++) {
+        let robot = visible[i];
+
+        if(robot.team === r.me.team) continue;
+
+        const distance = (r.me.x - robot.x) ** 2 + (r.me.y - robot.y) ** 2;
+        if (SPECS.UNITS[SPECS.CRUSADER].ATTACK_RADIUS[0] <= distance && distance <= SPECS.UNITS[SPECS.CRUSADER].ATTACK_RADIUS[1]) {
+            if(best_attack === undefined || robot.unit === SPECS.PREACHER || (robot.unit === SPECS.PROPHET && best_attack.unit === SPECS.CRUSADER))
+                best_attack = robot;
+        }
+    }
+
+    if(best_attack !== undefined)
+        return {x: best_attack.x - r.me.x, y: best_attack.y - r.me.y};
+
 }
 
 export function preacher_best_attack(r) {
@@ -580,12 +622,13 @@ export function unitLocationsQueue(r, inRadius, outRadius, unitMap, inward) {
     return unit_location_queue;
 }
 
-export function unitPremap(r, radius) {
+export function unitPremap(r, radius, enemy_coord) {
     let map = util.create2dArray(r.size, r.size, false);
 
     let coord = {x: r.me.x, y: r.me.y};
-    let enemy_coord = util.getReflectedCoord(coord, r);
     let path_map = util.BFSMap(r.map, enemy_coord, util.getMoves(2));
+
+    let total_dist = (r.me.x - enemy_coord.x) ** 2 + (r.me.y - enemy_coord.y) ** 2;
 
     let path = [coord];
     while(path[path.length - 1].x !== enemy_coord.x || path[path.length - 1].y !== enemy_coord.y) {
@@ -602,6 +645,10 @@ export function unitPremap(r, radius) {
                 let newX = path[i].x + j;
                 let newY = path[i].y + k;
 
+                let dist = (newX - enemy_coord.x) ** 2 + (newY - enemy_coord.y) ** 2;
+                if(dist > total_dist)
+                    continue;
+
                 if(util.withInMap({x: newX, y: newY}, r) && r.map[newY][newX]) {
                     map[newY][newX] = true;
                 }
@@ -613,13 +660,14 @@ export function unitPremap(r, radius) {
     return map;
 }
 
-export function unitMapAggressive(r, radius) {
+export function unitMapAggressive(r, radius, enemy_coord) {
     let map = util.create2dArray(r.map.length, r.map.length, false);
 
-    let preMap = unitPremap(r, radius);
+    let preMap = unitPremap(r, radius, enemy_coord);
 
     for(let i=0;i<r.map.length;i++) {
         for(let j=0;j<r.map.length;j++) {
+
             if(i % 2 === j % 2 && preMap[j][i] && !r.karbonite_map[j][i] && !r.fuel_map[j][i]) {
                 map[j][i] = true;
             }

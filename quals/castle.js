@@ -54,12 +54,13 @@ function initVariables(r) {
 
 function initUnitMaps(r) {
     //prophet maps
-    //r.prophetMapGrid = combat.unitMap2(r);
-    //r.prophetMapFill = combat.unitMap2_other(r);
+    r.prophetMapGrid = combat.unitMap2(r);
+    r.prophetMapFill = combat.unitMap2_other(r);
 
     //r.prophetMapAgg = combat.unitMapAggressive(r, 6);
-    //r.prophetLocations = combat.unitLocationsQueue(r, 3, r.unit_location_distance, r.prophetMapGrid, true);
-    //r.prophetLocations = r.prophetLocations.concat(combat.unitLocationsQueue(r, 3, r.unit_location_distance, r.prophetMapFill, true));
+    r.prophetLocations = combat.unitLocationsQueue(r, 3, r.unit_location_distance, r.prophetMapGrid, true);
+
+    r.prophetLocations = r.prophetLocations.concat(combat.unitLocationsQueue(r, 3, r.unit_location_distance, r.prophetMapFill, true));
     //r.prophetLocations = combat.unitLocationsQueue(r, 3, Math.floor(Math.sqrt((r.me.x - r.enemy_castle.x)**2 + (r.me.y - r.enemy_castle.y)**2) / 2), r.prophetMapAgg, false);
     //r.prophetLocations = [];
 
@@ -202,10 +203,10 @@ function initializeBuildQueue(r) {
     }
 
     //queue prophet lattice
-    // for (let i=0;i<r.prophetLocations.length;i++) {
-    //     r.buildQueue.push({unit: SPECS.PROPHET, karbonite:25, fuel: 500});
-    //     r.prophetQueue.push({x:r.prophetLocations[i].x, y: r.prophetLocations[i].y, code: constants.PROPHET_JOBS.DEFEND_GOAL});
-    // }
+    for (let i=0;i<r.prophetLocations.length;i++) {
+        r.buildQueue.push({unit: SPECS.PROPHET, karbonite:25, fuel: 500});
+        r.prophetQueue.push({x:r.prophetLocations[i].x, y: r.prophetLocations[i].y, code: constants.PROPHET_JOBS.DEFEND_GOAL});
+    }
 
     //queue crusader rush
     // for (let i = 0; i < r.crusaderLocations.length; i++) {
@@ -399,6 +400,12 @@ export function castle_step(r) {
 
         if(r.step === 1)
             turn1step(r);
+
+        if(r.step === 100) {
+            let enemyCastle = util.getReflectedCoord({x: r.me.x, y: r.me.y}, r);
+            r.buildQueue.unshift({unit: SPECS.PILGRIM, karbonite: 10, fuel: 200});
+            r.pilgrimQueue.unshift({x: enemyCastle.x, y: enemyCastle.y, code: constants.PILGRIM_JOBS.OFFENSIVE});
+        }
 
         if (r.step === 950) {
             r.signal(15,r.map.length ** 2);
