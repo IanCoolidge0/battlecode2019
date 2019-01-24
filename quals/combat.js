@@ -482,6 +482,44 @@ export function next_unitLocation_odd(r,direction,unitMap) {
     }
 }
 
+export function next_unitLocation(r,coord,direction,tolerance) {
+    let location;
+    for (let i = 2;i < r.map.length;i++) {
+        for (let j = -i;j <= i;j++) {
+            location = {x:coord.x + i, y:coord.y + j};
+            if (util.withInMap(location,r) && unitMap[location.y][location.x]) {
+                let unitDir = util.directionTo(location.x - r.me.x, location.y - r.me.y);
+                if (util.similar_with_tolerance(unitDir,direction,tolerance)) {
+                    return location;
+                }
+            }
+            location = {x:coord.x - i, y:coord.y + j};
+            if (util.withInMap(location,r) && unitMap[location.y][location.x]) {
+                let unitDir = util.directionTo(location.x - r.me.x, location.y - r.me.y);
+                if (util.similar_with_tolerance(unitDir,direction,tolerance)) {
+                    return location;
+                }
+            }
+        }
+        for (let j = -i + 1;j <= i - 1;j++) {
+
+            location = {x:coord.x + j, y:coord.y + i};
+            if (util.withInMap(location,r) && unitMap[location.y][location.x]) {
+                let unitDir = util.directionTo(location.x - r.me.x, location.y - r.me.y);
+                if (util.similar_with_tolerance(unitDir,direction,tolerance)) {
+                    return location;
+                }
+            }
+            location = {x:coord.x + j, y:coord.y - i};
+            if (util.withInMap(location,r) && unitMap[location.y][location.x]) {
+                let unitDir = util.directionTo(location.x - r.me.x, location.y - r.me.y);
+                if (util.similar_with_tolerance(unitDir,direction,tolerance)) {
+                    return location;
+                }
+            }
+        }
+    }
+}
 export function unitLocationsQueue(r, inRadius, outRadius, unitMap, inward) {
     let unit_location_queue = [];
 

@@ -53,12 +53,13 @@ export const PREACHER_MODE = {
 };
 export const CRUSADER_JOBS = {
     DEFEND_GOAL: 0,
-    DEFEND_ENEMY_CHURCH: 1
+    DEFEND_ENEMY_CHURCH:1
 };
 export const CRUSADER_MODE = {
     PATH_TO_GOAL: 0,
     DEFEND: 1,
-    CHAAAAAAAARGE:2
+    CHAAAAAAAARGE:2,
+    PATH_TO_CHURCH: 3,
 
 };
 

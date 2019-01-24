@@ -56,8 +56,8 @@ function initUnitMaps(r) {
     //prophet maps
     //r.prophetMapGrid = combat.unitMap2(r);
     //r.prophetMapFill = combat.unitMap2_other(r);
-    //r.prophetMapAgg = combat.unitMapAggressive(r, 6);
 
+    r.prophetMapAgg = combat.unitMapAggressive(r, 6);
     //r.prophetLocations = combat.unitLocationsQueue(r, 3, r.unit_location_distance, r.prophetMapGrid, true);
     //r.prophetLocations = r.prophetLocations.concat(combat.unitLocationsQueue(r, 3, r.unit_location_distance, r.prophetMapFill, true));
     //r.prophetLocations = combat.unitLocationsQueue(r, 3, Math.floor(Math.sqrt((r.me.x - r.enemy_castle.x)**2 + (r.me.y - r.enemy_castle.y)**2) / 2), r.prophetMapAgg, false);
@@ -127,6 +127,7 @@ function initializeChurches(r) {
         if(util.isEnemyDepositSafe(r, r.enemy_church_locations[i], r.safety_map)) {
             //r.log("enemy location " + r.enemy_church_locations[i].x + "," + r.enemy_church_locations[i].y + " is safe");
             r.safe_enemy_churches.push(r.enemy_church_locations[i]);
+            if (r.safe_enemy_churches.length >= 2) break;
         }
     }
 }
