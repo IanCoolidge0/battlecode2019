@@ -32,7 +32,62 @@ function build_unit(r,unit_type,target_x,target_y,job) {
     return attempt_build(r, unit_type,util.directionTo(target_x - r.me.x,target_y - r.me.y));
 }
 
+function emergency_defense(r) {
+    if (!combat.enemyCombatInRange(r)) return;
+    let count = combat.amount_of_enemy(r);
+    //r.log("COUNT:");
+    //r.log(count);
+    //r.log("EMERGENCY DEFENSE");
+    //r.log(r.emergency_defense_units);
+    if (r.emergency_defense_units[SPECS.CRUSADER] >= count[SPECS.CRUSADER] &&
+        r.emergency_defense_units[SPECS.PROPHET] >= count[SPECS.PROPHET] &&
+        r.emergency_defense_units[SPECS.PREACHER] >= count[SPECS.PREACHER]) return;
+    let enemyLocation;
+    let enemyType;
+    let robots = r.getVisibleRobots();
+
+    for (let i = 0;i < robots.length;i++) {
+        let robot = robots[i];
+        if(!r.isVisible(robot) || r.me.team === robot.team) continue;
+        if (robot.unit === SPECS.PILGRIM || robot.unit === SPECS.CASTLE || robot.unit === SPECS.CHURCH) continue;
+
+        enemyLocation = {x:robot.x,y:robot.y};
+
+        break;
+
+    }
+
+
+    let enemyDirection = util.directionTo(enemyLocation.x - r.me.x,enemyLocation.y - r.me.y);
+    let unitLocation = combat.next_unitLocation_odd(r,enemyDirection,r.defenseMap);
+    //r.log("emergency unit at" + unitLocation.x + ", " + unitLocation.y);
+    if (unitLocation === undefined) {
+        unitLocation = enemyLocation;
+    } else {
+        r.defenseMap[unitLocation.y][unitLocation.x] = false;
+    }
+    if (r.emergency_defense_units[SPECS.PREACHER] < count[SPECS.PREACHER]) {
+        r.emergency_defense_units[SPECS.PREACHER]++;
+        r.buildQueue.unshift({unit: SPECS.PREACHER,karbonite:30, fuel: 50,priority:true});
+        r.preacherQueue.unshift({x:unitLocation.x, y: unitLocation.y, code: constants.PREACHER_JOBS.DEFEND_CASTLE});
+
+    } else if (r.emergency_defense_units[SPECS.CRUSADER] < count[SPECS.CRUSADER]) {
+        r.emergency_defense_units[SPECS.CRUSADER] += 2;
+        r.buildQueue.unshift({unit: SPECS.PREACHER,karbonite:30, fuel: 50,priority:true});
+        r.preacherQueue.unshift({x:unitLocation.x, y: unitLocation.y, code: constants.PREACHER_JOBS.DEFEND_CASTLE});
+    } else if (r.emergency_defense_units[SPECS.PROPHET] <= count[SPECS.PROPHET]) {
+        r.emergency_defense_units[SPECS.PROPHET]++;
+        r.buildQueue.unshift({unit: SPECS.PROPHET,karbonite:25, fuel: 50,priority:true});
+        r.prophetQueue.unshift({x:unitLocation.x, y: unitLocation.y, code: constants.PROPHET_JOBS.DEFEND_GOAL});
+    }
+
+}
+
 function init(r) {
+    r.size = r.map.length;
+    r.emergency_defense_units = {3: 0, 4: 0, 5: 0};
+    r.defenseMap = combat.unitMap_odd(r);
+
     r.size = r.map.length;
     r.buildQueue = [];
     
@@ -88,10 +143,10 @@ function init(r) {
         r.buildQueue.push({unit: SPECS.PROPHET,karbonite:25, fuel: 200});
         r.prophetQueue.push({x:r.unitLocationQueue_prophet[i].x, y: r.unitLocationQueue_prophet[i].y, code: constants.PROPHET_JOBS.DEFEND_GOAL});
     }
-    for (let i=0;i<r.unitLocationQueue_preacher.length;i++) {
-        r.buildQueue.push({unit: SPECS.PREACHER,karbonite:30, fuel: 200});
-        r.preacherQueue.push({x:r.unitLocationQueue_preacher[i].x, y: r.unitLocationQueue_preacher[i].y, code: constants.PROPHET_JOBS.DEFEND_GOAL});
-    }
+    // for (let i=0;i<r.unitLocationQueue_preacher.length;i++) {
+    //     r.buildQueue.push({unit: SPECS.PREACHER,karbonite:30, fuel: 200});
+    //     r.preacherQueue.push({x:r.unitLocationQueue_preacher[i].x, y: r.unitLocationQueue_preacher[i].y, code: constants.PROPHET_JOBS.DEFEND_GOAL});
+    // }
 }
 
 function replaceDeadUnit(robot, r) {
@@ -116,6 +171,7 @@ function replaceDeadUnit(robot, r) {
 //     r.prophetQueue.push({x:location.x, y: location.y, code: constants.PROPHET_JOBS.DEFEND_GOAL});
 // }
 function step(r) {
+    emergency_defense(r);
 
     let visible = r.getVisibleRobots();
 

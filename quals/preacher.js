@@ -51,36 +51,37 @@ function step(r) {
         if (attack !== undefined) {
             return r.attack(attack.x,attack.y);
         }
-    }
+    } else {
 
-    let distance_to_goal = (r.me.x - r.currentJob.x) ** 2 + (r.me.y - r.currentJob.y) ** 2;
-    let rmap = r.getVisibleRobotMap();
-    if (r.fuel < 300) return;
-    if (r.mode !== constants.PREACHER_MODE.ATTACK && combat.enemyInRange(r)) {
-        //r.log("CHANGE MODE TO ATTACK");
-        r.mode = constants.PREACHER_MODE.ATTACK;
-    } else if (r.mode !== constants.PREACHER_MODE.DEFEND &&
-        r.currentJob.x === r.me.x && r.currentJob.y === r.me.y) {
-        //r.log("CHANGE MODE TO DEFEND");
-        r.mode = constants.PREACHER_MODE.DEFEND;
-    } else if (r.mode !== constants.PREACHER_MODE.PATH_TO_GOAL && distance_to_goal > 2) {
-        //r.log("CHANGE MODE TO PATH TO GOAL");
-        r.mode = constants.PREACHER_MODE.PATH_TO_GOAL;
-    }
-
-
+        let distance_to_goal = (r.me.x - r.currentJob.x) ** 2 + (r.me.y - r.currentJob.y) ** 2;
+        let rmap = r.getVisibleRobotMap();
+        if (r.fuel < 300) return;
+        if (r.mode !== constants.PREACHER_MODE.ATTACK && combat.enemyInRange(r)) {
+            //r.log("CHANGE MODE TO ATTACK");
+            r.mode = constants.PREACHER_MODE.ATTACK;
+        } else if (r.mode !== constants.PREACHER_MODE.DEFEND &&
+            r.currentJob.x === r.me.x && r.currentJob.y === r.me.y) {
+            //r.log("CHANGE MODE TO DEFEND");
+            r.mode = constants.PREACHER_MODE.DEFEND;
+        } else if (r.mode !== constants.PREACHER_MODE.PATH_TO_GOAL && distance_to_goal > 2) {
+            //r.log("CHANGE MODE TO PATH TO GOAL");
+            r.mode = constants.PREACHER_MODE.PATH_TO_GOAL;
+        }
 
 
-    if (r.mode === constants.PROPHET_MODE.PATH_TO_GOAL) {
-        return mode.travel_to_goal5(r,r.moves);
-    }
-    if (r.mode === constants.PROPHET_MODE.DEFEND) {
-        return;
-    }
-    if (r.mode === constants.PROPHET_MODE.ATTACK) {
-        //r.log("parent");
-        //r.log(r.parent_castle_coords);
-        return mode.prophet_attack(r,r.parent_castle_coords);
+
+
+        if (r.mode === constants.PROPHET_MODE.PATH_TO_GOAL) {
+            return mode.travel_to_goal5(r,r.moves);
+        }
+        if (r.mode === constants.PROPHET_MODE.DEFEND) {
+            return;
+        }
+        if (r.mode === constants.PROPHET_MODE.ATTACK) {
+            //r.log("parent");
+            //r.log(r.parent_castle_coords);
+            return mode.prophet_attack(r,r.parent_castle_coords);
+        }
     }
 
 }

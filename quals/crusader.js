@@ -27,7 +27,6 @@ function init(r) {
 }
 
 export function step(r) {
-
     let rmap = r.getVisibleRobotMap();
 
 

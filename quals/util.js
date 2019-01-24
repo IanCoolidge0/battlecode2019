@@ -325,7 +325,6 @@ export function getFuzzyMoves(r,dx,dy,radius,tolerance) {
     let possibleMoves = getMoves(radius);
     let dir = [directionTo(dx, dy, r)];
 
-
     if (tolerance >= 1) {
         if(Math.random() > 0.5) {
             dir.push(rotateRight(dir[0], 1));
@@ -355,7 +354,7 @@ export function getFuzzyMoves(r,dx,dy,radius,tolerance) {
             dir.push(rotateLeft(dir[0], 2));
             dir.push(rotateRight(dir[0], 2));
         }
-        let moves2 = []
+        let moves2 = [];
         for (let j = 2;j < dir.length;j++) {
             for (let i = 0;i < possibleMoves.length;i++) {
                 let currentDir = directionTo(possibleMoves[i].x,possibleMoves[i].y,r);
@@ -623,7 +622,7 @@ export function safetyMap(r, enemy_castles) {
 
         for(let i=-10;i<=10;i++) {
             for(let j=-10;j<=10;j++) {
-                if(i ** 2 + j ** 2 > 100) continue;
+                if(i ** 2 + j ** 2 > 64) continue;
 
                 let newX = enemy_castles[k].x + i;
                 let newY = enemy_castles[k].y + j;

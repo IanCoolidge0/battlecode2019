@@ -57,11 +57,11 @@ function initUnitMaps(r) {
     //r.prophetMapGrid = combat.unitMap2(r);
     //r.prophetMapFill = combat.unitMap2_other(r);
 
-    r.prophetMapAgg = combat.unitMapAggressive(r, 6);
+    //r.prophetMapAgg = combat.unitMapAggressive(r, 6);
     //r.prophetLocations = combat.unitLocationsQueue(r, 3, r.unit_location_distance, r.prophetMapGrid, true);
     //r.prophetLocations = r.prophetLocations.concat(combat.unitLocationsQueue(r, 3, r.unit_location_distance, r.prophetMapFill, true));
     //r.prophetLocations = combat.unitLocationsQueue(r, 3, Math.floor(Math.sqrt((r.me.x - r.enemy_castle.x)**2 + (r.me.y - r.enemy_castle.y)**2) / 2), r.prophetMapAgg, false);
-    r.prophetLocations = [];
+    //r.prophetLocations = [];
 
     //crusader maps
     //r.crusaderMapCenter = combat.unitMap2_crusader(r);

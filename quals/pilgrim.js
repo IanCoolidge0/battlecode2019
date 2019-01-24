@@ -127,7 +127,8 @@ function mineResourceStep(r) {
 function moveToCastleStep(r) {
     let px = r.parent_building.x;
     let py = r.parent_building.y;
-
+    if(r.me.x === 40)
+        r.log(px + " " + py + "   ADASDASDAS");
     if((r.me.x - px) ** 2 + (r.me.y - py) ** 2 > 2) {
         return mode.travel_to_goal(r, 2, 2, r.castle_map);
     } else {
