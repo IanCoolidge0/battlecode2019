@@ -116,13 +116,23 @@ function init(r) {
     r.createdRobots = {};
     r.offensiveChurch = false;
     r.offenseDirection = undefined;
+    r.inEnemyTerritory = false;
 
     let visible = r.getVisibleRobots();
     for(let i=0;i<visible.length;i++) {
         let sig = util.decodeCoords(visible[i].signal);
-        if(sig.code === 5) {
+        if(sig.code === constants.SIGNAL_CODE.CREATE_FRIENDLY_CHURCH) {
             r.builderJob = sig;
 
+            r.createdRobots[visible[i].id] = {unit: SPECS.PILGRIM, x: sig.x, y: sig.y,
+                code: r.karbonite_map[sig.y][sig.x] ? constants.PILGRIM_JOBS.MINE_KARBONITE : constants.PILGRIM_JOBS.MINE_FUEL};
+
+            break;
+        }
+        if(sig.code === constants.SIGNAL_CODE.CREATE_ENEMY_CHURCH) {
+            r.builderJob = sig;
+
+            r.inEnemyTerritory = true;
             r.createdRobots[visible[i].id] = {unit: SPECS.PILGRIM, x: sig.x, y: sig.y,
                 code: r.karbonite_map[sig.y][sig.x] ? constants.PILGRIM_JOBS.MINE_KARBONITE : constants.PILGRIM_JOBS.MINE_FUEL};
 
