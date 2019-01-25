@@ -58,7 +58,7 @@ export function step(r) {
     }
 
     if (r.mode === constants.PROPHET_MODE.PATH_TO_GOAL) {
-        r.log('moving');
+        //r.log('moving');
         return mode.travel_to_goal5(r,r.moves);
     }
     if (r.mode === constants.PROPHET_MODE.DEFEND) {

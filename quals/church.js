@@ -20,10 +20,12 @@ function attempt_build(r, unit, dir,target_x,target_y,job) {
 
         if(r.map[newY][newX] && vis_map[newY][newX] === 0) {
             r.currentUnitMap[target_y][target_x] = true;
+            if (unit === SPECS.PROPHET || unit === SPECS.PREACHER)
+                r.currentUnitMap[target_y][target_x] = true;
             if (unit === SPECS.PREACHER && job < 8)
-                r.emergency_defense_units[SPECS.PREACHER][i]++;
+                r.emergency_defense_units[SPECS.PREACHER][job]++;
             if (unit === SPECS.PROPHET && job < 8)
-                r.emergency_defense_units[SPECS.PROPHET][i]++;
+                r.emergency_defense_units[SPECS.PROPHET][job]++;
             return r.buildUnit(unit, dir_coord[i].x, dir_coord[i].y);
         }
     }
@@ -66,14 +68,16 @@ function emergency_defense(r) {
         let unitLocation = combat.next_emergency_Location(r,{x:r.me.x,y:r.me.y},unit_type,util.directions(i),0,r.currentUnitMap,r.defenseMap);
         if (unitLocation === undefined) continue;
         if (unit_type === SPECS.PREACHER) {
-            r.emergency_defense_units[SPECS.PREACHER][i]++;
-            r.log("add defensive preacher:" + unitLocation.x + " , " + unitLocation.y);
+
+            r.log("add defensive preacher:" + unitLocation.x + " , " + unitLocation.y + " with code: " + i);
+            r.log("CODE::" + i);
             r.buildQueue.unshift({unit: SPECS.PREACHER,karbonite:30, fuel: 50,priority:true});
             r.preacherQueue.unshift({x:unitLocation.x, y: unitLocation.y, code: constants.PREACHER_JOBS.DEFEND_CASTLE[i]});
             return;
         } else if (unit_type === SPECS.PROPHET) {
 
-            r.log("add defensive prophet"+ unitLocation.x + " , " + unitLocation.y);
+            r.log("add defensive prophet"+ unitLocation.x + " , " + unitLocation.y + " with code: " + i);
+            r.log("CODE::" + i);
             r.buildQueue.unshift({unit: SPECS.PROPHET,karbonite:25, fuel: 50,priority:true});
             r.prophetQueue.unshift({x:unitLocation.x, y: unitLocation.y, code: constants.PROPHET_JOBS.DEFEND_CASTLE[i]});
             return;
@@ -143,7 +147,7 @@ function initializeOffensiveBuildQueue(r) {
     let latticeQueue = combat.unitLocationsQueue(r, 3, 2 * constants.LATTICE_RADIUS, latticeMap, false);
 
     for(let i=0;i<latticeQueue.length;i++) {
-        r.log(latticeQueue.length + " potential units");
+        //r.log(latticeQueue.length + " potential units");
         r.buildQueue.push({unit: SPECS.PROPHET, karbonite: 30, fuel: 200});
         r.prophetQueue.push({x: latticeQueue[i].x, y: latticeQueue[i].y, code: constants.PROPHET_JOBS.DEFEND_GOAL});
     }
@@ -181,6 +185,7 @@ function initializeDefensiveBuildQueue(r) {
 }
 
 function replaceDeadUnit(robot, r) {
+
     if(r.offensiveChurch) return;
     if(robot.unit === SPECS.PILGRIM) {
         if (robot.code === constants.PILGRIM_JOBS.MINE_KARBONITE) {
@@ -192,11 +197,13 @@ function replaceDeadUnit(robot, r) {
         }
     }
     if (robot.unit === SPECS.PREACHER) {
+        r.currentUnitMap[robot.y][robot.x] = false;
         if (robot.code < 8) {
             r.emergency_defense_units[SPECS.PREACHER][robot.code]--;
         }
     }
     if (robot.unit === SPECS.PROPHET) {
+        r.currentUnitMap[robot.y][robot.x] = false;
         if (robot.code < 8) {
             r.emergency_defense_units[SPECS.PROPHET][robot.code]--;
         }
@@ -261,23 +268,24 @@ function step(r) {
                 case SPECS.PILGRIM:
                     if(r.pilgrimQueue.length > 0) {
                         let job = r.pilgrimQueue.shift();
-                        if (!r.currentUnitMap[job.y][job.x])
-                            return build_unit(r, SPECS.PILGRIM, job.x, job.y, job.code);
+
+                        return build_unit(r, SPECS.PILGRIM, job.x, job.y, job.code);
                     }
                     break;
 
                 case SPECS.CRUSADER:
                     if(r.crusaderQueue.length > 0) {
                         let job = r.crusaderQueue.shift();
-                        if (!r.currentUnitMap[job.y][job.x])
-                            return build_unit(r, SPECS.CRUSADER, job.x, job.y, job.code);
+
+                        return build_unit(r, SPECS.CRUSADER, job.x, job.y, job.code);
                     }
                     break;
 
                 case SPECS.PROPHET:
                     if(r.prophetQueue.length > 0) {
                         let job = r.prophetQueue.shift();
-                        return build_unit(r, SPECS.PROPHET, job.x, job.y, job.code);
+                        if (!r.currentUnitMap[job.y][job.x])
+                            return build_unit(r, SPECS.PROPHET, job.x, job.y, job.code);
                     }
                     break;
 

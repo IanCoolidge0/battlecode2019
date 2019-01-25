@@ -257,7 +257,7 @@ function moveOffensiveStep(r) {
         r.church_pos = util.freeOffensiveChurch(r);
         return r.buildUnit(SPECS.CHURCH, r.church_pos.x - r.me.x, r.church_pos.y - r.me.y);
     }
-    r.log(r.me.x + ", " + r.me.y);
+    //r.log(r.me.x + ", " + r.me.y);
     if(r.me.x !== r.currentJob.x || r.me.y !== r.currentJob.y)
         return mode.travel_to_goal(r, 2, 2, r.resource_map);
 }

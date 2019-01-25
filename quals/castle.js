@@ -18,11 +18,12 @@ function attempt_build(r, unit, dir,target_x,target_y,job) {
             continue;
 
         if(r.map[newY][newX] && vis_map[newY][newX] === 0) {
-            r.currentUnitMap[target_y][target_x] = true;
+            if (unit === SPECS.PROPHET || unit === SPECS.PREACHER)
+                r.currentUnitMap[target_y][target_x] = true;
             if (unit === SPECS.PREACHER && job < 8)
-                r.emergency_defense_units[SPECS.PREACHER][i]++;
+                r.emergency_defense_units[SPECS.PREACHER][job]++;
             if (unit === SPECS.PROPHET && job < 8)
-                r.emergency_defense_units[SPECS.PROPHET][i]++;
+                r.emergency_defense_units[SPECS.PROPHET][job]++;
 
             return r.buildUnit(unit, dir_coord[i].x, dir_coord[i].y);
         }
@@ -67,15 +68,15 @@ function initUnitMaps(r) {
     //r.prophetMapAgg = combat.unitMapAggressive(r, 6);
     //r.prophetLocations = combat.unitLocationsQueue(r, 3, r.unit_location_distance, r.prophetMapGrid, true);
     //r.prophetLocations = r.prophetLocations.concat(combat.unitLocationsQueue(r, 3, r.unit_location_distance, r.prophetMapFill, true));
-    r.prophetLocations = combat.unitLocationsQueue(r, 3, Math.floor(Math.sqrt((r.me.x - r.enemy_castle.x)**2 + (r.me.y - r.enemy_castle.y)**2) / 2), r.prophetMapAgg, false);
+    //r.prophetLocations = combat.unitLocationsQueue(r, 3, Math.floor(Math.sqrt((r.me.x - r.enemy_castle.x)**2 + (r.me.y - r.enemy_castle.y)**2) / 2), r.prophetMapAgg, false);
 
     r.prophetMapGrid = combat.unitMap2(r);
-    r.prophetMapFill = combat.unitMap2_other(r);
+    //r.prophetMapFill = combat.unitMap2_other(r);
 
     //r.prophetMapAgg = combat.unitMapAggressive(r, 6);
     r.prophetLocations = combat.unitLocationsQueue(r, 3, r.unit_location_distance, r.prophetMapGrid, true);
 
-    r.prophetLocations = r.prophetLocations.concat(combat.unitLocationsQueue(r, 3, r.unit_location_distance, r.prophetMapFill, true));
+    //r.prophetLocations = r.prophetLocations.concat(combat.unitLocationsQueue(r, 3, r.unit_location_distance, r.prophetMapFill, true));
     //r.prophetLocations = combat.unitLocationsQueue(r, 3, Math.floor(Math.sqrt((r.me.x - r.enemy_castle.x)**2 + (r.me.y - r.enemy_castle.y)**2) / 2), r.prophetMapAgg, false);
 
     //r.prophetLocations = [];
@@ -156,7 +157,7 @@ function initializeBuildQueue(r) {
         for(let j=-5;j<5;j++) {
             if(i ** 2 + j ** 2 > constants.CLUSTER_RADIUS ** 2) continue;
             if(util.withInMap({x: r.me.x + i, y: r.me.y + j}, r) && r.karbonite_map[r.me.y + j][r.me.x + i]) {
-                r.buildQueue.push({unit: SPECS.PILGRIM, karbonite: 10, fuel: 200});
+                r.buildQueue.push({unit: SPECS.PILGRIM, karbonite: 10, fuel: 200,priority:true});
                 r.pilgrimQueue.push({x: r.me.x + i, y: r.me.y + j, code: constants.PILGRIM_JOBS.MINE_KARBONITE});
             }
         }
@@ -271,16 +272,18 @@ function emergency_defense(r) {
         let unitLocation = combat.next_emergency_Location(r,{x:r.me.x,y:r.me.y},unit_type,util.directions(i),0,r.currentUnitMap,r.defenseMap);
         if (unitLocation === undefined) continue;
         if (unit_type === SPECS.PREACHER) {
-            r.emergency_defense_units[SPECS.PREACHER][i]++;
-            r.log("add defensive preacher:" + unitLocation.x + " , " + unitLocation.y);
+
+            r.log("add defensive preacher:" + unitLocation.x + " , " + unitLocation.y + " with code: " + i);
+            r.log("CODE::" + i);
             r.buildQueue.unshift({unit: SPECS.PREACHER,karbonite:30, fuel: 50,priority:true});
-            r.preacherQueue.unshift({x:unitLocation.x, y: unitLocation.y, code: constants.PREACHER_JOBS.DEFEND_CASTLE[i]});
+            r.preacherQueue.unshift({x:unitLocation.x, y: unitLocation.y, code: i});
             return;
         } else if (unit_type === SPECS.PROPHET) {
 
             r.log("add defensive prophet"+ unitLocation.x + " , " + unitLocation.y);
+            r.log("CODE::" + i);
             r.buildQueue.unshift({unit: SPECS.PROPHET,karbonite:25, fuel: 50,priority:true});
-            r.prophetQueue.unshift({x:unitLocation.x, y: unitLocation.y, code: constants.PROPHET_JOBS.DEFEND_CASTLE[i]});
+            r.prophetQueue.unshift({x:unitLocation.x, y: unitLocation.y, code: i});
             return;
         }
     }
@@ -292,7 +295,7 @@ function emergency_defense(r) {
 }
 
 function replaceDeadUnit(robot, r) {
-    r.currentUnitMap[robot.y][robot.x] = false;
+
     if(robot.unit === SPECS.PILGRIM) {
         if (robot.code === constants.PILGRIM_JOBS.MINE_KARBONITE) {
             r.buildQueue.unshift({unit: SPECS.PILGRIM, karbonite: 10, fuel: 200});
@@ -304,11 +307,13 @@ function replaceDeadUnit(robot, r) {
     }
 
     if (robot.unit === SPECS.PREACHER) {
+        r.currentUnitMap[robot.y][robot.x] = false;
         if (robot.code < 8) {
             r.emergency_defense_units[SPECS.PREACHER][robot.code]--;
         }
     }
     if (robot.unit === SPECS.PROPHET) {
+        r.currentUnitMap[robot.y][robot.x] = false;
         if (robot.code < 8) {
             r.emergency_defense_units[SPECS.PROPHET][robot.code]--;
         }
@@ -366,16 +371,16 @@ function step(r) {
                 case SPECS.PILGRIM:
                     if(r.pilgrimQueue.length > 0) {
                         let job = r.pilgrimQueue.shift();
-                        if (!r.currentUnitMap[job.y][job.x])
-                            return build_unit(r, SPECS.PILGRIM, job.x, job.y, job.code);
+
+                        return build_unit(r, SPECS.PILGRIM, job.x, job.y, job.code);
                     }
                     break;
 
                 case SPECS.CRUSADER:
                     if(r.crusaderQueue.length > 0) {
                         let job = r.crusaderQueue.shift();
-                        if (!r.currentUnitMap[job.y][job.x])
-                            return build_unit(r, SPECS.CRUSADER, job.x, job.y, job.code);
+
+                        return build_unit(r, SPECS.CRUSADER, job.x, job.y, job.code);
                     }
                     break;
 
@@ -422,7 +427,7 @@ function step(r) {
 
 export function castle_step(r) {
 
-    if (r.step % 1 === 0 && r.step !== 0) {
+    if (r.step % 10 === 0) {
         r.log("STEP: " + r.step);
         // for (let y = 0;y < r.map.length;y++) {
         //     let str = "";
