@@ -603,27 +603,6 @@ export function freeChurchTile(initial_pos, karb_map, fuel_map) {
     return {x: initial_pos.x + dx, y: initial_pos.y + dy, karb_count: initial_pos.karb_count,fuel_count: initial_pos.fuel_count};
 }
 
-export function freeOffensiveChurch(r) {
-    let dx = 0;
-    let dy = 0;
-    let delta = [0,-1];
-    let initial_pos = {x: r.me.x, y: r.me.y};
-    let visibleMap = r.getVisibleRobotMap();
-
-    for(let i=0;i<constants.CLUSTER_RADIUS**2;i++) {
-        let newX = initial_pos.x + dx;
-        let newY = initial_pos.y + dy;
-
-        if (newX >= 0 && newY >= 0 && newX < r.map.length && newY < r.map.length && r.map[newY][newX] && visibleMap[newY][newX] === 0)
-            return {x: newX, y: newY};
-
-        if (dx === dy || (dx < 0 && dx === -dy) || (dx > 0 && dx === 1 - dy))
-            delta = [-delta[1], delta[0]];
-
-        dx += delta[0];
-        dy += delta[1];
-    }
-}
 
 export function getNearestResourceTile(r) {
     let dx = 0;
@@ -755,5 +734,135 @@ export function offensivePilgrimGoal(r, coord) {
         let goalX = (coord.x < r.map.length / 2) ? r.map.length - 1 : 0;
         let goalY = coord.y;
         return {x: goalX, y: goalY};
+    }
+}
+function getQuadrant(origin,coord) {
+    let x = coord.x - origin.x;
+    let y = coord.y - origin.y;
+    if (x >= 0) {
+        return y >= 0 ? 1:2;
+    } else {
+        return y >= 0 ? 4:3;
+    }
+}
+export function safetyMapUnderLine(r,lineCoord1,lineCoord2,AllyIsLower) {
+    let map = create2dArray(r.map.length,r.map.length,true);
+    let slope = (lineCoord1.y - lineCoord2.y) / (lineCoord1.x - lineCoord2.x + 0.00000001);
+    if (AllyIsLower) {
+        for (let y = 0;y < map.length;y++) {
+            for (let x = 0;x < map.length;x++) {
+                let currentSlope = (y - lineCoord2.y) / (x - lineCoord2.x + 0.00000001);
+                let quadrant = getQuadrant(lineCoord2,{x:x,y:y});
+                if ((quadrant === 1 || quadrant === 2) && currentSlope < slope) {
+                    map[y][x] = false;
+                }
+                if ((quadrant === 3 || quadrant === 4) && currentSlope > slope) {
+                    map[y][x] = false;
+                }
+            }
+        }
+    } else {
+        for (let y = 0;y < map.length;y++) {
+            for (let x = 0;x < map.length;x++) {
+                let currentSlope = (y - lineCoord2.y) / (x - lineCoord2.x + 0.00000001);
+                if (currentSlope > slope) {
+                    map[y][x] = false;
+                }
+            }
+        }
+    }
+    for (let y = 0;y < r.map.length;y++) {
+        let str = "";
+        for (let x = 0;x < r.map.length;x++) {
+            if (map[y][x]) {
+                str += 1;
+            } else {
+                str += 0;
+            }
+
+        }
+        r.log(str);
+    }
+}
+
+export function coordsOnLine(r,x1, y1, x2, y2) {
+
+    let map = create2dArray(r.map.length,r.map.length,true);
+
+    let x, y, dx, dy, dx1, dy1, px, py, xe, ye, i;
+    // Calculate line deltas
+    dx = x2 - x1;
+    dy = y2 - y1;
+    // Create a positive copy of deltas (makes iterating easier)
+    dx1 = Math.abs(dx);
+    dy1 = Math.abs(dy);
+    // Calculate error intervals for both axis
+    px = 2 * dy1 - dx1;
+    py = 2 * dx1 - dy1;
+    // The line is X-axis dominant
+    if (dy1 <= dx1) {
+        // Line is drawn left to right
+        if (dx >= 0) {
+            x = x1; y = y1; xe = x2;
+        } else { // Line is drawn right to left (swap ends)
+            x = x2; y = y2; xe = x1;
+        }
+        map[y][x] = false; // Draw first pixel
+        // Rasterize the line
+        for (i = 0; x < xe; i++) {
+            x = x + 1;
+            // Deal with octants...
+            if (px < 0) {
+                px = px + 2 * dy1;
+            } else {
+                if ((dx < 0 && dy < 0) || (dx > 0 && dy > 0)) {
+                    y = y + 1;
+                } else {
+                    y = y - 1;
+                }
+                px = px + 2 * (dy1 - dx1);
+            }
+            // Draw pixel from line span at
+            // currently rasterized position
+            map[y][x] = false;
+        }
+    } else { // The line is Y-axis dominant
+        // Line is drawn bottom to top
+        if (dy >= 0) {
+            x = x1; y = y1; ye = y2;
+        } else { // Line is drawn top to bottom
+            x = x2; y = y2; ye = y1;
+        }
+        map[y][x] = false;
+        // Rasterize the line
+        for (i = 0; y < ye; i++) {
+            y = y + 1;
+            // Deal with octants...
+            if (py <= 0) {
+                py = py + 2 * dx1;
+            } else {
+                if ((dx < 0 && dy<0) || (dx > 0 && dy > 0)) {
+                    x = x + 1;
+                } else {
+                    x = x - 1;
+                }
+                py = py + 2 * (dx1 - dy1);
+            }
+            // Draw pixel from line span at
+            // currently rasterized position
+            map[y][x];
+        }
+    }
+    for (let y = 0;y < r.map.length;y++) {
+        let str = "";
+        for (let x = 0;x < r.map.length;x++) {
+            if (map[y][x]) {
+                str += 1;
+            } else {
+                str += 0;
+            }
+
+        }
+        r.log(str);
     }
 }

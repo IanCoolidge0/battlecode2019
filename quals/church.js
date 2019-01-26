@@ -4,7 +4,7 @@ import * as constants from "./constants.js";
 
 import * as combat from "./combat.js";
 import * as logging from "./logging.js";
-
+import * as wallutil from "./wallutil.js";
 
 function attempt_build(r, unit, dir,target_x,target_y,job) {
     let dir_coord = [dir, util.rotateLeft(dir,1), util.rotateRight(dir,1), util.rotateLeft(dir,2),
@@ -48,18 +48,18 @@ function emergency_defense(r) {
     //r.log("EMERGENCY DEFENSE");
     //r.log(r.emergency_defense_units);
     let unit_type;
-    r.log(count);
-    r.log(r.emergency_defense_units);
+    //r.log(count);
+    //r.log(r.emergency_defense_units);
     for (let i = 0;i < 8;i++) {
         if (r.emergency_defense_units[SPECS.PREACHER][i] < count[SPECS.PREACHER][i]) {
-            r.log("enemy preacher located");
+            //r.log("enemy preacher located");
             unit_type = SPECS.PREACHER;
         } else if (r.emergency_defense_units[SPECS.PREACHER][i] < Math.min(count[SPECS.CRUSADER][i],2)) {
 
-            r.log("enemy crusader located");
+            //r.log("enemy crusader located");
             unit_type = SPECS.PREACHER;
         } else if (r.emergency_defense_units[SPECS.PROPHET][i] < count[SPECS.PROPHET][i]) {
-            r.log("enemy prophet located");
+            //r.log("enemy prophet located");
             unit_type = SPECS.PROPHET;
 
         } else {
@@ -118,6 +118,8 @@ function init(r) {
     r.offenseDirection = undefined;
     r.inEnemyTerritory = false;
 
+    r.offensiveLocationQueue = [];
+
     let visible = r.getVisibleRobots();
     for(let i=0;i<visible.length;i++) {
         let sig = util.decodeCoords(visible[i].signal);
@@ -140,11 +142,14 @@ function init(r) {
         }
         if(sig.code === constants.SIGNAL_CODE.CREATE_OFFENSIVE_CHURCH) {
             r.offensiveChurch = true;
-            r.offenseDirection = {x: sig.x, y: sig.y};
+            r.myScoutId = visible[i].id;
+            r.scoutInitialPos = {x: visible[i].x, y: visible[i].y};
+            //r.offenseDirection = {x: sig.x, y: sig.y};
         }
     }
 
     if(!r.offensiveChurch) {
+        r.log("defensive church");
         initializeDefensiveBuildQueue(r);
     } else {
         initializeOffensiveBuildQueue(r);
@@ -153,14 +158,16 @@ function init(r) {
 }
 
 function initializeOffensiveBuildQueue(r) {
-    let latticeMap = combat.unitMapAggressive(r, constants.LATTICE_RADIUS, r.offenseDirection);
-    let latticeQueue = combat.unitLocationsQueue(r, 3, 2 * constants.LATTICE_RADIUS, latticeMap, false);
+    // let latticeMap = combat.unitMapAggressive(r, constants.LATTICE_RADIUS, r.offenseDirection);
+    // let latticeQueue = combat.unitLocationsQueue(r, 3, 2 * constants.LATTICE_RADIUS, latticeMap, false);
+    //
+    // for(let i=0;i<latticeQueue.length;i++) {
+    //     //r.log(latticeQueue.length + " potential units");
+    //     r.buildQueue.push({unit: SPECS.PROPHET, karbonite: 30, fuel: 200});
+    //     r.prophetQueue.push({x: latticeQueue[i].x, y: latticeQueue[i].y, code: constants.PROPHET_JOBS.DEFEND_GOAL});
+    // }
 
-    for(let i=0;i<latticeQueue.length;i++) {
-        //r.log(latticeQueue.length + " potential units");
-        r.buildQueue.push({unit: SPECS.PROPHET, karbonite: 30, fuel: 200});
-        r.prophetQueue.push({x: latticeQueue[i].x, y: latticeQueue[i].y, code: constants.PROPHET_JOBS.DEFEND_GOAL});
-    }
+
 }
 
 function initializeDefensiveBuildQueue(r) {
@@ -220,6 +227,47 @@ function replaceDeadUnit(robot, r) {
     }
 }
 
+function buildOffensiveQueue(r) {
+    let visible = r.getVisibleRobots();
+
+    let position = null;
+
+    for(let i=0;i<visible.length;i++) {
+        if(util.decodeCoords(visible[i].signal).code === constants.SIGNAL_CODE.SCOUT_INFO && visible[i].id === r.myScoutId) {
+            position = {x: visible[i].x, y: visible[i].y};
+            break;
+        }
+    }
+
+    if(position === null)
+        return;
+
+    let back = wallutil.backward(r, r.scoutInitialPos);
+
+    let next = {x: position.x + back.x, y: position.y + back.y};
+
+    if(util.withInMap(next, r) && r.map[next.y][next.x]) {
+        r.buildQueue.push({unit: SPECS.PROPHET, karbonite: 30, fuel: 50});
+        r.prophetQueue.push({x: next.x, y: next.y, code: constants.PROPHET_JOBS.DEFEND_GOAL});
+    }
+
+    let next2;
+    if(back.x === 0)
+        next2 = {x: position.x - 1, y: position.y + 2 * back.y};
+    else
+        next2 = {x: position.x + 2 * back.x, y: position.y - 1};
+    if(util.withInMap(next2, r) && r.map[next2.y][next2.x]) {
+        r.buildQueue.push({unit: SPECS.PROPHET, karbonite: 30, fuel: 50});
+        r.prophetQueue.push({x: next2.x, y: next2.y, code: constants.PROPHET_JOBS.DEFEND_GOAL});
+    }
+
+    let next3 = {x: position.x + 3 * back.x, y: position.y + 3 * back.y};
+    if(util.withInMap(next3, r) && r.map[next3.y][next3.x]) {
+        r.buildQueue.push({unit: SPECS.PROPHET, karbonite: 30, fuel: 50});
+        r.prophetQueue.push({x: next3.x, y: next3.y, code: constants.PROPHET_JOBS.DEFEND_GOAL});
+    }
+}
+
 // function defenseQueue(r) {
 //     if (r.buildQueue.length > 0) return;
 //     r.log("add defensive prophet");
@@ -261,6 +309,7 @@ function step(r) {
     for(let i=0;i<visible.length;i++) {
         //r.log(visible);
         if(util.decodeCoords(visible[i].signal).code === constants.SIGNAL_CODE.INIT_SIGNAL && (visible[i].x - r.me.x) ** 2 + (visible[i].y - r.me.y) ** 2 <= 2) {
+            r.log(visible[i].id);
             r.createdRobots[visible[i].id] = {x: r.currentAssignment.x, y: r.currentAssignment.y, code: r.currentAssignment.code, unit: r.currentAssignment.unit};
             //r.log(Object.keys(r.createdRobots).length);
         }
@@ -315,6 +364,9 @@ export function church_step(r) {
     if (r.step === 0) {
         init(r);
     } else {
+        if(r.offensiveChurch)
+            buildOffensiveQueue(r);
+
         return step(r);
     }
 }

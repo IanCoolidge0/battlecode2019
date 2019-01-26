@@ -1,6 +1,7 @@
 import {SPECS} from 'battlecode';
 
 import * as util from "./util.js";
+import * as wallutil from "./wallutil.js";
 import * as constants from "./constants.js";
 import * as combat from "./combat.js";
 import * as logging from "./logging.js";
@@ -152,6 +153,10 @@ function initializeChurches(r) {
             if (r.safe_enemy_churches.length >= 2) break;
         }
     }
+
+    //wall locations
+    r.wall_locationIndex = 0;
+    r.wall_locations = wallutil.getWallLocations(r);
 }
 
 function initializeBuildQueue(r) {
@@ -332,6 +337,60 @@ function replaceDeadUnit(robot, r) {
 
 }
 
+function wallingStep(r) {
+    if(r.wall_locationIndex >= r.wall_locations.length) return;
+
+    if(r.step === 100) {
+        let amIresponsible = true;
+
+        for(let j=0;j<r.castles.length;j++) {
+            let dist = (r.castles[j].x - r.wall_locations[0].x) ** 2 + (r.castles[j].y - r.wall_locations[0].y) ** 2;
+            if (dist < (r.me.x - r.wall_locations[0].x) ** 2 + (r.me.y - r.wall_locations[0].y) ** 2) {
+                amIresponsible = false;
+                break;
+            }
+        }
+
+        if(amIresponsible) {
+            r.buildQueue.unshift({unit: SPECS.PILGRIM, karbonite: 10, fuel: 50});
+            r.pilgrimQueue.unshift({x: r.wall_locations[0].x, y: r.wall_locations[0].y, code: constants.PILGRIM_JOBS.BUILD_WALL});
+        }
+
+        r.wall_locationIndex++;
+    }
+
+    // let sendNext = false;
+    // let lastChurchPos = {};
+    // let visible = r.getVisibleRobots();
+    // for(let i=0;i<visible.length;i++) {
+    //     if(visible[i].team === r.me.team && util.decodeCoords(visible[i].signal).code === constants.SIGNAL_CODE.DONE_SCOUTING) {
+    //         sendNext = true;
+    //         r.log("GETTING NEW CHURCH. LAST POSITION: " + util.decodeCoords(visible[i].signal).x + ", " + util.decodeCoords(visible[i].signal).y);
+    //         lastChurchPos = {x: util.decodeCoords(visible[i].signal).x, y: util.decodeCoords(visible[i].signal).y};
+    //         break;
+    //     }
+    // }
+    //
+    // if(sendNext) {
+    //     let amIresponsible = true;
+    //
+    //     for(let j=0;j<r.castles.length;j++) {
+    //         let dist = (r.castles[j].x - r.wall_locations[r.wall_locationIndex].x) ** 2 + (r.castles[j].y - r.wall_locations[r.wall_locationIndex].y) ** 2;
+    //         if (dist < (r.me.x - r.wall_locations[r.wall_locationIndex].x) ** 2 + (r.me.y - r.wall_locations[r.wall_locationIndex].y) ** 2) {
+    //             amIresponsible = false;
+    //             break;
+    //         }
+    //     }
+    //
+    //     if(amIresponsible) {
+    //         r.buildQueue.unshift({unit: SPECS.PILGRIM, karbonite: 10, fuel: 50});
+    //         r.pilgrimQueue.unshift({x: r.wall_locations[r.wall_locationIndex].x, y: r.wall_locations[r.wall_locationIndex].y, code: constants.PILGRIM_JOBS.BUILD_WALL_SUBSEQUENT});
+    //     }
+    //
+    //     r.wall_locationIndex++;
+    // }
+}
+
 function step(r) {
 
     let visible = r.getVisibleRobots();
@@ -455,17 +514,16 @@ export function castle_step(r) {
     }
 
     if (r.step === 0) {
+        util.coordsOnLine(r,5,7,10,10);
         init(r);
     } else {
 
         if(r.step === 1)
             turn1step(r);
 
-        // if(r.step === 100) {
-        //     let enemyCastle = util.getReflectedCoord({x: r.me.x, y: r.me.y}, r);
-        //     r.buildQueue.unshift({unit: SPECS.PILGRIM, karbonite: 10, fuel: 200});
-        //     r.pilgrimQueue.unshift({x: enemyCastle.x, y: enemyCastle.y, code: constants.PILGRIM_JOBS.OFFENSIVE});
-        // }
+
+        wallingStep(r);
+
 
         if (r.step === 950) {
             r.signal(15,r.map.length ** 2);
