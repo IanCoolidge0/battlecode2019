@@ -45,10 +45,10 @@ export function step(r) {
 
     let distance_to_goal = (r.me.x - r.currentJob.x) + (r.me.y - r.currentJob.y);
     if (r.fuel < 300) return;
-    if (r.mode !== constants.PROPHET_MODE.ATTACK && combat.enemyInRange(r)) {
+    /*if (r.mode !== constants.PROPHET_MODE.ATTACK && combat.enemyInRange(r)) {
         //r.log("CHANGE MODE TO ATTACK");
         r.mode = constants.PROPHET_MODE.ATTACK;
-    } else if (r.mode !== constants.PROPHET_MODE.DEFEND &&
+    } else */if (r.mode !== constants.PROPHET_MODE.DEFEND &&
         r.currentJob.x === r.me.x && r.currentJob.y === r.me.y) {
         //r.log("CHANGE MODE TO DEFEND");
         r.mode = constants.PROPHET_MODE.DEFEND;

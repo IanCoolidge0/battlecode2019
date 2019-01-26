@@ -327,14 +327,14 @@ function replaceDeadUnit(robot, r) {
 }
 
 function wallingStep(r) {
-    if(r.wall_locationIndex >= r.wall_locations.length) return;
 
     if(r.step === 100) {
         let amIresponsible = true;
+        let wall_loc = wallutil.getWallLocation2(r);
 
         for(let j=0;j<r.castles.length;j++) {
-            let dist = (r.castles[j].x - r.wall_locations[0].x) ** 2 + (r.castles[j].y - r.wall_locations[0].y) ** 2;
-            if (dist < (r.me.x - r.wall_locations[0].x) ** 2 + (r.me.y - r.wall_locations[0].y) ** 2) {
+            let dist = (r.castles[j].x - wall_loc.x) ** 2 + (r.castles[j].y - wall_loc.y) ** 2;
+            if (dist < (r.me.x - wall_loc.x) ** 2 + (r.me.y - wall_loc.y) ** 2) {
                 amIresponsible = false;
                 break;
             }
@@ -342,46 +342,44 @@ function wallingStep(r) {
 
         if(amIresponsible) {
             r.buildQueue.unshift({unit: SPECS.PILGRIM, karbonite: 10, fuel: 50});
-            r.pilgrimQueue.unshift({x: r.wall_locations[0].x, y: r.wall_locations[0].y, code: constants.PILGRIM_JOBS.BUILD_WALL});
-        }
-
-        r.wall_locationIndex++;
-    }
-
-    let sendNext = false;
-    let lastChurchPos = {};
-    let visible = r.getVisibleRobots();
-    for(let i=0;i<visible.length;i++) {
-        if(visible[i].team === r.me.team && util.decodeCoords(visible[i].signal).code === constants.SIGNAL_CODE.DONE_SCOUTING) {
-            sendNext = true;
-            r.log("GETTING NEW CHURCH. LAST POSITION: " + util.decodeCoords(visible[i].signal).x + ", " + util.decodeCoords(visible[i].signal).y);
-            lastChurchPos = {x: util.decodeCoords(visible[i].signal).x, y: util.decodeCoords(visible[i].signal).y};
-
-            if(wallutil.finishedBuilding(r, lastChurchPos))
-                r.finishedBuildingWall = true;
-
-            break;
+            r.pilgrimQueue.unshift({x: wall_loc.x, y: wall_loc.y, code: constants.PILGRIM_JOBS.BUILD_WALL});
         }
     }
 
-    if(sendNext && !r.finishedBuildingWall) {
-        let amIresponsible = true;
-
-        for(let j=0;j<r.castles.length;j++) {
-            let dist = (r.castles[j].x - r.wall_locations[r.wall_locationIndex].x) ** 2 + (r.castles[j].y - r.wall_locations[r.wall_locationIndex].y) ** 2;
-            if (dist < (r.me.x - r.wall_locations[r.wall_locationIndex].x) ** 2 + (r.me.y - r.wall_locations[r.wall_locationIndex].y) ** 2) {
-                amIresponsible = false;
-                break;
-            }
-        }
-
-        if(amIresponsible) {
-            r.buildQueue.unshift({unit: SPECS.PILGRIM, karbonite: 10, fuel: 50});
-            r.pilgrimQueue.unshift({x: lastChurchPos.x, y: lastChurchPos.y, code: constants.PILGRIM_JOBS.BUILD_WALL_SUBSEQUENT});
-        }
-
-        r.wall_locationIndex++;
-    }
+    // let sendNext = false;
+    // let lastChurchPos = {};
+    // let visible = r.getVisibleRobots();
+    // for(let i=0;i<visible.length;i++) {
+    //     if(visible[i].team === r.me.team && util.decodeCoords(visible[i].signal).code === constants.SIGNAL_CODE.DONE_SCOUTING) {
+    //         sendNext = true;
+    //         r.log("GETTING NEW CHURCH. LAST POSITION: " + util.decodeCoords(visible[i].signal).x + ", " + util.decodeCoords(visible[i].signal).y);
+    //         lastChurchPos = {x: util.decodeCoords(visible[i].signal).x, y: util.decodeCoords(visible[i].signal).y};
+    //
+    //         if(wallutil.finishedBuilding(r, lastChurchPos))
+    //             r.finishedBuildingWall = true;
+    //
+    //         break;
+    //     }
+    // }
+    //
+    // if(sendNext && !r.finishedBuildingWall) {
+    //     let amIresponsible = true;
+    //
+    //     for(let j=0;j<r.castles.length;j++) {
+    //         let dist = (r.castles[j].x - r.wall_locations[r.wall_locationIndex].x) ** 2 + (r.castles[j].y - r.wall_locations[r.wall_locationIndex].y) ** 2;
+    //         if (dist < (r.me.x - r.wall_locations[r.wall_locationIndex].x) ** 2 + (r.me.y - r.wall_locations[r.wall_locationIndex].y) ** 2) {
+    //             amIresponsible = false;
+    //             break;
+    //         }
+    //     }
+    //
+    //     if(amIresponsible) {
+    //         r.buildQueue.unshift({unit: SPECS.PILGRIM, karbonite: 10, fuel: 50});
+    //         r.pilgrimQueue.unshift({x: lastChurchPos.x, y: lastChurchPos.y, code: constants.PILGRIM_JOBS.BUILD_WALL_SUBSEQUENT});
+    //     }
+    //
+    //     r.wall_locationIndex++;
+    // }
 }
 
 function step(r) {

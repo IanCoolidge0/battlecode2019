@@ -286,23 +286,24 @@ function moveOffensiveStep(r) {
         r.mode = constants.PILGRIM_MODE.SCOUT;
         r.log("building offensive church");
         if(r.job === constants.PILGRIM_JOBS.BUILD_WALL) {
-            r.scout_destination = wallutil.scoutDestination(r, {x: r.currentJob.x, y: r.currentJob.y});
+            r.scout_destination = wallutil.scoutDestination2(r, {x: r.currentJob.x, y: r.currentJob.y});
             r.goal_map = util.BFSMap(wallutil.safetyMap(r), r.scout_destination, util.getMoves(2));
 
             r.signal(util.signalCoords(r.currentJob.x, r.currentJob.y, constants.SIGNAL_CODE.CREATE_OFFENSIVE_CHURCH), 2);
 
             r.church_pos = wallutil.freeOffensiveChurch(r);
+            r.back = wallutil.pilgrim_backward(r, r.church_pos);
             return r.buildUnit(SPECS.CHURCH, r.church_pos.x - r.me.x, r.church_pos.y - r.me.y);
-        } else if(r.job === constants.PILGRIM_JOBS.BUILD_WALL_SUBSEQUENT) {
-            //what is left
-            r.scout_destination = {x: r.lastChurchPos.x, y: r.lastChurchPos.y};
-            r.goal_map = util.BFSMap(wallutil.safetyMap(r), r.scout_destination, util.getMoves(2));
-
-            r.signal(util.signalCoords(r.currentJob.x, r.currentJob.y, constants.SIGNAL_CODE.CREATE_OFFENSIVE_CHURCH), 2);
-
-            r.church_pos = wallutil.freeOffensiveChurch(r);
-            return r.buildUnit(SPECS.CHURCH, r.church_pos.x - r.me.x, r.church_pos.y - r.me.y);
-        }
+        } // else if(r.job === constants.PILGRIM_JOBS.BUILD_WALL_SUBSEQUENT) {
+        //     //what is left
+        //     r.scout_destination = {x: r.lastChurchPos.x, y: r.lastChurchPos.y};
+        //     r.goal_map = util.BFSMap(wallutil.safetyMap(r), r.scout_destination, util.getMoves(2));
+        //
+        //     r.signal(util.signalCoords(r.currentJob.x, r.currentJob.y, constants.SIGNAL_CODE.CREATE_OFFENSIVE_CHURCH), 2);
+        //
+        //     r.church_pos = wallutil.freeOffensiveChurch(r);
+        //     return r.buildUnit(SPECS.CHURCH, r.church_pos.x - r.me.x, r.church_pos.y - r.me.y);
+        // }
     }
     //r.log(r.me.x + ", " + r.me.y);
     if(r.me.x !== r.currentJob.x || r.me.y !== r.currentJob.y)
@@ -312,10 +313,12 @@ function moveOffensiveStep(r) {
 function scoutStep(r) {
     let church_dist = (r.church_pos.x - r.scout_destination.x) ** 2 + (r.church_pos.y - r.scout_destination.y) ** 2;
 
-
     if((r.me.x - r.scout_destination.x) ** 2 + (r.me.y - r.scout_destination.y) ** 2 > 2) {
-        r.signal(util.signalCoords(r.me.x, r.me.y, constants.SIGNAL_CODE.SCOUT_INFO), church_dist);
-        return mode.travel_to_goal(r, 1, 2, r.goal_map);
+        if(r.lastPos === undefined || wallutil.checkCompletePositions(r, {x: r.me.x, y: r.me.y}, r.back)) {
+            r.lastPos = {x: r.me.x, y: r.me.y};
+            r.signal(util.signalCoords(r.me.x, r.me.y, constants.SIGNAL_CODE.SCOUT_INFO), church_dist);
+            return mode.travel_to_goal(r, 1, 2, r.goal_map);
+        }
     } else {
         //finished scouting for church
         r.signal(util.signalCoords(r.church_pos.x, r.church_pos.y, constants.SIGNAL_CODE.DONE_SCOUTING), 2 * r.map.length ** 2);

@@ -23,6 +23,14 @@ export function getWallLocations(r) {
     return locs;
 }
 
+export function getWallLocation2(r) {
+    if(util.isHorizontallySymm(r)) {
+        return {x: Math.floor(r.map.length / 2), y: (r.me.y >= r.map.length / 2) ? 0 : r.map.length - 1};
+    } else {
+        return {x: (r.me.x >= r.map.length / 2) ? 0 : r.map.length - 1, y: Math.floor(r.map.length / 2)};
+    }
+}
+
 export function freeOffensiveChurch(r) {
     let behind;
     let possible;
@@ -55,6 +63,14 @@ export function backward(r, scout_pos) {
     }
 }
 
+export function pilgrim_backward(r, scout_pos) {
+    if(util.isHorizontallySymm(r)) {
+        return (r.me.y > scout_pos.y) ? {x: 0, y: -1} : {x: 0, y: 1};
+    } else {
+        return (r.me.x > scout_pos.x) ? {x: -1, y: 0} : {x: 1, y: 0};
+    }
+}
+
 export function scoutDestination(r, goal_pos) {
     if(util.isHorizontallySymm(r)) {
         if(goal_pos.x === constants.WALL_FANOUT) //times 1
@@ -63,6 +79,13 @@ export function scoutDestination(r, goal_pos) {
         if(goal_pos.y === constants.WALL_FANOUT)
             return {x: goal_pos.x, y: 0};
     }
+}
+
+export function scoutDestination2(r, goal_pos) {
+    if(util.isHorizontallySymm(r))
+        return {x: 0, y: goal_pos.y};
+    else
+        return {x: goal_pos.x, y: 0};
 }
 
 export function inAttackRange(x, y, robot) {
@@ -114,4 +137,24 @@ export function finishedBuilding(r, lastChurchPos) {
     } else {
         return lastChurchPos.y >= r.map.length - constants.WALL_FANOUT;
     }
+}
+
+export function checkCompletePositions(r, lastPos, back) {
+    let next1 = {x: lastPos.x + back.x, y: lastPos.y + back.y};
+
+    let next2;
+    if(back.x === 0)
+        next2 = {x: lastPos.x - 1, y: lastPos.y + 2 * back.y};
+    else
+        next2 = {x: lastPos.x + 2 * back.x, y: lastPos.y - 1};
+
+    let next3 = {x: lastPos.x + 3 * back.x, y: lastPos.y + 3 * back.y};
+
+    //r.log('checking');
+    //r.log(next2);
+
+    let map = r.getVisibleRobotMap();
+    return (map[next1.y][next1.x] > 0 || !r.map[next1.y][next1.x])
+        && (map[next2.y][next2.x] > 0 || !r.map[next2.y][next2.x])
+        && (map[next3.y][next3.x] > 0 || !r.map[next3.y][next3.x]);
 }
