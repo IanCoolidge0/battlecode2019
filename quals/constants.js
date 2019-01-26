@@ -8,12 +8,17 @@ export const ENEMY_PREACHER = 15;
 export const ENEMY_PROPHET = 14;
 export const ENEMY_CRUSADER = 13;
 
+export const WALL_FANOUT = 10;
+
 export const PILGRIM_JOBS = {
     MINE_KARBONITE: 0,
     MINE_FUEL: 1,
     BUILD_CHURCH: 2,
     BUILD_ENEMY_CHURCH: 3,
-    OFFENSIVE: 4
+    OFFENSIVE: 4,
+    BUILD_WALL: 5,
+    SCOUT: 6,
+    BUILD_WALL_SUBSEQUENT: 7
 };
 
 export const PILGRIM_MODE = {
@@ -21,7 +26,8 @@ export const PILGRIM_MODE = {
     MINE_RESOURCE: 1,
     MOVE_TO_CASTLE: 2,
     FLEE: 3,
-    MOVE_OFFENSIVE: 4
+    MOVE_OFFENSIVE: 4,
+    NOTHING: 5
 };
 
 export const PROPHET_JOBS = {
@@ -79,6 +85,8 @@ export const SIGNAL_CODE = {
     ALIVE_SIGNAL: 3,
     CREATE_ENEMY_CHURCH: 4,
     CREATE_FRIENDLY_CHURCH: 5,
-    CREATE_OFFENSIVE_CHURCH: 6
+    CREATE_OFFENSIVE_CHURCH: 6,
+    SCOUT_INFO: 7,
+    DONE_SCOUTING: 8
 };
 

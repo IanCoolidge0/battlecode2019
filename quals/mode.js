@@ -17,7 +17,7 @@ export function travel_to_goal5(r,moves) {
 
     //r.log(move);
 
-    if (move === 0 && move == 99) {
+    if (move === 0 || move === 99) {
         r.wait++;
         return;
     }
