@@ -208,9 +208,15 @@ function init(r) {
         r.castle_loc = {x: r.currentJob.x, y: r.currentJob.y};
         r.goal_pos = util.offensivePilgrimGoal(r, r.castle_loc);
         r.resource_map = util.BFSMap(r.map, {x: r.currentJob.x, y: r.currentJob.y}, util.getMoves(2));
-    } else if (r.job === constants.PILGRIM_JOBS.BUILD_WALL || r.job === constants.PILGRIM_JOBS.BUILD_WALL_SUBSEQUENT) {
+    } else if (r.job === constants.PILGRIM_JOBS.BUILD_WALL) {
         r.mode = constants.PILGRIM_MODE.MOVE_OFFENSIVE;
         r.resource_map = util.BFSMap(r.map, {x: r.currentJob.x, y: r.currentJob.y}, util.getMoves(2));
+        r.starting_pos = {x: r.me.x, y: r.me.y};
+    } else if (r.job === constants.PILGRIM_JOBS.BUILD_WALL_SUBSEQUENT) {
+        r.mode = constants.PILGRIM_MODE.MOVE_OFFENSIVE;
+        r.lastChurchPos = {x: r.currentJob.x, y: r.currentJob.y};
+        r.desiredPos = wallutil.wallLocationSubsequent(r, {x: r.currentJob.x, y: r.currentJob.y});
+        r.resource_map = util.BFSMap(r.map, {x: r.desiredPos.x, y: r.desiredPos.y}, util.getMoves(2));
         r.starting_pos = {x: r.me.x, y: r.me.y};
     } else {
         r.resource_map = util.BFSMap(r.map, {x: r.currentJob.x, y: r.currentJob.y}, util.getMoves(2));
@@ -289,6 +295,13 @@ function moveOffensiveStep(r) {
             return r.buildUnit(SPECS.CHURCH, r.church_pos.x - r.me.x, r.church_pos.y - r.me.y);
         } else if(r.job === constants.PILGRIM_JOBS.BUILD_WALL_SUBSEQUENT) {
             //what is left
+            r.scout_destination = {x: r.lastChurchPos.x, y: r.lastChurchPos.y};
+            r.goal_map = util.BFSMap(wallutil.safetyMap(r), r.scout_destination, util.getMoves(2));
+
+            r.signal(util.signalCoords(r.currentJob.x, r.currentJob.y, constants.SIGNAL_CODE.CREATE_OFFENSIVE_CHURCH), 2);
+
+            r.church_pos = wallutil.freeOffensiveChurch(r);
+            return r.buildUnit(SPECS.CHURCH, r.church_pos.x - r.me.x, r.church_pos.y - r.me.y);
         }
     }
     //r.log(r.me.x + ", " + r.me.y);

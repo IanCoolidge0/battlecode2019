@@ -89,7 +89,7 @@ export function safetyMap(r) {
                 map[j][i] = true;
 
             for(let k=0;k<visible.length;k++) {
-                if(inAttackRange(i, j, visible[k]))
+                if(inAttackRange(i, j, visible[k]) && r.me.team !== visible[k].team)
                     map[j][i] = false;
             }
         }
@@ -98,3 +98,20 @@ export function safetyMap(r) {
     return map;
 }
 
+export function wallLocationSubsequent(r, goal_pos) {
+    if(util.isHorizontallySymm(r)) {
+        let gy = (r.me.y >= r.map.length / 2) ? 0 : r.map.length - 1;
+        return {x: goal_pos.x + constants.WALL_FANOUT, y: gy};
+    } else {
+        let gx = (r.me.x >= r.map.length / 2) ? 0 : r.map.length - 1;
+        return {x: gx, y: goal_pos.y + constants.WALL_FANOUT};
+    }
+}
+
+export function finishedBuilding(r, lastChurchPos) {
+    if(util.isHorizontallySymm(r)) {
+        return lastChurchPos.x >= r.map.length - constants.WALL_FANOUT;
+    } else {
+        return lastChurchPos.y >= r.map.length - constants.WALL_FANOUT;
+    }
+}

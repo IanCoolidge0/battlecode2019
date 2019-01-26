@@ -6,7 +6,7 @@ import * as combat from "./combat.js";
 
 export function travel_to_goal(r,radius,tolerance,goalMap) {
     let dir = goalMap[r.me.y][r.me.x];
-
+    r.log("direction: " + dir);
     return util.fuzzyMove(r,-dir.x,-dir.y,radius,tolerance);
 }
 export function travel_to_goal5(r,moves) {

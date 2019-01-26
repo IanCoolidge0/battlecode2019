@@ -356,11 +356,15 @@ function wallingStep(r) {
             sendNext = true;
             r.log("GETTING NEW CHURCH. LAST POSITION: " + util.decodeCoords(visible[i].signal).x + ", " + util.decodeCoords(visible[i].signal).y);
             lastChurchPos = {x: util.decodeCoords(visible[i].signal).x, y: util.decodeCoords(visible[i].signal).y};
+
+            if(wallutil.finishedBuilding(r, lastChurchPos))
+                r.finishedBuildingWall = true;
+
             break;
         }
     }
 
-    if(sendNext) {
+    if(sendNext && !r.finishedBuildingWall) {
         let amIresponsible = true;
 
         for(let j=0;j<r.castles.length;j++) {
@@ -373,7 +377,7 @@ function wallingStep(r) {
 
         if(amIresponsible) {
             r.buildQueue.unshift({unit: SPECS.PILGRIM, karbonite: 10, fuel: 50});
-            r.pilgrimQueue.unshift({x: r.wall_locations[r.wall_locationIndex].x, y: r.wall_locations[r.wall_locationIndex].y, code: constants.PILGRIM_JOBS.BUILD_WALL_SUBSEQUENT});
+            r.pilgrimQueue.unshift({x: lastChurchPos.x, y: lastChurchPos.y, code: constants.PILGRIM_JOBS.BUILD_WALL_SUBSEQUENT});
         }
 
         r.wall_locationIndex++;
