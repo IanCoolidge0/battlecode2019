@@ -233,7 +233,7 @@ function buildOffensiveQueue(r) {
     let position = null;
 
     for(let i=0;i<visible.length;i++) {
-        if(visible[i].unit === SPECS.PILGRIM && util.decodeCoords(visible[i].signal).code === constants.SIGNAL_CODE.SCOUT_INFO && visible[i].id === r.myScoutId) {
+        if(util.decodeCoords(visible[i].signal).code === constants.SIGNAL_CODE.SCOUT_INFO && visible[i].id === r.myScoutId) {
             position = {x: visible[i].x, y: visible[i].y};
             break;
         }

@@ -9,6 +9,7 @@ export const ENEMY_PROPHET = 14;
 export const ENEMY_CRUSADER = 13;
 
 export const WALL_FANOUT = 10;
+export const WALL_WAIT = 20;
 
 export const PILGRIM_JOBS = {
     MINE_KARBONITE: 0,
