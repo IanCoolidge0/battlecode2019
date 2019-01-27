@@ -81,34 +81,34 @@ export function scoutDestination(r, goal_pos) {
     }
 }
 
-export function scoutDestinationUp(r, goal_pos) {
+export function scoutDestinationUp(r, goal_pos, access) {
     let hsymm = util.isHorizontallySymm(r);
 
     if(hsymm && goal_pos.y === 0) {
         for(let x=0;x<r.map.length;x++) {
             for(let y=0;y<r.map.length;y++) {
-                if(r.map[y][x])
+                if(access[y][x] !== 0)
                     return {x: x, y: y};
             }
         }
     } else if(hsymm && goal_pos.y !== 0) {
         for(let x=0;x<r.map.length;x++) {
             for(let y=r.map.length-1;y>=0;y--) {
-                if(r.map[y][x])
+                if(access[y][x] !== 0)
                     return {x: x, y: y};
             }
         }
     } else if(!hsymm && goal_pos.y === 0) {
         for(let y=0;y<r.map.length;y++) {
             for(let x=0;x<r.map.length;x++) {
-                if(r.map[y][x])
+                if(access[y][x] !== 0)
                     return {x: x, y: y};
             }
         }
     } else if(!hsymm && goal_pos.y !== 0) {
         for(let y=0;y<r.map.length;y++) {
             for(let x=r.map.length-1;x>=0;x--) {
-                if(r.map[y][x])
+                if(access[y][x] !== 0)
                     return {x: x, y: y};
             }
         }

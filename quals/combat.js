@@ -65,11 +65,15 @@ export function enemyCombatInRange(r) {
             if (robot.unit === SPECS.PROPHET && distance_to_enemy >= 16 && distance_to_enemy <= 64) return true;
             if (robot.unit === SPECS.PREACHER && distance_to_enemy <= 36) return true;
             if (robot.unit === SPECS.CRUSADER && distance_to_enemy <= 49) return true;
-            return true;
         }
     }
     return false;
 }
+
+export function inDanger(r) {
+
+}
+
 export function enemyCombatInBuildingRange(r) {
     let robots = r.getVisibleRobots();
     for (let i =0;i < robots.length;i++) {
