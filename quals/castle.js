@@ -71,11 +71,11 @@ function initUnitMaps(r) {
     //r.prophetLocations = r.prophetLocations.concat(combat.unitLocationsQueue(r, 3, r.unit_location_distance, r.prophetMapFill, true));
     //r.prophetLocations = combat.unitLocationsQueue(r, 3, Math.floor(Math.sqrt((r.me.x - r.enemy_castle.x)**2 + (r.me.y - r.enemy_castle.y)**2) / 2), r.prophetMapAgg, false);
 
-    r.prophetMapGrid = combat.unitMap2(r);
+    //r.prophetMapGrid = combat.unitMap2(r);
     //r.prophetMapFill = combat.unitMap2_other(r);
 
     //r.prophetMapAgg = combat.unitMapAggressive(r, 6);
-    r.prophetLocations = combat.unitLocationsQueue(r, 3, r.unit_location_distance, r.prophetMapGrid, true);
+    //r.prophetLocations = combat.unitLocationsQueue(r, 3, r.unit_location_distance, r.prophetMapGrid, true);
 
     //r.prophetLocations = r.prophetLocations.concat(combat.unitLocationsQueue(r, 3, r.unit_location_distance, r.prophetMapFill, true));
     //r.prophetLocations = combat.unitLocationsQueue(r, 3, Math.floor(Math.sqrt((r.me.x - r.enemy_castle.x)**2 + (r.me.y - r.enemy_castle.y)**2) / 2), r.prophetMapAgg, false);
@@ -88,7 +88,11 @@ function initUnitMaps(r) {
 
     //r.crusaderLocations = combat.unitLocationsQueue(r, 3, r.size, r.crusaderMapCenter, true);
     //r.crusaderLocations = r.crusaderLocations.concat(combat.unitLocationsQueue(r, 3, r.size, r.crusaderMapEdge, true));
-
+    r.unitMap = combat.unitMap2(r,2);
+    //r.log("UNITMAP_________________________________________")
+    //r.log(r.unitMap);
+    r.unitLocationQueue_prophet = combat.unitLocationsQueue(r,4,7,r.unitMap,true);
+    r.unitLocationQueue_preacher = combat.unitLocationsQueue(r,3,3,r.unitMap,true);
     //defense map
     r.defenseMap = combat.unitMap(r);
 }
@@ -225,11 +229,18 @@ function initializeBuildQueue(r) {
     }
 
     //queue prophet lattice
-    for (let i=0;i<r.prophetLocations.length;i++) {
-        r.buildQueue.push({unit: SPECS.PROPHET, karbonite:25, fuel: 500});
-        r.prophetQueue.push({x:r.prophetLocations[i].x, y: r.prophetLocations[i].y, code: constants.PROPHET_JOBS.DEFEND_GOAL});
+    // for (let i=0;i<r.prophetLocations.length;i++) {
+    //     r.buildQueue.push({unit: SPECS.PROPHET, karbonite:25, fuel: 500});
+    //     r.prophetQueue.push({x:r.prophetLocations[i].x, y: r.prophetLocations[i].y, code: constants.PROPHET_JOBS.DEFEND_GOAL});
+    // }
+    for (let i=0;i<r.unitLocationQueue_prophet.length;i++) {
+        r.buildQueue.push({unit: SPECS.PROPHET,karbonite:25, fuel: 200});
+        r.prophetQueue.push({x:r.unitLocationQueue_prophet[i].x, y: r.unitLocationQueue_prophet[i].y, code: constants.PROPHET_JOBS.DEFEND_GOAL});
     }
-
+    for (let i=0;i<r.unitLocationQueue_preacher.length;i++) {
+        r.buildQueue.push({unit: SPECS.PREACHER,karbonite:30, fuel: 200});
+        r.preacherQueue.push({x:r.unitLocationQueue_preacher[i].x, y: r.unitLocationQueue_preacher[i].y, code: constants.PREACHER_JOBS.DEFEND_GOAL});
+    }
     //queue crusader rush
     // for (let i = 0; i < r.crusaderLocations.length; i++) {
     //     r.buildQueue.push({unit: SPECS.CRUSADER, karbonite: 15, fuel: 2000});
@@ -250,7 +261,7 @@ function turn1step(r) {
 
 
 function emergency_defense(r) {
-    if (!combat.enemyCombatInRange(r)) return;
+    if (!combat.enemyCombatInBuildingRange(r)) return;
     let count = combat.amount_of_enemy_per_direction(r);
     //r.log("COUNT:");
     //r.log(count);
@@ -276,14 +287,14 @@ function emergency_defense(r) {
         }
         let unitLocation = combat.next_emergency_Location(r,{x:r.me.x,y:r.me.y},unit_type,util.directions(i),0,r.currentUnitMap,r.defenseMap);
         if (unitLocation === undefined) continue;
-        if (unit_type === SPECS.PREACHER) {
+        if (unit_type === SPECS.PREACHER && r.karbonite >= 30 && r.fuel >= 50) {
 
             r.log("add defensive preacher:" + unitLocation.x + " , " + unitLocation.y + " with code: " + i);
             r.log("CODE::" + i);
             r.buildQueue.unshift({unit: SPECS.PREACHER,karbonite:30, fuel: 50,priority:true});
             r.preacherQueue.unshift({x:unitLocation.x, y: unitLocation.y, code: i});
             return;
-        } else if (unit_type === SPECS.PROPHET) {
+        } else if (unit_type === SPECS.PROPHET && r.karbonite >= 25 && r.fuel >= 50) {
 
             r.log("add defensive prophet"+ unitLocation.x + " , " + unitLocation.y);
             r.log("CODE::" + i);
@@ -327,7 +338,6 @@ function replaceDeadUnit(robot, r) {
 }
 
 function wallingStep(r) {
-
     if(r.step === 100) {
         let amIresponsible = true;
         let wall_loc = wallutil.getWallLocation2(r);
@@ -344,42 +354,9 @@ function wallingStep(r) {
             r.buildQueue.unshift({unit: SPECS.PILGRIM, karbonite: 10, fuel: 50});
             r.pilgrimQueue.unshift({x: wall_loc.x, y: wall_loc.y, code: constants.PILGRIM_JOBS.BUILD_WALL});
         }
-    }
 
-    // let sendNext = false;
-    // let lastChurchPos = {};
-    // let visible = r.getVisibleRobots();
-    // for(let i=0;i<visible.length;i++) {
-    //     if(visible[i].team === r.me.team && util.decodeCoords(visible[i].signal).code === constants.SIGNAL_CODE.DONE_SCOUTING) {
-    //         sendNext = true;
-    //         r.log("GETTING NEW CHURCH. LAST POSITION: " + util.decodeCoords(visible[i].signal).x + ", " + util.decodeCoords(visible[i].signal).y);
-    //         lastChurchPos = {x: util.decodeCoords(visible[i].signal).x, y: util.decodeCoords(visible[i].signal).y};
-    //
-    //         if(wallutil.finishedBuilding(r, lastChurchPos))
-    //             r.finishedBuildingWall = true;
-    //
-    //         break;
-    //     }
-    // }
-    //
-    // if(sendNext && !r.finishedBuildingWall) {
-    //     let amIresponsible = true;
-    //
-    //     for(let j=0;j<r.castles.length;j++) {
-    //         let dist = (r.castles[j].x - r.wall_locations[r.wall_locationIndex].x) ** 2 + (r.castles[j].y - r.wall_locations[r.wall_locationIndex].y) ** 2;
-    //         if (dist < (r.me.x - r.wall_locations[r.wall_locationIndex].x) ** 2 + (r.me.y - r.wall_locations[r.wall_locationIndex].y) ** 2) {
-    //             amIresponsible = false;
-    //             break;
-    //         }
-    //     }
-    //
-    //     if(amIresponsible) {
-    //         r.buildQueue.unshift({unit: SPECS.PILGRIM, karbonite: 10, fuel: 50});
-    //         r.pilgrimQueue.unshift({x: lastChurchPos.x, y: lastChurchPos.y, code: constants.PILGRIM_JOBS.BUILD_WALL_SUBSEQUENT});
-    //     }
-    //
-    //     r.wall_locationIndex++;
-    // }
+        r.wall_locationIndex++;
+    }
 }
 
 function step(r) {
@@ -488,7 +465,7 @@ function step(r) {
 
 export function castle_step(r) {
 
-    if (r.step % 10 === 0) {
+    if (r.step % 1 === 0) {
         r.log("STEP: " + r.step);
         // for (let y = 0;y < r.map.length;y++) {
         //     let str = "";
@@ -505,6 +482,7 @@ export function castle_step(r) {
     }
 
     if (r.step === 0) {
+        util.coordsOnLine(r,5,7,10,10);
         init(r);
     } else {
 

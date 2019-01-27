@@ -41,7 +41,7 @@ function build_unit(r,unit_type,target_x,target_y,job) {
 }
 
 function emergency_defense(r) {
-    if (!combat.enemyCombatInRange(r)) return;
+    if (!combat.enemyCombatInBuildingRange(r)) return;
     let count = combat.amount_of_enemy_per_direction(r);
     //r.log("COUNT:");
     //r.log(count);
@@ -67,14 +67,14 @@ function emergency_defense(r) {
         }
         let unitLocation = combat.next_emergency_Location(r,{x:r.me.x,y:r.me.y},unit_type,util.directions(i),0,r.currentUnitMap,r.defenseMap);
         if (unitLocation === undefined) continue;
-        if (unit_type === SPECS.PREACHER) {
+        if (unit_type === SPECS.PREACHER && r.karbonite >= 30 && r.fuel >= 50) {
 
             r.log("add defensive preacher:" + unitLocation.x + " , " + unitLocation.y + " with code: " + i);
             r.log("CODE::" + i);
             r.buildQueue.unshift({unit: SPECS.PREACHER,karbonite:30, fuel: 50,priority:true});
             r.preacherQueue.unshift({x:unitLocation.x, y: unitLocation.y, code: constants.PREACHER_JOBS.DEFEND_CASTLE[i]});
             return;
-        } else if (unit_type === SPECS.PROPHET) {
+        } else if (unit_type === SPECS.PROPHET && r.karbonite >= 25 && r.fuel >= 50) {
 
             r.log("add defensive prophet"+ unitLocation.x + " , " + unitLocation.y + " with code: " + i);
             r.log("CODE::" + i);
@@ -197,7 +197,7 @@ function initializeDefensiveBuildQueue(r) {
     }
     // for (let i=0;i<r.unitLocationQueue_preacher.length;i++) {
     //     r.buildQueue.push({unit: SPECS.PREACHER,karbonite:30, fuel: 200});
-    //     r.preacherQueue.push({x:r.unitLocationQueue_preacher[i].x, y: r.unitLocationQueue_preacher[i].y, code: constants.PROPHET_JOBS.DEFEND_GOAL});
+    //     r.preacherQueue.push({x:r.unitLocationQueue_preacher[i].x, y: r.unitLocationQueue_preacher[i].y, code: constants.PREACHER_JOBS.DEFEND_GOAL});
     // }
 }
 
@@ -245,6 +245,7 @@ function buildOffensiveQueue(r) {
     let back = wallutil.backward(r, r.scoutInitialPos);
 
     let next = {x: position.x + back.x, y: position.y + back.y};
+
     if(util.withInMap(next, r) && r.map[next.y][next.x]) {
         r.buildQueue.push({unit: SPECS.PROPHET, karbonite: 30, fuel: 50});
         r.prophetQueue.push({x: next.x, y: next.y, code: constants.PROPHET_JOBS.DEFEND_GOAL});

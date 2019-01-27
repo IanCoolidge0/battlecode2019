@@ -11,6 +11,7 @@ export const ENEMY_CRUSADER = 13;
 export const WALL_FANOUT = 10;
 export const WALL_WAIT = 20;
 
+
 export const PILGRIM_JOBS = {
     MINE_KARBONITE: 0,
     MINE_FUEL: 1,
@@ -57,10 +58,11 @@ export const PREACHER_JOBS = {
 export const PREACHER_MODE = {
     DEFEND_CASTLE:0,
     ATTACK_CASTLE:1,
-    PATH_TO_GOAL: 0,
-    DEFEND: 1,
-    ATTACK: 2,
-    REINFORCE: 3,
+    PATH_TO_GOAL: 2,
+    DEFEND: 3,
+    ATTACK: 4,
+    REINFORCE: 5,
+    MOVE_TO_FRONT_LINES: 6
 
 };
 export const CRUSADER_JOBS = {
@@ -90,4 +92,10 @@ export const SIGNAL_CODE = {
     SCOUT_INFO: 7,
     DONE_SCOUTING: 8
 };
+
+export const PROPHET_SIGNAL_CODE = {
+    ENEMY_CRUSADER : 3,
+    ENEMY_PROPHET : 4,
+    ENEMY_PREACHER : 5
+}
 

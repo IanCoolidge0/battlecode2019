@@ -294,6 +294,10 @@ function moveOffensiveStep(r) {
             r.signal(util.signalCoords(r.currentJob.x, r.currentJob.y, constants.SIGNAL_CODE.CREATE_OFFENSIVE_CHURCH), 2);
 
             r.church_pos = wallutil.freeOffensiveChurch(r);
+
+            r.seenUnitMap = util.copy(r.map);
+            wallutil.addSeenUnits(r, r.seenUnitMap);
+
             r.back = wallutil.pilgrim_backward(r, r.church_pos);
             return r.buildUnit(SPECS.CHURCH, r.church_pos.x - r.me.x, r.church_pos.y - r.me.y);
         } // else if(r.job === constants.PILGRIM_JOBS.BUILD_WALL_SUBSEQUENT) {

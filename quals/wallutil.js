@@ -158,3 +158,21 @@ export function checkCompletePositions(r, lastPos, back) {
         && (map[next2.y][next2.x] > 0 || !r.map[next2.y][next2.x])
         && (map[next3.y][next3.x] > 0 || !r.map[next3.y][next3.x]);
 }
+
+export function addSeenUnits(r, seenUnits) {
+    let visible = r.getVisibleRobots();
+
+    for(let k=0;i<visible.length;i++) {
+        if(visible[k].team !== r.me.team) {
+            if(visible[k].unit === SPECS.CRUSADER) {
+                for(let i=-4;i<=4;i++) {
+                    for(let j=-4;j<=4;j++) {
+                        if(i ** 2 + j ** 2 <= 16)
+                            seenUnits[j][i] = false;
+                    }
+                }
+            }
+        }
+    }
+}
+

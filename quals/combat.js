@@ -43,7 +43,27 @@ export function enemyCombatInRange(r) {
         let robot = robots[i];
 
         if (r.isVisible(robot) && robot.team !== r.me.team) {
-            if (robot.unit === SPECS.PILGRIM || robot.unit === SPECS.CASTLE || robot.unit === SPECS.CHURCH) continue;
+            if (robot.unit === SPECS.PILGRIM || robot.unit === SPECS.CHURCH) continue;
+            let distance_to_enemy = (robot.x - r.me.x) ** 2 + (robot.y - r.me.y) ** 2;
+            if (robot.unit === SPECS.CASTLE && distance_to_enemy <= 64) return true;
+            if (robot.unit === SPECS.PROPHET && distance_to_enemy >= 16 && distance_to_enemy <= 64) return true;
+            if (robot.unit === SPECS.PREACHER && distance_to_enemy <= 36) return true;
+            if (robot.unit === SPECS.CRUSADER && distance_to_enemy <= 49) return true;
+            return true;
+        }
+    }
+    return false;
+}
+export function enemyCombatInBuildingRange(r) {
+    let robots = r.getVisibleRobots();
+    for (let i =0;i < robots.length;i++) {
+        let robot = robots[i];
+
+        if (r.isVisible(robot) && robot.team !== r.me.team) {
+            if (robot.unit === SPECS.PILGRIM || robot.unit === SPECS.CHURCH) continue;
+            let distance_to_enemy = (robot.x - r.me.x) ** 2 + (robot.y - r.me.y) ** 2;
+            if (robot.unit === SPECS.PROPHET || robot.unit === SPECS.PREACHER) return true;
+            if (robot.unit === SPECS.CRUSADER && distance_to_enemy <= 64) return true;
             return true;
         }
     }
@@ -372,7 +392,19 @@ export function unitMap(r) {
     let map = util.create2dArray(r.size,r.size,false);
     for (let i = 0;i < r.size;i++) {
         for (let j = 0;j < r.size;j++) {
-            if (((i % 2 == 0 && j % 2 === 0) || (i % 2 == 1 && j % 2 === 1)) && r.map[j][i] && !r.karbonite_map[j][i] && !r.fuel_map[j][i]) {
+            if (((i % 2 === 0 && j % 2 === 0) || (i % 2 === 1 && j % 2 === 1)) && r.map[j][i] && !r.karbonite_map[j][i] && !r.fuel_map[j][i]) {
+                map[j][i] = true;
+            }
+        }
+    }
+    return map;
+}
+export function unitlessMap(r) {
+
+    let map = util.create2dArray(r.size,r.size,false);
+    for (let i = 0;i < r.size;i++) {
+        for (let j = 0;j < r.size;j++) {
+            if (((i % 2 === 0 && j % 2 === 1) || (i % 2 === 1 && j % 2 === 0)) && r.map[j][i] && !r.karbonite_map[j][i] && !r.fuel_map[j][i]) {
                 map[j][i] = true;
             }
         }

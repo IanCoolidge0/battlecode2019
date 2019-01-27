@@ -45,10 +45,11 @@ export function step(r) {
 
     let distance_to_goal = (r.me.x - r.currentJob.x) + (r.me.y - r.currentJob.y);
     if (r.fuel < 300) return;
-    /*if (r.mode !== constants.PROPHET_MODE.ATTACK && combat.enemyInRange(r)) {
+
+    if (combat.enemyInRange(r)) {
         //r.log("CHANGE MODE TO ATTACK");
         r.mode = constants.PROPHET_MODE.ATTACK;
-    } else */if (r.mode !== constants.PROPHET_MODE.DEFEND &&
+    } else if (r.mode !== constants.PROPHET_MODE.DEFEND &&
         r.currentJob.x === r.me.x && r.currentJob.y === r.me.y) {
         //r.log("CHANGE MODE TO DEFEND");
         r.mode = constants.PROPHET_MODE.DEFEND;
@@ -56,6 +57,7 @@ export function step(r) {
         //r.log("CHANGE MODE TO PATH TO GOAL");
         r.mode = constants.PROPHET_MODE.PATH_TO_GOAL;
     }
+
 
     if (r.mode === constants.PROPHET_MODE.PATH_TO_GOAL) {
         //r.log('moving');
@@ -78,6 +80,7 @@ export function step(r) {
 
 
 export function prophet_step(r) {
+    //r.log(r.mode);
     if (r.step === 0) {
         init(r);
     } else
