@@ -64,16 +64,19 @@ function moveToResourceStep(r) {
                 r.parent_building = {x: r.currentJob.x, y: r.currentJob.y};
                 r.castle_map = util.BFSMap(r.map, {x: r.parent_building.x, y: r.parent_building.y}, util.getMoves(2));
 
+                if(r.currentJob.code === constants.PILGRIM_JOBS.BUILD_CHURCH)
+                    r.signal(util.signalCoords(r.me.x, r.me.y, constants.SIGNAL_CODE.CREATE_FRIENDLY_CHURCH), 2);
+                else if(r.currentJob.code === constants.PILGRIM_JOBS.BUILD_ENEMY_CHURCH) {
+                    r.signal(util.signalCoords(r.me.x, r.me.y, constants.SIGNAL_CODE.CREATE_ENEMY_CHURCH), 2);
+                }
+
                 if(r.karbonite_map[r.me.y][r.me.x])
                     r.currentJob.code = constants.PILGRIM_JOBS.MINE_KARBONITE;
                 else
                     r.currentJob.code = constants.PILGRIM_JOBS.MINE_FUEL;
 
                 //r.log("building a church at " + r.parent_building.x + "," + r.parent_building.y + ", i am going to " + r.me.x + "," + r.me.y);
-                if(r.currentJob.code === constants.PILGRIM_JOBS.BUILD_CHURCH)
-                    r.signal(util.signalCoords(r.me.x, r.me.y, constants.SIGNAL_CODE.CREATE_FRIENDLY_CHURCH), 2);
-                else if(r.currentJob.code === constants.PILGRIM_JOBS.BUILD_ENEMY_CHURCH)
-                    r.signal(util.signalCoords(r.me.x, r.me.y, constants.SIGNAL_CODE.CREATE_ENEMY_CHURCH), 2);
+
                 // r.log("i want to build at " + (r.parent_building.x) + " " + (r.parent_building.y));
                 // r.log("i have " + r.karbonite + " karb" + " and " + r.fuel + " fuel!!!!!!!!!! at step " + r.step);
 
@@ -192,13 +195,6 @@ function init(r) {
     if (r.job === constants.PILGRIM_JOBS.BUILD_ENEMY_CHURCH) {
         r.log("building enemy church");
         r.safety_map = util.safetyMap(r, [util.getReflectedCoord({x: r.parent_building.x, y: r.parent_building.y}, r)]);
-        // for(let i=0;i<r.map.length;i++){
-        //     let s = "";
-        //     for(let j=0;j<r.map.length;j++){
-        //         s += (r.safety_map[i][j] ? "1" : "0");
-        //     }
-        //     r.log(s);
-        // }
         let goal_pos = util.getNearestResourceTile2(r, {x: r.currentJob.x, y: r.currentJob.y});
         r.resource_map = util.BFSMap(r.safety_map, {x: goal_pos.x, y: goal_pos.y}, util.getMoves(2));
     } else if (r.job === constants.PILGRIM_JOBS.BUILD_CHURCH) {

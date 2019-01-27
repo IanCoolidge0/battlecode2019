@@ -166,6 +166,7 @@ function init(r) {
             break;
         }
         if(sig.code === constants.SIGNAL_CODE.CREATE_ENEMY_CHURCH) {
+            r.log("sjfiioafhiadfhuwefuhiwefuiw3r");
             r.unitMap = combat.unitMap(r);
             //r.log("UNITMAP_________________________________________")
             //r.log(r.unitMap);
@@ -219,12 +220,12 @@ function initializeDefensiveBuildQueue(r) {
 
             if(util.withInMap({x: newX, y: newY}, r) && (newX !== r.builderJob.x || newY !== r.builderJob.y)) {
                 if(r.fuel_map[newY][newX]) {
-                    r.buildQueue.push({unit: SPECS.PILGRIM, karbonite: 25, fuel: 100, priority: true});
+                    r.buildQueue.push({unit: SPECS.PILGRIM, karbonite: 10, fuel: 100, priority: true});
                     r.pilgrimQueue.push({x: newX, y: newY, code: constants.PILGRIM_JOBS.MINE_FUEL});
                 }
 
                 if(r.karbonite_map[newY][newX]) {
-                    r.buildQueue.push({unit: SPECS.PILGRIM, karbonite: 25, fuel: 100});
+                    r.buildQueue.push({unit: SPECS.PILGRIM, karbonite: 10, fuel: 100});
                     r.pilgrimQueue.push({x: newX, y: newY, code: constants.PILGRIM_JOBS.MINE_KARBONITE});
                 }
             }
@@ -406,7 +407,7 @@ function step(r) {
         let requiredKarbonite = r.buildQueue[0].karbonite;
         let requiredFuel = r.buildQueue[0].fuel;
 
-        if((r.karbonite >= requiredKarbonite + 70 && r.fuel >= requiredFuel) || (r.buildQueue[0].priority && r.karbonite >=r.buildQueue[0].karbonite && r.fuel >= r.buildQueue[0].fuel)) {
+        if((r.karbonite >= requiredKarbonite + 40 && r.fuel >= requiredFuel) || (r.buildQueue[0].priority && r.karbonite >=r.buildQueue[0].karbonite && r.fuel >= r.buildQueue[0].fuel)) {
             let robot_to_build = r.buildQueue.shift();
 
             switch(robot_to_build.unit) {

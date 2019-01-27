@@ -478,7 +478,7 @@ function lateGameStep(r) {
 
 export function castle_step(r) {
 
-    if (r.step % 1 === 0) {
+    if (r.step % 10 === 0) {
         r.log("STEP: " + r.step);
         // for (let y = 0;y < r.map.length;y++) {
         //     let str = "";
