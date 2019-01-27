@@ -9,7 +9,7 @@ export const ENEMY_PROPHET = 14;
 export const ENEMY_CRUSADER = 13;
 
 export const WALL_FANOUT = 10;
-export const WALL_WAIT = 20;
+export const WALL_WAIT = 50;
 
 
 export const PILGRIM_JOBS = {
@@ -29,7 +29,8 @@ export const PILGRIM_MODE = {
     MOVE_TO_CASTLE: 2,
     FLEE: 3,
     MOVE_OFFENSIVE: 4,
-    NOTHING: 5
+    NOTHING: 5,
+    MOVE_OFFENSIVE2: 6
 };
 
 export const PROPHET_JOBS = {

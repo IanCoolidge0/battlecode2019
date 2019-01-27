@@ -943,6 +943,8 @@ export function coordsOnLine(r,x1, y1, x2, y2) {
 
     let map = create2dArray(r.map.length,r.map.length,true);
 
+    let coords = [];
+
     let x, y, dx, dy, dx1, dy1, px, py, xe, ye, i;
     // Calculate line deltas
     dx = x2 - x1;
@@ -962,6 +964,7 @@ export function coordsOnLine(r,x1, y1, x2, y2) {
             x = x2; y = y2; xe = x1;
         }
         map[y][x] = false; // Draw first pixel
+        coords.push({x: x, y: y});
         // Rasterize the line
         for (i = 0; x < xe; i++) {
             x = x + 1;
@@ -979,6 +982,7 @@ export function coordsOnLine(r,x1, y1, x2, y2) {
             // Draw pixel from line span at
             // currently rasterized position
             map[y][x] = false;
+            coords.push({x: x, y: y});
         }
     } else { // The line is Y-axis dominant
         // Line is drawn bottom to top
@@ -988,6 +992,7 @@ export function coordsOnLine(r,x1, y1, x2, y2) {
             x = x2; y = y2; ye = y1;
         }
         map[y][x] = false;
+        coords.push({x: x, y: y});
         // Rasterize the line
         for (i = 0; y < ye; i++) {
             y = y + 1;
@@ -1004,7 +1009,8 @@ export function coordsOnLine(r,x1, y1, x2, y2) {
             }
             // Draw pixel from line span at
             // currently rasterized position
-            map[y][x];
+            map[y][x] = false;
+            coords.push({x: x, y: y});
         }
     }
     // for (let y = 0;y < r.map.length;y++) {
@@ -1019,4 +1025,6 @@ export function coordsOnLine(r,x1, y1, x2, y2) {
     //     }
     //     r.log(str);
     // }
+
+    return coords;
 }

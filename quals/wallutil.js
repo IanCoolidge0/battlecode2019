@@ -81,11 +81,72 @@ export function scoutDestination(r, goal_pos) {
     }
 }
 
-export function scoutDestination2(r, goal_pos) {
-    if(util.isHorizontallySymm(r))
-        return {x: 0, y: goal_pos.y};
-    else
-        return {x: goal_pos.x, y: 0};
+export function scoutDestinationUp(r, goal_pos) {
+    let hsymm = util.isHorizontallySymm(r);
+
+    if(hsymm && goal_pos.y === 0) {
+        for(let x=0;x<r.map.length;x++) {
+            for(let y=0;y<r.map.length;y++) {
+                if(r.map[y][x])
+                    return {x: x, y: y};
+            }
+        }
+    } else if(hsymm && goal_pos.y !== 0) {
+        for(let x=0;x<r.map.length;x++) {
+            for(let y=r.map.length-1;y>=0;y--) {
+                if(r.map[y][x])
+                    return {x: x, y: y};
+            }
+        }
+    } else if(!hsymm && goal_pos.y === 0) {
+        for(let y=0;y<r.map.length;y++) {
+            for(let x=0;x<r.map.length;x++) {
+                if(r.map[y][x])
+                    return {x: x, y: y};
+            }
+        }
+    } else if(!hsymm && goal_pos.y !== 0) {
+        for(let y=0;y<r.map.length;y++) {
+            for(let x=r.map.length-1;x>=0;x--) {
+                if(r.map[y][x])
+                    return {x: x, y: y};
+            }
+        }
+    }
+}
+
+export function scoutDestinationDown(r, goal_pos) {
+    let hsymm = util.isHorizontallySymm(r);
+
+    if(hsymm && goal_pos.y === 0) {
+        for(let x=r.map.length-1;x>=0;x--) {
+            for(let y=0;y<r.map.length;y++) {
+                if(r.map[y][x])
+                    return {x: x, y: y};
+            }
+        }
+    } else if(hsymm && goal_pos.y !== 0) {
+        for(let x=r.map.length-1;x>=0;x--) {
+            for(let y=r.map.length-1;y>=0;y--) {
+                if(r.map[y][x])
+                    return {x: x, y: y};
+            }
+        }
+    } else if(!hsymm && goal_pos.y === 0) {
+        for(let y=r.map.length-1;y>=0;y--) {
+            for(let x=0;x<r.map.length;x++) {
+                if(r.map[y][x])
+                    return {x: x, y: y};
+            }
+        }
+    } else if(!hsymm && goal_pos.y !== 0) {
+        for(let y=r.map.length-1;y>=0;y--) {
+            for(let x=r.map.length-1;x>=0;x--) {
+                if(r.map[y][x])
+                    return {x: x, y: y};
+            }
+        }
+    }
 }
 
 export function inAttackRange(x, y, robot) {
@@ -168,7 +229,25 @@ export function addSeenUnits(r, seenUnits) {
                 for(let i=-4;i<=4;i++) {
                     for(let j=-4;j<=4;j++) {
                         if(i ** 2 + j ** 2 <= 16)
-                            seenUnits[j][i] = false;
+                            seenUnits[visible[k].y + j][visible[k].x + i] = false;
+                    }
+                }
+            }
+
+            if(visible[k].unit === SPECS.PREACHER) {
+                for(let i=-5;i<=5;i++) {
+                    for(let j=-5;j<=5;j++) {
+                        if(i ** 2 + j ** 2 <= 25)
+                            seenUnits[visible[k].y + j][visible[k].x + i] = false;
+                    }
+                }
+            }
+
+            if(visible[k].unit === SPECS.PROPHET) {
+                for(let i=-8;i<=8;i++) {
+                    for(let j=-8;j<=8;j++) {
+                        if(i ** 2 + j ** 2 <= 64)
+                            seenUnits[visible[k].y + j][visible[k].x + i] = false;
                     }
                 }
             }
@@ -176,3 +255,13 @@ export function addSeenUnits(r, seenUnits) {
     }
 }
 
+export function testLine(r, churchPos, seenUnitMap) {
+    let line = util.coordsOnLine(r, r.me.x, r.me.y, churchPos.x, churchPos.y)
+
+    for(let i=0;i<line.length;i++) {
+        if(!seenUnitMap[line[i].y][line[i].x])
+            return true;
+    }
+
+    return false;
+}
