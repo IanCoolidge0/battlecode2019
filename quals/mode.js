@@ -126,7 +126,7 @@ export function prophet_attack(r,castleCoords) {
     if (attack !== undefined) {
         let attackLocation = {x: r.me.x + attack.x, y: r.me.y + attack.y};
         let distance_from_castle = Math.max(Math.abs(attackLocation.x - castleCoords.x), Math.abs(attackLocation.y - castleCoords.y));
-        if (distance_from_castle <= 10) {
+        if (distance_from_castle <= 12) {
             return r.attack(attack.x, attack.y);
         }
 
@@ -181,7 +181,7 @@ export function prophet_attack_offensive(r) {
     if (attack !== undefined) {
         let attackLocation = {x: r.me.x + attack.x, y: r.me.y + attack.y};
         let distance_from_me = (attackLocation.x - r.me.x) ** 2 + (attackLocation.y - r.me.y) ** 2;
-        if (distance_from_me <= 25) {
+        if (distance_from_me <= 49) {
             return r.attack(attack.x, attack.y);
         }
 

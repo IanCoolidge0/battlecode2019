@@ -59,12 +59,14 @@ export function enemyCombatInRange(r) {
         let robot = robots[i];
 
         if (r.isVisible(robot) && robot.team !== r.me.team) {
-            if (robot.unit === SPECS.PILGRIM || robot.unit === SPECS.CHURCH) continue;
+            if (robot.unit === SPECS.PILGRIM) continue;
             let distance_to_enemy = (robot.x - r.me.x) ** 2 + (robot.y - r.me.y) ** 2;
-            if (robot.unit === SPECS.CASTLE && distance_to_enemy <= 64) return true;
+            if (robot.unit === SPECS.CASTLE && distance_to_enemy <= 81) return true;
+            if (robot.unit === SPECS.CASTLE && distance_to_enemy <= 81) return true;
             if (robot.unit === SPECS.PROPHET && distance_to_enemy >= 16 && distance_to_enemy <= 64) return true;
             if (robot.unit === SPECS.PREACHER && distance_to_enemy <= 36) return true;
             if (robot.unit === SPECS.CRUSADER && distance_to_enemy <= 49) return true;
+
 
         }
     }

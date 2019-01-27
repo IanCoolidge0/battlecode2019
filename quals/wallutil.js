@@ -228,7 +228,7 @@ export function addSeenUnits(r, seenUnits) {
             if(visible[k].unit === SPECS.CRUSADER) {
                 for(let i=-4;i<=4;i++) {
                     for(let j=-4;j<=4;j++) {
-                        if(i ** 2 + j ** 2 <= 16)
+                        if(i ** 2 + j ** 2 <= 16 && util.withInMap({x: visible[k].x + i, y: visible[k].y + j}, r))
                             seenUnits[visible[k].y + j][visible[k].x + i] = false;
                     }
                 }
@@ -237,7 +237,7 @@ export function addSeenUnits(r, seenUnits) {
             if(visible[k].unit === SPECS.PREACHER) {
                 for(let i=-5;i<=5;i++) {
                     for(let j=-5;j<=5;j++) {
-                        if(i ** 2 + j ** 2 <= 25)
+                        if(i ** 2 + j ** 2 <= 25 && util.withInMap({x: visible[k].x + i, y: visible[k].y + j}, r))
                             seenUnits[visible[k].y + j][visible[k].x + i] = false;
                     }
                 }
@@ -246,7 +246,7 @@ export function addSeenUnits(r, seenUnits) {
             if(visible[k].unit === SPECS.PROPHET) {
                 for(let i=-8;i<=8;i++) {
                     for(let j=-8;j<=8;j++) {
-                        if(i ** 2 + j ** 2 <= 64)
+                        if(i ** 2 + j ** 2 <= 64 && util.withInMap({x: visible[k].x + i, y: visible[k].y + j}, r))
                             seenUnits[visible[k].y + j][visible[k].x + i] = false;
                     }
                 }
