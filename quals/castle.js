@@ -341,7 +341,8 @@ function wallingStep(r) {
     if(r.step === 100) {
         let amIresponsible = true;
         let wall_loc = wallutil.getWallLocation2(r);
-
+        r.log("WALL LOCATION");
+        r.log(wall_loc);
         for(let j=0;j<r.castles.length;j++) {
             let dist = (r.castles[j].x - wall_loc.x) ** 2 + (r.castles[j].y - wall_loc.y) ** 2;
             if (dist < (r.me.x - wall_loc.x) ** 2 + (r.me.y - wall_loc.y) ** 2) {

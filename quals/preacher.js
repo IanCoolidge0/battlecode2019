@@ -38,7 +38,7 @@ function init(r) {
     if (r.currentJob.code === constants.PREACHER_JOBS.ATTACK_GOAL_LOWER) {
         r.mode = constants.PROPHET_MODE.PATH_TO_GOAL;
         r.moves = util.getMoves(2);
-        r.safetyMap = util.safetyMapUnderLine2(r,{x:r.currentJob.x,y:r.currentJob.y},r.parent_castle_coords,true)
+        r.safetyMap = util.safetyMapUnderLine2(r,{x:r.currentJob.x,y:r.currentJob.y},{x:r.me.x,y:r.me.y},true)
         r.allyIsLower = true;
         r.goal_map = util.BFSMap_with_rmap(r.safetyMap, {x: r.currentJob.x, y: r.currentJob.y}, r.moves, r);
     }
@@ -46,7 +46,7 @@ function init(r) {
         r.mode = constants.PROPHET_MODE.PATH_TO_GOAL;
         r.moves = util.getMoves(2);
         r.allyIsLower = false;
-        r.safetyMap = util.safetyMapUnderLine2(r,{x:r.currentJob.x,y:r.currentJob.y},r.parent_castle_coords,false)
+        r.safetyMap = util.safetyMapUnderLine2(r,{x:r.currentJob.x,y:r.currentJob.y},{x:r.me.x,y:r.me.y},false)
 
         r.goal_map = util.BFSMap_with_rmap(r.safetyMap, {x: r.currentJob.x, y: r.currentJob.y}, r.moves, r);
     }

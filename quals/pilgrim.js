@@ -328,7 +328,7 @@ function scoutStep(r) {
         if(r.lastPos === undefined || wallutil.checkCompletePositions(r, {x: r.me.x, y: r.me.y}, r.back) || r.wait === constants.WALL_WAIT || combat.enemyCombatInRange(r)) {
             wallutil.addSeenUnits(r, r.seenUnitMap);
 
-            if(wallutil.testLine(r, r.church_pos, r.seenUnitMap) && church_dist >= 100) {
+            if(wallutil.testLine(r, r.church_pos, r.seenUnitMap) && (r.church_pos.x - r.me.x) ** 2 + (r.church_pos.y - r.me.y) ** 2 >= 100) {
                 r.log("building new church: church_dist " + church_dist);
                 r.church_pos = wallutil.freeOffensiveChurch(r);
                 r.signal(util.signalCoords(r.me.x, r.me.y, constants.SIGNAL_CODE.CREATE_OFFENSIVE_CHURCH), church_dist);

@@ -166,7 +166,7 @@ function init(r) {
             break;
         }
         if(sig.code === constants.SIGNAL_CODE.CREATE_ENEMY_CHURCH) {
-            r.log("sjfiioafhiadfhuwefuhiwefuiw3r");
+            //r.log("sjfiioafhiadfhuwefuhiwefuiw3r");
             r.unitMap = combat.unitMap(r);
             //r.log("UNITMAP_________________________________________")
             //r.log(r.unitMap);
