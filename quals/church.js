@@ -148,6 +148,8 @@ function init(r) {
 
     r.offensiveLocationQueue = [];
 
+    r.combatBuildCooldown = 5;
+
     let visible = r.getVisibleRobots();
     for(let i=0;i<visible.length;i++) {
         let sig = util.decodeCoords(visible[i].signal);
@@ -155,8 +157,9 @@ function init(r) {
             r.unitMap = combat.unitMap2(r,2);
             //r.log("UNITMAP_________________________________________")
             //r.log(r.unitMap);
-            r.unitLocationQueue_prophet = combat.unitLocationsQueue(r,4,7,r.unitMap,true);
+            r.unitLocationQueue_prophet = combat.unitLocationsQueue(r,6,7,r.unitMap,true);
             r.unitLocationQueue_preacher = combat.unitLocationsQueue(r,3,3,r.unitMap,true);
+            r.unitLocationQueue_prophet2 = combat.unitLocationsQueue(r,4,5,r.unitMap,true);
 
             r.builderJob = sig;
 
@@ -170,15 +173,16 @@ function init(r) {
             r.unitMap = combat.unitMap(r);
             //r.log("UNITMAP_________________________________________")
             //r.log(r.unitMap);
-            r.unitLocationQueue_prophet = combat.unitLocationsQueue(r,4,7,r.unitMap,true);
+            r.unitLocationQueue_prophet = combat.unitLocationsQueue(r,6,7,r.unitMap,true);
             r.unitLocationQueue_preacher = combat.unitLocationsQueue(r,3,3,r.unitMap,true);
+            r.unitLocationQueue_prophet2 = combat.unitLocationsQueue(r,4,5,r.unitMap,true);
 
             r.builderJob = sig;
             r.enemyChurch = true;
             r.inEnemyTerritory = true;
             r.createdRobots[visible[i].id] = {unit: SPECS.PILGRIM, x: sig.x, y: sig.y,
                 code: r.karbonite_map[sig.y][sig.x] ? constants.PILGRIM_JOBS.MINE_KARBONITE : constants.PILGRIM_JOBS.MINE_FUEL};
-            initializeEnemyBuildQueue(r);
+            initializeDefensiveBuildQueue(r);
             break;
         }
         if(sig.code === constants.SIGNAL_CODE.CREATE_OFFENSIVE_CHURCH) {
@@ -239,6 +243,10 @@ function initializeDefensiveBuildQueue(r) {
     for (let i=0;i<r.unitLocationQueue_preacher.length;i++) {
         r.buildQueue.push({unit: SPECS.PREACHER,karbonite:30, fuel: 200});
         r.preacherQueue.push({x:r.unitLocationQueue_preacher[i].x, y: r.unitLocationQueue_preacher[i].y, code: constants.PREACHER_JOBS.DEFEND_GOAL});
+    }
+    for (let i=0;i<r.unitLocationQueue_prophet2.length;i++) {
+        r.buildQueue.push({unit: SPECS.PROPHET,karbonite:25, fuel: 200});
+        r.prophetQueue.push({x:r.unitLocationQueue_prophet2[i].x, y: r.unitLocationQueue_prophet2[i].y, code: constants.PROPHET_JOBS.DEFEND_GOAL});
     }
 }
 
@@ -402,12 +410,15 @@ function step(r) {
         }
     }
 
+    if(r.combatBuildCooldown > 0)
+        r.combatBuildCooldown--;
+
     //build unit from queue
     if(r.buildQueue.length > 0) {
         let requiredKarbonite = r.buildQueue[0].karbonite;
         let requiredFuel = r.buildQueue[0].fuel;
 
-        if((r.karbonite >= requiredKarbonite + 40 && r.fuel >= requiredFuel) || (r.buildQueue[0].priority && r.karbonite >=r.buildQueue[0].karbonite && r.fuel >= r.buildQueue[0].fuel)) {
+        if((r.karbonite >= requiredKarbonite + 70 && r.fuel >= requiredFuel) && (r.buildQueue[0].unit === SPECS.PILGRIM || r.combatBuildCooldown === 0 || r.offensiveChurch) || (r.buildQueue[0].priority && r.karbonite >=r.buildQueue[0].karbonite && r.fuel >= r.buildQueue[0].fuel)) {
             let robot_to_build = r.buildQueue.shift();
 
             switch(robot_to_build.unit) {
@@ -422,7 +433,6 @@ function step(r) {
                 case SPECS.CRUSADER:
                     if(r.crusaderQueue.length > 0) {
                         let job = r.crusaderQueue.shift();
-
                         return build_unit(r, SPECS.CRUSADER, job.x, job.y, job.code);
                     }
                     break;
@@ -430,16 +440,20 @@ function step(r) {
                 case SPECS.PROPHET:
                     if(r.prophetQueue.length > 0) {
                         let job = r.prophetQueue.shift();
-                        if (!r.currentUnitMap[job.y][job.x])
+                        if (!r.currentUnitMap[job.y][job.x]) {
+                            r.combatBuildCooldown = 5 + Math.floor((r.map.length - 32) / 6);
                             return build_unit(r, SPECS.PROPHET, job.x, job.y, job.code);
+                        }
                     }
                     break;
 
                 case SPECS.PREACHER:
                     if(r.preacherQueue.length > 0) {
                         let job = r.preacherQueue.shift();
-                        if (!r.currentUnitMap[job.y][job.x])
+                        if (!r.currentUnitMap[job.y][job.x]) {
+                            r.combatBuildCooldown = 5 + Math.floor((r.map.length - 32) / 6);
                             return build_unit(r, SPECS.PREACHER, job.x, job.y, job.code);
+                        }
                     }
                     break;
             }
