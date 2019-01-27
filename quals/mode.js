@@ -44,9 +44,9 @@ export function travel_to_attack_goal(r,moves) {
     if (r.wait == undefined) r.wait = 0;
     let rmap = r.getVisibleRobotMap();
     let move = r.goal_map[r.me.y][r.me.x];
-    r.log('position ' + r.me.x + ', ' + r.me.y);
+    //r.log('position ' + r.me.x + ', ' + r.me.y);
 
-    r.log(move);
+    //r.log(move);
 
     if (move === 0 || move === 99) {
         r.wait++;

@@ -290,14 +290,14 @@ function emergency_defense(r) {
         if (unit_type === SPECS.PREACHER && r.karbonite >= 30 && r.fuel >= 50) {
 
             r.log("add defensive preacher:" + unitLocation.x + " , " + unitLocation.y + " with code: " + i);
-            r.log("CODE::" + i);
+            //r.log("CODE::" + i);
             r.buildQueue.unshift({unit: SPECS.PREACHER,karbonite:30, fuel: 50,priority:true});
             r.preacherQueue.unshift({x:unitLocation.x, y: unitLocation.y, code: i});
             return;
         } else if (unit_type === SPECS.PROPHET && r.karbonite >= 25 && r.fuel >= 50) {
 
             r.log("add defensive prophet"+ unitLocation.x + " , " + unitLocation.y);
-            r.log("CODE::" + i);
+            //r.log("CODE::" + i);
             r.buildQueue.unshift({unit: SPECS.PROPHET,karbonite:25, fuel: 50,priority:true});
             r.prophetQueue.unshift({x:unitLocation.x, y: unitLocation.y, code: i});
             return;
@@ -425,7 +425,7 @@ function step(r) {
                 case SPECS.PROPHET:
                     if(r.prophetQueue.length > 0) {
                         let job = r.prophetQueue.shift();
-                        if (!r.currentUnitMap[job.y][job.x])
+                        if (!r.currentUnitMap[job.y][job.x] || robot_to_build.override_build_map)
                             return build_unit(r, SPECS.PROPHET, job.x, job.y, job.code);
                     }
                     break;
@@ -433,7 +433,7 @@ function step(r) {
                 case SPECS.PREACHER:
                     if(r.preacherQueue.length > 0) {
                         let job = r.preacherQueue.shift();
-                        if (!r.currentUnitMap[job.y][job.x])
+                        if (!r.currentUnitMap[job.y][job.x] || robot_to_build.override_build_map)
                             return build_unit(r, SPECS.PREACHER, job.x, job.y, job.code);
                     }
                     break;
@@ -459,9 +459,22 @@ function step(r) {
 
 }
 
+function lateGameStep(r) {
+    //r.log(r.buildQueue.length + " asjfihasohfuiasohfbfhu8oaw " + r.karbonite + " " + r.fuel);
+    if(r.buildQueue.length === 0 && r.karbonite > 1234 && r.fuel > 4321) {
+        let fuelRatio = r.fuel / r.karbonite;
 
+        let coord = util.findCoord(r);
 
-
+        if(fuelRatio > 2.5) {
+            r.buildQueue.unshift({unit: SPECS.PREACHER, karbonite: 50, fuel: 50, override_build_map: true});
+            r.preacherQueue.unshift({x: coord.x, y: coord.y, code: constants.PREACHER_JOBS.DEFEND_GOAL});
+        } else {
+            r.buildQueue.unshift({unit: SPECS.CRUSADER, karbonite: 50, fuel: 50, override_build_map: true});
+            r.crusaderQueue.unshift({x: coord.x, y: coord.y, code: constants.CRUSADER_JOBS.DEFEND_GOAL});
+        }
+    }
+}
 
 export function castle_step(r) {
 
@@ -490,6 +503,8 @@ export function castle_step(r) {
             turn1step(r);
 
         wallingStep(r);
+
+        lateGameStep(r);
 
         if (r.step === 950) {
             r.signal(15,r.map.length ** 2);

@@ -70,6 +70,11 @@ export function enemyCombatInRange(r) {
     }
     return false;
 }
+
+export function inDanger(r) {
+
+}
+
 export function enemyCombatInBuildingRange(r) {
     let robots = r.getVisibleRobots();
     for (let i =0;i < robots.length;i++) {
@@ -178,7 +183,7 @@ export function preacher_best_attack(r) {
 }
 
 export function preacher_best_attack_with_signaling(r) {
-    r.log("current position:" + r.me.x + ", " + r.me.y);
+    //r.log("current position:" + r.me.x + ", " + r.me.y);
     let enemy_signaled = []
     let rmap = r.getVisibleRobotMap();
     let robots = r.getVisibleRobots();

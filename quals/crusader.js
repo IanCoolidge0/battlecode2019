@@ -134,6 +134,7 @@ export function step(r) {
         if (r.mode === constants.PROPHET_MODE.PATH_TO_GOAL) {
             //r.log('moving');
 
+
             return mode.travel_to_goal5(r, util.getMoves(3));
         }
         if (r.mode === constants.PROPHET_MODE.DEFEND) {
@@ -174,45 +175,38 @@ export function step(r) {
 
 
 
-    // let visible = r.getVisibleRobots();
-    // for (let i = 0;i < visible.length;i++) {
-    //     let robot = visible[i];
-    //     if (robot.team === r.me.team && robot.unit === SPECS.CASTLE);
-    //     if (r.isRadioing(robot) && robot.signal === 15) {
-    //         r.log("CHAAAAAAAARGE");
-    //         r.mode = constants.CRUSADER_MODE.CHAAAAAAAARGE;
-    //         r.goal_map = util.BFSMap(r.map, util.getReflectedCoord(r.parent_castle_coords,r), util.getMoves(3));
-    //     }
-    // }
-    // if (r.fuel < 300 && r.currentJob.code !== constants.CRUSADER_JOBS.DEFEND_ENEMY_CHURCH) return;
-    // if (r.mode === constants.CRUSADER_MODE.CHAAAAAAAARGE) {
-    //     let attack = combat.attack_nearest_castle(r,SPECS.CRUSADER,r.parent_castle_coords);
-    //     if (attack !== undefined) {
-    //         return r.attack(attack.x,attack.y);
-    //     }
-    //     return mode.travel_to_goal(r,3,2,r.goal_map);
-    //
-    // }
-    // let distance_to_goal = (r.me.x - r.currentJob.x) ** 2 + (r.me.y - r.currentJob.y) ** 2;
-    //
-    //
-    //
-    // if (r.mode !== constants.CRUSADER_MODE.DEFEND &&
-    //     ((r.currentJob.x === r.me.x && r.currentJob.y === r.me.y) ||(rmap[r.currentJob.y][r.currentJob.x] > 0 && distance_to_goal <= 2))) {
-    //     //r.log("CHANGE MODE TO DEFEND");
-    //     r.mode = constants.CRUSADER_MODE.DEFEND;
-    // }  else if (r.mode !== constants.CRUSADER_MODE.PATH_TO_GOAL && distance_to_goal > 2) {
-    //     //r.log("CHANGE MODE TO PATH TO GOAL");
-    //     r.mode = constants.CRUSADER_MODE.PATH_TO_GOAL;
-    // }
 
-
-
-
-
-
-
-
+// let visible = r.getVisibleRobots();
+// for (let i = 0;i < visible.length;i++) {
+//     let robot = visible[i];
+//     if (robot.team === r.me.team && robot.unit === SPECS.CASTLE);
+//     if (r.isRadioing(robot) && robot.signal === 15) {
+//         r.log("CHAAAAAAAARGE");
+//         r.mode = constants.CRUSADER_MODE.CHAAAAAAAARGE;
+//         r.goal_map = util.BFSMap(r.map, util.getReflectedCoord(r.parent_castle_coords,r), util.getMoves(3));
+//     }
+// }
+// if (r.fuel < 300 && r.currentJob.code !== constants.CRUSADER_JOBS.DEFEND_ENEMY_CHURCH) return;
+// if (r.mode === constants.CRUSADER_MODE.CHAAAAAAAARGE) {
+//     let attack = combat.attack_nearest_castle(r,SPECS.CRUSADER,r.parent_castle_coords);
+//     if (attack !== undefined) {
+//         return r.attack(attack.x,attack.y);
+//     }
+//     return mode.travel_to_goal(r,3,2,r.goal_map);
+//
+// }
+// let distance_to_goal = (r.me.x - r.currentJob.x) ** 2 + (r.me.y - r.currentJob.y) ** 2;
+//
+//
+//
+// if (r.mode !== constants.CRUSADER_MODE.DEFEND &&
+//     ((r.currentJob.x === r.me.x && r.currentJob.y === r.me.y) ||(rmap[r.currentJob.y][r.currentJob.x] > 0 && distance_to_goal <= 2))) {
+//     //r.log("CHANGE MODE TO DEFEND");
+//     r.mode = constants.CRUSADER_MODE.DEFEND;
+// }  else if (r.mode !== constants.CRUSADER_MODE.PATH_TO_GOAL && distance_to_goal > 2) {
+//     //r.log("CHANGE MODE TO PATH TO GOAL");
+//     r.mode = constants.CRUSADER_MODE.PATH_TO_GOAL;
+// }
 
 
 

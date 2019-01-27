@@ -1028,3 +1028,37 @@ export function coordsOnLine(r,x1, y1, x2, y2) {
 
     return coords;
 }
+
+export function findCoord(r) {
+    let hsymm = isHorizontallySymm(r);
+
+    if(hsymm && r.me.y <= r.map.length / 2) {
+        for(let y=0;y<r.map.length;y++) {
+            for(let x=0;x<r.map.length;x++) {
+                if(r.map[y][x])
+                    return {x: x, y: y};
+            }
+        }
+    } else if(hsymm && r.me.y > r.map.length / 2) {
+        for(let y=r.map.length-1;y>=0;y--) {
+            for(let x=0;x<r.map.length;x++) {
+                if(r.map[y][x])
+                    return {x: x, y: y};
+            }
+        }
+    } else if(!hsymm && r.me.x <= r.map.length / 2) {
+        for(let x=0;x<r.map.length;x++) {
+            for(let y=0;y<r.map.length;y++) {
+                if(r.map[y][x])
+                    return {x: x, y: y};
+            }
+        }
+    } else if(!hsymm && goal_pos.y !== 0) {
+        for(let x=r.map.length-1;x>=0;x--) {
+            for(let y=0;y<r.map.length;y++) {
+                if(r.map[y][x])
+                    return {x: x, y: y};
+            }
+        }
+    }
+}

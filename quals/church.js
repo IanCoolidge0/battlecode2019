@@ -70,14 +70,14 @@ function emergency_defense(r) {
         if (unit_type === SPECS.PREACHER && r.karbonite >= 30 && r.fuel >= 50) {
 
             r.log("add defensive preacher:" + unitLocation.x + " , " + unitLocation.y + " with code: " + i);
-            r.log("CODE::" + i);
+            //r.log("CODE::" + i);
             r.buildQueue.unshift({unit: SPECS.PREACHER,karbonite:30, fuel: 50,priority:true});
             r.preacherQueue.unshift({x:unitLocation.x, y: unitLocation.y, code: constants.PREACHER_JOBS.DEFEND_CASTLE[i]});
             return;
         } else if (unit_type === SPECS.PROPHET && r.karbonite >= 25 && r.fuel >= 50) {
 
             r.log("add defensive prophet"+ unitLocation.x + " , " + unitLocation.y + " with code: " + i);
-            r.log("CODE::" + i);
+            //r.log("CODE::" + i);
             r.buildQueue.unshift({unit: SPECS.PROPHET,karbonite:25, fuel: 50,priority:true});
             r.prophetQueue.unshift({x:unitLocation.x, y: unitLocation.y, code: constants.PROPHET_JOBS.DEFEND_CASTLE[i]});
             return;

@@ -296,7 +296,8 @@ function moveOffensiveStep(r) {
         if(r.job === constants.PILGRIM_JOBS.BUILD_WALL) {
             r.wait = 0;
 
-            r.scout_destination = wallutil.scoutDestinationUp(r, {x: r.currentJob.x, y: r.currentJob.y});
+            let accessible_map = util.BFSMap(wallutil.safetyMap(r), {x: r.me.x, y: r.me.y}, util.getMoves(2));
+            r.scout_destination = wallutil.scoutDestinationUp(r, {x: r.currentJob.x, y: r.currentJob.y}, accessible_map);
             r.goal_map = util.BFSMap(wallutil.safetyMap(r), r.scout_destination, util.getMoves(2));
 
             r.signal(util.signalCoords(r.parent_building_coords.x, r.parent_building_coords.y, constants.SIGNAL_CODE.CREATE_OFFENSIVE_CHURCH), 2);
@@ -328,15 +329,18 @@ function scoutStep(r) {
     let church_dist = (r.church_pos.x - r.scout_destination.x) ** 2 + (r.church_pos.y - r.scout_destination.y) ** 2;
 
     if((r.me.x - r.scout_destination.x) ** 2 + (r.me.y - r.scout_destination.y) ** 2 > 2) {
-        if(r.lastPos === undefined || wallutil.checkCompletePositions(r, {x: r.me.x, y: r.me.y}, r.back) || r.wait === constants.WALL_WAIT) {
+        if(r.lastPos === undefined || wallutil.checkCompletePositions(r, {x: r.me.x, y: r.me.y}, r.back) || r.wait === constants.WALL_WAIT || combat.enemyCombatInRange(r)) {
             wallutil.addSeenUnits(r, r.seenUnitMap);
 
-            if(wallutil.testLine(r, r.church_pos, r.seenUnitMap)) {
+            if(wallutil.testLine(r, r.church_pos, r.seenUnitMap) && church_dist >= 100) {
+                r.log("building new church: church_dist " + church_dist);
                 r.church_pos = wallutil.freeOffensiveChurch(r);
                 r.signal(util.signalCoords(r.me.x, r.me.y, constants.SIGNAL_CODE.CREATE_OFFENSIVE_CHURCH), church_dist);
                 return r.buildUnit(SPECS.CHURCH, r.church_pos.x - r.me.x, r.church_pos.y - r.me.y);
             }
 
+            let accessible_map = util.BFSMap(wallutil.safetyMap(r), {x: r.me.x, y: r.me.y}, util.getMoves(2));
+            r.scout_destination = wallutil.scoutDestinationUp(r, {x: r.currentJob.x, y: r.currentJob.y}, accessible_map);
             r.goal_map = util.BFSMap(wallutil.safetyMap(r), r.scout_destination, util.getMoves(2));
 
             r.lastPos = {x: r.me.x, y: r.me.y};
