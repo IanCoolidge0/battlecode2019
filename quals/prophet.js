@@ -90,7 +90,7 @@ export function step(r) {
         if (r.currentJob.code === constants.PROPHET_JOBS.ATTACK_GOAL_HIGHER || r.currentJob.code === constants.PROPHET_JOBS.ATTACK_GOAL_LOWER) {
             return mode.prophet_attack_offensive(r);
         }
-        return mode.prophet_attack(r,r.parent_castle_coords);
+         mode.prophet_attack(r,r.parent_castle_coords);
     }
 
 

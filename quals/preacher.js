@@ -69,13 +69,13 @@ function step(r) {
 
     }
     if (r.mode === constants.PREACHER_MODE.MOVE_TO_FRONT_LINES) {
-        if (r.currentJob.code === constants.PREACHER_JOBS.DEFEND_CASTLE) {
+        if (r.currentJob.code === constants.PREACHER_JOBS.DEFEND_GOAL) {
             if (r.wait === 10) {
                 r.mode = constants.PREACHER_MODE.PATH_TO_GOAL;
                 r.goal_map = util.BFSMap_with_rmap(r.map, {x: r.currentJob.x, y: r.currentJob.y}, r.moves, r);
             }
             r.wait++;
-            let attack = combat.preacher_best_attack(r);
+            let attack = combat.preacher_best_attack_with_signaling(r);
             if (attack !== undefined) {
                 r.wait = 0;
                 return r.attack(attack.x,attack.y);
@@ -93,7 +93,7 @@ function step(r) {
                 r.goal_map = util.BFSMap_with_rmap(r.safetyMap, {x: r.currentJob.x, y: r.currentJob.y}, r.moves, r);
             }
             r.wait++;
-            let attack = combat.preacher_best_attack(r);
+            let attack = combat.preacher_best_attack_with_signaling(r);
             if (attack !== undefined) {
                 r.wait = 0;
                 return r.attack(attack.x,attack.y);
@@ -112,7 +112,7 @@ function step(r) {
     } else if (frontLine !== false) {
         r.mode = constants.PREACHER_MODE.MOVE_TO_FRONT_LINES;
         r.wait = 0;
-        if (r.currentJob.code === constants.PREACHER_JOBS.DEFEND_CASTLE) {
+        if (r.currentJob.code === constants.PREACHER_JOBS.DEFEND_GOAL) {
 
             r.unitlessMap = combat.unitlessMap(r);
             r.unitlessMap[r.me.y][r.me.x] = true;
@@ -166,7 +166,7 @@ function step(r) {
     if (r.mode === constants.PREACHER_MODE.ATTACK) {
         //r.log("parent");
         //r.log(r.parent_castle_coords);
-        let attack = combat.preacher_best_attack(r);
+        let attack = combat.preacher_best_attack_with_signaling(r);
         if (attack !== undefined) {
             return r.attack(attack.x, attack.y);
         }

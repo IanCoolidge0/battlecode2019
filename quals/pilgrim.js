@@ -6,6 +6,7 @@ import * as combat from "./combat.js";
 import * as mode from "./mode.js";
 
 function affordChurch(r) {
+
     if(r.fuel < 250)
         return false;
 
@@ -187,7 +188,7 @@ function init(r) {
 
     r.job = r.currentJob.code;
     r.mode = constants.PILGRIM_MODE.MOVE_TO_RESOURCE;
-    //r.log(r.currentJob.code);
+
     if (r.job === constants.PILGRIM_JOBS.BUILD_ENEMY_CHURCH) {
         r.log("building enemy church");
         r.safety_map = util.safetyMap(r, [util.getReflectedCoord({x: r.parent_building.x, y: r.parent_building.y}, r)]);
@@ -238,16 +239,16 @@ export function isEndangered(r) {
     // }
 
 
-    if(r.currentJob.code === constants.PILGRIM_JOBS.OFFENSIVE) return;
+    if(r.currentJob.code !== constants.PILGRIM_JOBS.MINE_FUEL && r.currentJob.code !== constants.PILGRIM_JOBS.MINE_KARBONITE) return;
 
 
-    // if (combat.enemyCombatInRange(r)) {
-    //     //r.log("CHANGE MODE to FLEE");
-    //     r.mode = constants.PILGRIM_MODE.FLEE;
-    // } else if (r.mode === constants.PILGRIM_MODE.FLEE){
-    //     //r.log("CHANGE MODE to MINING");
-    //     r.mode = constants.PILGRIM_MODE.MOVE_TO_RESOURCE;
-    // }
+    if (combat.enemyCombatInRange(r)) {
+        //r.log("CHANGE MODE to FLEE");
+        r.mode = constants.PILGRIM_MODE.FLEE;
+    } else if (r.mode === constants.PILGRIM_MODE.FLEE){
+        //r.log("CHANGE MODE to MINING");
+        r.mode = constants.PILGRIM_MODE.MOVE_TO_RESOURCE;
+    }
 }
 export function flee(r) {
     let damageMap = combat.damageMap(r);
@@ -255,7 +256,7 @@ export function flee(r) {
     let moves = util.getMoves(2);
 
     //r.log(moves);
-    if (damageMap[r.me.y][r.me.x] === 0) return;
+
     let rmap = r.getVisibleRobotMap();
     let move = r.castle_map[r.me.y][r.me.x];
     let potential_moves = util.getFuzzyMoves(r, move.x, move.y, 2, 2);

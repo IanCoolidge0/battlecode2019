@@ -184,10 +184,10 @@ function initializeBuildQueue(r) {
         }
 
         if(amIresponsible) {
-            r.buildQueue.push({unit: SPECS.PILGRIM, karbonite: 10, fuel: 50, priority: true});
+            r.buildQueue.push({unit: SPECS.PILGRIM, karbonite: 10, fuel: 100, priority: true});
             r.pilgrimQueue.push({x: r.safe_enemy_churches[i].x, y: r.safe_enemy_churches[i].y, code: constants.PILGRIM_JOBS.BUILD_ENEMY_CHURCH});
 
-            r.buildQueue.push({unit: SPECS.CRUSADER, karbonite: 20, fuel: 50, priority: true});
+            r.buildQueue.push({unit: SPECS.CRUSADER, karbonite: 20, fuel: 100, priority: true});
             r.crusaderQueue.push({x: r.safe_enemy_churches[i].x, y: r.safe_enemy_churches[i].y, code: constants.CRUSADER_JOBS.DEFEND_ENEMY_CHURCH});
 
             for(let j=0;j<r.church_locations.length;j++) {
@@ -465,7 +465,7 @@ function step(r) {
 
 export function castle_step(r) {
 
-    if (r.step % 10 === 0) {
+    if (r.step % 1 === 0) {
         r.log("STEP: " + r.step);
         // for (let y = 0;y < r.map.length;y++) {
         //     let str = "";

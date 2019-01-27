@@ -90,6 +90,38 @@ function emergency_defense(r) {
 
 }
 
+function initializeEnemyBuildQueue(r) {
+    for(let i=-constants.CLUSTER_RADIUS;i<=constants.CLUSTER_RADIUS;i++) {
+        for(let j=-constants.CLUSTER_RADIUS;j<=constants.CLUSTER_RADIUS;j++) {
+            if(i ** 2 + j ** 2 > constants.CLUSTER_RADIUS ** 2) continue;
+            let newX = r.me.x + i;
+            let newY = r.me.y + j;
+
+            if(util.withInMap({x: newX, y: newY}, r) && (newX !== r.builderJob.x || newY !== r.builderJob.y)) {
+                if(r.fuel_map[newY][newX]) {
+                    r.buildQueue.push({unit: SPECS.PILGRIM, karbonite: 25, fuel: 100, priority: true});
+                    r.pilgrimQueue.push({x: newX, y: newY, code: constants.PILGRIM_JOBS.MINE_FUEL});
+                }
+
+                if(r.karbonite_map[newY][newX]) {
+                    r.buildQueue.push({unit: SPECS.PILGRIM, karbonite: 25, fuel: 100});
+                    r.pilgrimQueue.push({x: newX, y: newY, code: constants.PILGRIM_JOBS.MINE_KARBONITE});
+                }
+            }
+        }
+    }
+
+    for (let i=0;i<r.unitLocationQueue_prophet.length;i++) {
+        r.buildQueue.push({unit: SPECS.PROPHET,karbonite:25, fuel: 200});
+        r.prophetQueue.push({x:r.unitLocationQueue_prophet[i].x, y: r.unitLocationQueue_prophet[i].y, code: constants.PROPHET_JOBS.DEFEND_GOAL});
+    }
+    for (let i=0;i<r.unitLocationQueue_preacher.length;i++) {
+        r.buildQueue.push({unit: SPECS.PREACHER,karbonite:30, fuel: 200});
+        r.preacherQueue.push({x:r.unitLocationQueue_preacher[i].x, y: r.unitLocationQueue_preacher[i].y, code: constants.PREACHER_JOBS.DEFEND_GOAL});
+    }
+
+}
+
 function init(r) {
     r.defenseMap = combat.unitMap(r);
     r.currentUnitMap = util.create2dArray(r.map.length,r.map.length,false);
@@ -105,11 +137,7 @@ function init(r) {
     r.prophetQueue = [];
     r.crusaderQueue = [];
     let dir_coord = [{x:-1,y:-1}, {x:-1,y:0}, {x:-1,y:1}, {x:0,y:1}, {x:1,y:1}, {x:1,y:0}, {x:1,y:-1}, {x:0,y:-1}];
-    r.unitMap = combat.unitMap2(r,2);
-    //r.log("UNITMAP_________________________________________")
-    //r.log(r.unitMap);
-    r.unitLocationQueue_prophet = combat.unitLocationsQueue(r,4,7,r.unitMap,true);
-    r.unitLocationQueue_preacher = combat.unitLocationsQueue(r,3,3,r.unitMap,true);
+
 
     r.builderJob = {};
 
@@ -124,20 +152,32 @@ function init(r) {
     for(let i=0;i<visible.length;i++) {
         let sig = util.decodeCoords(visible[i].signal);
         if(sig.code === constants.SIGNAL_CODE.CREATE_FRIENDLY_CHURCH) {
+            r.unitMap = combat.unitMap2(r,2);
+            //r.log("UNITMAP_________________________________________")
+            //r.log(r.unitMap);
+            r.unitLocationQueue_prophet = combat.unitLocationsQueue(r,4,7,r.unitMap,true);
+            r.unitLocationQueue_preacher = combat.unitLocationsQueue(r,3,3,r.unitMap,true);
+
             r.builderJob = sig;
 
             r.createdRobots[visible[i].id] = {unit: SPECS.PILGRIM, x: sig.x, y: sig.y,
                 code: r.karbonite_map[sig.y][sig.x] ? constants.PILGRIM_JOBS.MINE_KARBONITE : constants.PILGRIM_JOBS.MINE_FUEL};
-
+            initializeDefensiveBuildQueue(r);
             break;
         }
         if(sig.code === constants.SIGNAL_CODE.CREATE_ENEMY_CHURCH) {
-            r.builderJob = sig;
+            r.unitMap = combat.unitMap(r);
+            //r.log("UNITMAP_________________________________________")
+            //r.log(r.unitMap);
+            r.unitLocationQueue_prophet = combat.unitLocationsQueue(r,4,7,r.unitMap,true);
+            r.unitLocationQueue_preacher = combat.unitLocationsQueue(r,3,3,r.unitMap,true);
 
+            r.builderJob = sig;
+            r.enemyChurch = true;
             r.inEnemyTerritory = true;
             r.createdRobots[visible[i].id] = {unit: SPECS.PILGRIM, x: sig.x, y: sig.y,
                 code: r.karbonite_map[sig.y][sig.x] ? constants.PILGRIM_JOBS.MINE_KARBONITE : constants.PILGRIM_JOBS.MINE_FUEL};
-
+            initializeEnemyBuildQueue(r);
             break;
         }
         if(sig.code === constants.SIGNAL_CODE.CREATE_OFFENSIVE_CHURCH) {
@@ -149,15 +189,11 @@ function init(r) {
             r.myScoutId = visible[i].id;
             r.scoutInitialPos = {x: visible[i].x, y: visible[i].y};
             //r.offenseDirection = {x: sig.x, y: sig.y};
+            initializeOffensiveBuildQueue(r);
         }
     }
 
-    if(!r.offensiveChurch) {
-        r.log("defensive church");
-        initializeDefensiveBuildQueue(r);
-    } else {
-        initializeOffensiveBuildQueue(r);
-    }
+
 
 }
 
@@ -199,11 +235,13 @@ function initializeDefensiveBuildQueue(r) {
         r.buildQueue.push({unit: SPECS.PROPHET,karbonite:25, fuel: 200});
         r.prophetQueue.push({x:r.unitLocationQueue_prophet[i].x, y: r.unitLocationQueue_prophet[i].y, code: constants.PROPHET_JOBS.DEFEND_GOAL});
     }
-    // for (let i=0;i<r.unitLocationQueue_preacher.length;i++) {
-    //     r.buildQueue.push({unit: SPECS.PREACHER,karbonite:30, fuel: 200});
-    //     r.preacherQueue.push({x:r.unitLocationQueue_preacher[i].x, y: r.unitLocationQueue_preacher[i].y, code: constants.PREACHER_JOBS.DEFEND_GOAL});
-    // }
+    for (let i=0;i<r.unitLocationQueue_preacher.length;i++) {
+        r.buildQueue.push({unit: SPECS.PREACHER,karbonite:30, fuel: 200});
+        r.preacherQueue.push({x:r.unitLocationQueue_preacher[i].x, y: r.unitLocationQueue_preacher[i].y, code: constants.PREACHER_JOBS.DEFEND_GOAL});
+    }
 }
+
+
 
 function replaceDeadUnit(robot, r) {
 

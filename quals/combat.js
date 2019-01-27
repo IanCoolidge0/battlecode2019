@@ -65,7 +65,7 @@ export function enemyCombatInRange(r) {
             if (robot.unit === SPECS.PROPHET && distance_to_enemy >= 16 && distance_to_enemy <= 64) return true;
             if (robot.unit === SPECS.PREACHER && distance_to_enemy <= 36) return true;
             if (robot.unit === SPECS.CRUSADER && distance_to_enemy <= 49) return true;
-            return true;
+
         }
     }
     return false;
@@ -147,7 +147,7 @@ export function preacher_best_attack(r) {
 
         //calculate splash value
         for (let j = 0;j < dir_coord.length;j++) {
-            let splash_coord = {x:coord.x + dir_coord[j].x, y:coord.y + dir_coord[j].x};
+            let splash_coord = {x:coord.x + dir_coord[j].x, y:coord.y + dir_coord[j].y};
             if (!util.withInMap(splash_coord,r)) continue;
 
             if (rmap[splash_coord.y][splash_coord.x] !== -1 && rmap[splash_coord.y][splash_coord.x] !== 0) {
@@ -178,11 +178,12 @@ export function preacher_best_attack(r) {
 }
 
 export function preacher_best_attack_with_signaling(r) {
-
+    r.log("current position:" + r.me.x + ", " + r.me.y);
     let enemy_signaled = []
     let rmap = r.getVisibleRobotMap();
     let robots = r.getVisibleRobots();
     for (let i = 0;i < robots.length;i++) {
+        let robot = robots[i];
         if (r.isRadioing(robot) && robot.signal_radius === 65) {
             let signal = util.decodeCoords(robot.signal);
             if (signal.code === SPECS.CRUSADER || signal.code === SPECS.PREACHER) {
@@ -193,6 +194,7 @@ export function preacher_best_attack_with_signaling(r) {
         }
     }
 
+
     let dir_coord = [{x:-1,y:-1}, {x:-1,y:0}, {x:-1,y:1}, {x:0,y:1}, {x:1,y:1}, {x:1,y:0}, {x:1,y:-1}, {x:0,y:-1}];
 
     let attacks = util.getMoves(4);
@@ -200,41 +202,62 @@ export function preacher_best_attack_with_signaling(r) {
     let highest_value_index = -1;
     let robot;
     for (let i = 0;i < attacks.length;i++) {
+
         let coord = {x:r.me.x + attacks[i].x, y:r.me.y + attacks[i].y};
+        //r.log("attack: " + coord.x + " , " + coord.y);
         let value = 0;
         if (!util.withInMap(coord,r)) continue;
 
         if (rmap[coord.y][coord.x] !== -1 && rmap[coord.y][coord.x] !== 0) {
             robot = r.getRobot(rmap[coord.y][coord.x]);
             if (robot.team === r.me.team) {
+
                 if (robot.unit === SPECS.CASTLE) {
+                    //r.log("ally castle added");
                     value -= 5;
                 } else {
+                   // r.log("ally added");
                     value -= 1.5;
                 }
             } else {
+               // r.log("enemy added");
                 value++;
             }
         }
 
         //calculate splash value
         for (let j = 0;j < dir_coord.length;j++) {
-            let splash_coord = {x:coord.x + dir_coord[j].x, y:coord.y + dir_coord[j].x};
+            let splash_coord = {x:coord.x + dir_coord[j].x, y:coord.y + dir_coord[j].y};
+            //r.log("splash attack : " + splash_coord.x + ", " + splash_coord.y);
             if (!util.withInMap(splash_coord,r)) continue;
 
             if (rmap[splash_coord.y][splash_coord.x] !== -1 && rmap[splash_coord.y][splash_coord.x] !== 0) {
                 robot = r.getRobot(rmap[splash_coord.y][splash_coord.x]);
                 if (robot.team === r.me.team) {
                     if (robot.unit === SPECS.CASTLE) {
+                        //r.log("ally castle splash added");
                         value -= 5;
                     } else {
+                       // r.log("ally splash added");
                         value -= 1.5;
                     }
                 } else {
+                    //r.log("enemy splash added");
                     value++;
                 }
             }
+            if (splash_coord.x === r.me.x && splash_coord.y === r.me.y) {
+                //r.log("self added");
+                value--;
+            }
+            for (let k = 0;k < enemy_signaled.length;k++) {
+                if (splash_coord.x === enemy_signaled[k].x && splash_coord.y === enemy_signaled[k].y) {
+                    value++;
+                    //r.log("enemy signaled added");
+                }
+            }
         }
+        //r.log("ATTACK AT: " + coord.x + " , " + coord.y + " with value of " + value);
 
         if (value > highest_value) {
             highest_value = value;
