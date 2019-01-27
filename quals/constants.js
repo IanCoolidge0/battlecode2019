@@ -36,6 +36,8 @@ export const PROPHET_JOBS = {
     DEFEND_CASTLE:[0,1,2,3,4,5,6,7],
     REINFORCE_PILGRIM: 8,
     DEFEND_GOAL: 9,
+    ATTACK_GOAL_LOWER: 10,
+    ATTACK_GOAL_HIGHER:11,
 
 
 };
@@ -52,7 +54,9 @@ export const PROPHET_MODE = {
 
 export const PREACHER_JOBS = {
     DEFEND_CASTLE:[0,1,2,3,4,5,6,7],
-    DEFEND_GOAL: 8
+    DEFEND_GOAL: 8,
+    ATTACK_GOAL_LOWER: 10,
+    ATTACK_GOAL_HIGHER:11,
 };
 
 export const PREACHER_MODE = {
@@ -74,6 +78,7 @@ export const CRUSADER_MODE = {
     DEFEND: 1,
     CHAAAAAAAARGE:2,
     PATH_TO_CHURCH: 3,
+    ATTACK: 4,
 
 };
 

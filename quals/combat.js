@@ -17,6 +17,22 @@ export function enemyInRange(r) {
     return false;
 }
 
+export function enemyInAttackRange(r,attackRange) {
+    let robots = r.getVisibleRobots();
+    for (let i =0;i < robots.length;i++) {
+        let robot = robots[i];
+        if (r.isVisible(robot) && robot.team !== r.me.team) {
+            let distance = (robot.x - r.me.x) ** 2 + (robot.y - r.me.y) ** 2;
+            if (distance <= attackRange) {
+                return true;
+            }
+
+        }
+    }
+    return false;
+}
+
+
 export function nearestEnemy(r) {
     let robots = r.getVisibleRobots();
 
@@ -87,7 +103,7 @@ export function crusader_attack(r) {
     let visible = r.getVisibleRobots();
     let best_attack = undefined;
 
-    for (let i=1;i<visible.length;i++) {
+    for (let i=0;i<visible.length;i++) {
         let robot = visible[i];
 
         if(robot.team === r.me.team) continue;
@@ -107,6 +123,78 @@ export function crusader_attack(r) {
 export function preacher_best_attack(r) {
     let dir_coord = [{x:-1,y:-1}, {x:-1,y:0}, {x:-1,y:1}, {x:0,y:1}, {x:1,y:1}, {x:1,y:0}, {x:1,y:-1}, {x:0,y:-1}];
     let rmap = r.getVisibleRobotMap();
+    let attacks = util.getMoves(4);
+    let highest_value = -1;
+    let highest_value_index = -1;
+    let robot;
+    for (let i = 0;i < attacks.length;i++) {
+        let coord = {x:r.me.x + attacks[i].x, y:r.me.y + attacks[i].y};
+        let value = 0;
+        if (!util.withInMap(coord,r)) continue;
+
+        if (rmap[coord.y][coord.x] !== -1 && rmap[coord.y][coord.x] !== 0) {
+            robot = r.getRobot(rmap[coord.y][coord.x]);
+            if (robot.team === r.me.team) {
+                if (robot.unit === SPECS.CASTLE) {
+                    value -= 5;
+                } else {
+                    value -= 1.5;
+                }
+            } else {
+                value++;
+            }
+        }
+
+        //calculate splash value
+        for (let j = 0;j < dir_coord.length;j++) {
+            let splash_coord = {x:coord.x + dir_coord[j].x, y:coord.y + dir_coord[j].x};
+            if (!util.withInMap(splash_coord,r)) continue;
+
+            if (rmap[splash_coord.y][splash_coord.x] !== -1 && rmap[splash_coord.y][splash_coord.x] !== 0) {
+                robot = r.getRobot(rmap[splash_coord.y][splash_coord.x]);
+                if (robot.team === r.me.team) {
+                    if (robot.unit === SPECS.CASTLE) {
+                        value -= 5;
+                    } else {
+                        value -= 1.5;
+                    }
+                } else {
+                    value++;
+                }
+            }
+        }
+
+        if (value > highest_value) {
+            highest_value = value;
+            highest_value_index = i;
+        }
+    }
+
+    if (highest_value > 0) {
+        return attacks[highest_value_index];
+
+    }
+
+}
+
+export function preacher_best_attack_with_signaling(r) {
+
+    let enemy_signaled = []
+    let rmap = r.getVisibleRobotMap();
+    let robots = r.getVisibleRobots();
+    for (let i = 0;i < robots.length;i++) {
+        if (r.isRadioing(robot) && robot.signal_radius === 65) {
+            let signal = util.decodeCoords(robot.signal);
+            if (signal.code === SPECS.CRUSADER || signal.code === SPECS.PREACHER) {
+                if (rmap[signal.y][signal.x] === -1) {
+                    enemy_signaled.push({x:signal.x,y:signal.y});
+                }
+            }
+        }
+    }
+
+    let dir_coord = [{x:-1,y:-1}, {x:-1,y:0}, {x:-1,y:1}, {x:0,y:1}, {x:1,y:1}, {x:1,y:0}, {x:1,y:-1}, {x:0,y:-1}];
+
     let attacks = util.getMoves(4);
     let highest_value = -1;
     let highest_value_index = -1;
@@ -190,6 +278,52 @@ export function attack_nearest_castle(r,unit,castleCoords) {
         const distance = (r.me.x - robot.x) ** 2 + (r.me.y - robot.y) ** 2;
         if (SPECS.UNITS[unit].ATTACK_RADIUS[0] <= distance && distance <= SPECS.UNITS[unit].ATTACK_RADIUS[1]) {
             const castle_distance = (robot.x - castleCoords.x) ** 2 + (robot.y - castleCoords.y) ** 2;
+            if (castle_distance < nearest) {
+                nearest = castle_distance;
+                coord = {x:robot.x,y:robot.y};
+            }
+        }
+
+    }
+    if (nearest === 9999) return;
+
+    return  {x:coord.x - r.me.x,y:coord.y - r.me.y};
+
+}
+
+export function attack_prophet_nearest_location(r,unit,location) {
+    let robots = r.getVisibleRobots();
+    let nearest = 9999;
+    let coord;
+    for (let i = 0; i < robots.length;i++) {
+        let robot = robots[i];
+        if (!r.isVisible(robot) || robot.team === r.me.team || robot.unit !== SPECS.PROPHET) continue;
+        const distance = (r.me.x - robot.x) ** 2 + (r.me.y - robot.y) ** 2;
+        if (SPECS.UNITS[unit].ATTACK_RADIUS[0] <= distance && distance <= SPECS.UNITS[unit].ATTACK_RADIUS[1]) {
+            const castle_distance = (robot.x - location.x) ** 2 + (robot.y - location.y) ** 2;
+            if (castle_distance < nearest) {
+                nearest = castle_distance;
+                coord = {x:robot.x,y:robot.y};
+            }
+        }
+
+    }
+    if (nearest === 9999) return;
+
+    return  {x:coord.x - r.me.x,y:coord.y - r.me.y};
+
+}
+
+export function attack_noncombat_nearest_location(r,unit,location) {
+    let robots = r.getVisibleRobots();
+    let nearest = 9999;
+    let coord;
+    for (let i = 0; i < robots.length;i++) {
+        let robot = robots[i];
+        if (!r.isVisible(robot) || robot.team === r.me.team || (robot.unit !== SPECS.PILGRIM && robot.unit !== SPECS.CHURCH)) continue;
+        const distance = (r.me.x - robot.x) ** 2 + (r.me.y - robot.y) ** 2;
+        if (SPECS.UNITS[unit].ATTACK_RADIUS[0] <= distance && distance <= SPECS.UNITS[unit].ATTACK_RADIUS[1]) {
+            const castle_distance = (robot.x - location.x) ** 2 + (robot.y - location.y) ** 2;
             if (castle_distance < nearest) {
                 nearest = castle_distance;
                 coord = {x:robot.x,y:robot.y};

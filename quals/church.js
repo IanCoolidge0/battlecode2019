@@ -141,6 +141,10 @@ function init(r) {
             break;
         }
         if(sig.code === constants.SIGNAL_CODE.CREATE_OFFENSIVE_CHURCH) {
+            let allyCastle = {x:sig.x,y:sig.y};
+
+            r.allyIsLower = util.isLower(r,allyCastle);
+
             r.offensiveChurch = true;
             r.myScoutId = visible[i].id;
             r.scoutInitialPos = {x: visible[i].x, y: visible[i].y};
@@ -246,9 +250,14 @@ function buildOffensiveQueue(r) {
 
     let next = {x: position.x + back.x, y: position.y + back.y};
 
-    if(util.withInMap(next, r) && r.map[next.y][next.x]) {
+    if(util.withInMap(next, r) && r.map[next.y][next.x]&& (next.y !== r.me.y || next.x !== r.me.x)) {
         r.buildQueue.push({unit: SPECS.PROPHET, karbonite: 30, fuel: 50});
-        r.prophetQueue.push({x: next.x, y: next.y, code: constants.PROPHET_JOBS.DEFEND_GOAL});
+        if (r.allyIsLower) {
+            r.prophetQueue.push({x: next.x, y: next.y, code: constants.PROPHET_JOBS.ATTACK_GOAL_LOWER});
+        } else {
+            r.prophetQueue.push({x: next.x, y: next.y, code: constants.PROPHET_JOBS.ATTACK_GOAL_HIGHER});
+        }
+
     }
 
     let next2;
@@ -256,16 +265,48 @@ function buildOffensiveQueue(r) {
         next2 = {x: position.x - 1, y: position.y + 2 * back.y};
     else
         next2 = {x: position.x + 2 * back.x, y: position.y - 1};
-    if(util.withInMap(next2, r) && r.map[next2.y][next2.x]) {
+    if(util.withInMap(next2, r) && r.map[next2.y][next2.x]&& (next2.y !== r.me.y || next2.x !== r.me.x)) {
         r.buildQueue.push({unit: SPECS.PROPHET, karbonite: 30, fuel: 50});
-        r.prophetQueue.push({x: next2.x, y: next2.y, code: constants.PROPHET_JOBS.DEFEND_GOAL});
+        if (r.allyIsLower) {
+            r.prophetQueue.push({x: next2.x, y: next2.y, code: constants.PROPHET_JOBS.ATTACK_GOAL_LOWER});
+        } else {
+            r.prophetQueue.push({x: next2.x, y: next2.y, code: constants.PROPHET_JOBS.ATTACK_GOAL_HIGHER});
+        }
     }
 
-    let next3 = {x: position.x + 3 * back.x, y: position.y + 3 * back.y};
-    if(util.withInMap(next3, r) && r.map[next3.y][next3.x]) {
-        r.buildQueue.push({unit: SPECS.PROPHET, karbonite: 30, fuel: 50});
-        r.prophetQueue.push({x: next3.x, y: next3.y, code: constants.PROPHET_JOBS.DEFEND_GOAL});
+    let next4;
+    if(back.x === 0)
+        next4 = {x: position.x - 1, y: position.y + 3 * back.y};
+    else
+        next4 = {x: position.x + 3 * back.x, y: position.y - 1};
+    if(util.withInMap(next4, r) && r.map[next4.y][next4.x] && (next4.y !== r.me.y || next4.x !== r.me.x)) {
+        r.buildQueue.push({unit: SPECS.PREACHER, karbonite: 30, fuel: 50});
+        if (r.allyIsLower) {
+            r.preacherQueue.push({x: next4.x, y: next4.y, code: constants.PREACHER_JOBS.ATTACK_GOAL_LOWER});
+        } else {
+            r.preacherQueue.push({x: next4.x, y: next4.y, code: constants.PREACHER_JOBS.ATTACK_GOAL_HIGHER});
+        }
     }
+
+
+    let next3 = {x: position.x + 3 * back.x, y: position.y + 3 * back.y};
+    if(util.withInMap(next3, r) && r.map[next3.y][next3.x]&& (next3.y !== r.me.y || next3.x !== r.me.x)) {
+        r.buildQueue.push({unit: SPECS.PROPHET, karbonite: 30, fuel: 50});
+        if (r.allyIsLower) {
+            r.prophetQueue.push({x: next3.x, y: next3.y, code: constants.PROPHET_JOBS.ATTACK_GOAL_LOWER});
+        } else {
+            r.prophetQueue.push({x: next3.x, y: next3.y, code: constants.PROPHET_JOBS.ATTACK_GOAL_HIGHER});
+        }
+    }
+
+
+    // r.log(position);
+    // r.log("POSSIBLE UNIT POSITIONS!!!!!!!!!!!!!!!!!");
+    //
+    // r.log(next);
+    // r.log(next2);
+    // r.log(next3);
+    // r.log(next4);
 }
 
 // function defenseQueue(r) {

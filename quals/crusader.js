@@ -25,21 +25,66 @@ function init(r) {
     }
 
 }
+function pilgrimInRange(r) {
+    let robots = r.getVisibleRobots();
+    let enemyPilgrims = []
+    for (let i = 0;i < robots.length;i++) {
+        let robot = robots[i];
+        if (r.isVisible(robot) && robot.unit === SPECS.PILGRIM && robot.team !== r.me.team) {
+            enemyPilgrims.push({x:robot.x,y:robot.y});
+        }
+    }
+
+    if (enemyPilgrims.length > 0) {
+        let nearest = 99;
+        let nearestCoord;
+        for (let i = 0;i < enemyPilgrims.length;i++) {
+            let distance = (enemyPilgrims[i].x - r.me.x) ** 2 + (enemyPilgrims[i].y - r.me.y) ** 2;
+            if (distance < nearest) {
+                nearest = distance;
+                nearestCoord = enemyPilgrims[i];
+            }
+        }
+
+
+        if (nearest <= 16) {
+            let attack = {x:nearestCoord.x - r.me.x,y:nearestCoord.y - r.me.y};
+            return r.attack(attack.x,attack.y);
+        } else {
+            let BFSMap = util.BFSMap_with_rmap(r.map,nearestCoord,util.getMoves(3),r);
+            let move = BFSMap[r.me.y][r.me.x];
+            if (move !== 0 && move !== 99) {
+                return r.move(-move.x,-move.y);
+            }
+        }
+
+    }
+}
+
 
 export function step(r) {
-    let rmap = r.getVisibleRobotMap();
+    if (r.currentJob.code === constants.CRUSADER_JOBS.DEFEND_ENEMY_CHURCH) {
+        let rmap = r.getVisibleRobotMap();
+    let pilgrimMove = pilgrimInRange(r);
+    if (pilgrimMove !== undefined) {
+        return pilgrimMove;
+    }
+
+    let distanceToGoal = (r.currentJob.y - r.me.y) ** 2 + (r.currentJob.x - r.me.x) ** 2;
+    if(r.currentJob.code === constants.CRUSADER_JOBS.DEFEND_ENEMY_CHURCH && r.mode === constants.CRUSADER_MODE.PATH_TO_CHURCH &&
+        ((r.currentJob.x === r.me.x && r.currentJob.y === r.me.y) || (rmap[r.currentJob.y][r.currentJob.x] > 0 && distanceToGoal < 4))) {
 
 
-    if(r.currentJob.code === constants.CRUSADER_JOBS.DEFEND_ENEMY_CHURCH && r.mode === constants.CRUSADER_MODE.PATH_TO_CHURCH && (r.currentJob.x === r.me.x && r.currentJob.y === r.me.y)) {
-        r.currentJob.x = r.me.x;
-        r.currentJob.y = r.me.y;
-        r.mode = constants.CRUSADER_MODE.DEFEND;
         let moves = util.getMoves(2);
 
         for (let i = 0;i < moves.length;i++) {
             let next = {x:r.me.x +moves[i].x,y:r.me.y + moves[i].y};
             if (util.withInMap(next,r) && rmap[next.y][next.x] === 0 && r.map[next.y][next.x] &&
                 !r.karbonite_map[next.y][next.x] && !r.fuel_map[next.y][next.x]) {
+                r.mode = constants.CRUSADER_MODE.DEFEND;
+                r.currentJob.x = r.me.x + moves[i].x;
+                r.currentJob.y = r.me.y + moves[i].y;
+                r.goal_map = util.BFSMap_with_rmap(r.map, {x: r.currentJob.x, y: r.currentJob.y}, util.getMoves(3), r);
                 return r.move(moves[i].x,moves[i].y);
             }
         }
@@ -48,6 +93,10 @@ export function step(r) {
             let next = {x:r.me.x +moves[i].x,y:r.me.y + moves[i].y};
             if (util.withInMap(next,r) && rmap[next.y][next.x] === 0 && r.map[next.y][next.x] &&
                 !r.karbonite_map[next.y][next.x] && !r.fuel_map[next.y][next.x]) {
+                r.mode = constants.CRUSADER_MODE.DEFEND;
+                r.currentJob.x = r.me.x + moves[i].x;
+                r.currentJob.y = r.me.y + moves[i].y;
+                r.goal_map = util.BFSMap_with_rmap(r.map, {x: r.currentJob.x, y: r.currentJob.y}, util.getMoves(3), r);
                 return r.move(moves[i].x,moves[i].y);
             }
         }
@@ -55,8 +104,39 @@ export function step(r) {
 
     if (r.mode === constants.CRUSADER_MODE.PATH_TO_CHURCH) {
 
-        return mode.travel_to_goal(r,2,2,r.goal_map);
+        return mode.travel_to_goal5(r,util.getMoves(3));
     }
+
+    if (combat.enemyInAttackRange(r,16)) {
+        //r.log("CHANGE MODE TO ATTACK");
+        r.mode = constants.CRUSADER_MODE.ATTACK;
+    } else if (r.mode !== constants.CRUSADER_MODE.DEFEND &&
+        ((r.currentJob.x === r.me.x && r.currentJob.y === r.me.y) || (rmap[r.currentJob.y][r.currentJob.x] > 0 && distanceToGoal < 4))) {
+        //r.log("CHANGE MODE TO DEFEND");
+        r.mode = constants.CRUSADER_MODE.DEFEND;
+    } else if (r.mode !== constants.CRUSADER_MODE.PATH_TO_GOAL && distanceToGoal >= 4) {
+        //r.log("CHANGE MODE TO PATH TO GOAL");
+        r.mode = constants.CRUSADER_MODE.PATH_TO_GOAL;
+    }
+
+    if (r.mode === constants.CRUSADER_MODE.ATTACK) {
+        let attack =  combat.crusader_attack(r);
+        if (attack !== undefined) {
+            return r.attack(attack.x,attack.y);
+        }
+    }
+    if (r.mode === constants.PROPHET_MODE.PATH_TO_GOAL) {
+        //r.log('moving');
+
+        return mode.travel_to_goal5(r,util.getMoves(3));
+    }
+    if (r.mode === constants.PROPHET_MODE.DEFEND) {
+        return;
+    }
+    }
+
+
+
 
 
     // let visible = r.getVisibleRobots();
@@ -95,9 +175,6 @@ export function step(r) {
 
 
 
-    if (r.mode === constants.CRUSADER_MODE.DEFEND) {
-        return combat.crusader_attack(r);
-    }
 
 
 

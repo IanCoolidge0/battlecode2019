@@ -178,6 +178,8 @@ function init(r) {
     r.signal(util.signalCoords(0, 0, constants.SIGNAL_CODE.INIT_SIGNAL), 2);
 
     r.parent_building = util.findParentCastle(r);
+    r.parent_building_coords = {x:r.parent_building.x,y:r.parent_building.y};
+
     r.currentJob = util.decodeCoords(r.parent_building.signal);
 
     r.castle_map = util.BFSMap(r.map, {x: r.parent_building.x, y: r.parent_building.y}, util.getMoves(2));
@@ -291,7 +293,7 @@ function moveOffensiveStep(r) {
             r.scout_destination = wallutil.scoutDestination2(r, {x: r.currentJob.x, y: r.currentJob.y});
             r.goal_map = util.BFSMap(wallutil.safetyMap(r), r.scout_destination, util.getMoves(2));
 
-            r.signal(util.signalCoords(r.currentJob.x, r.currentJob.y, constants.SIGNAL_CODE.CREATE_OFFENSIVE_CHURCH), 2);
+            r.signal(util.signalCoords(r.parent_building_coords.x, r.parent_building_coords.y, constants.SIGNAL_CODE.CREATE_OFFENSIVE_CHURCH), 2);
 
             r.church_pos = wallutil.freeOffensiveChurch(r);
 

@@ -482,7 +482,7 @@ export function castle_step(r) {
     }
 
     if (r.step === 0) {
-        util.coordsOnLine(r,5,7,10,10);
+
         init(r);
     } else {
 

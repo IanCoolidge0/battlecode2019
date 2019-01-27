@@ -162,7 +162,7 @@ export function checkCompletePositions(r, lastPos, back) {
 export function addSeenUnits(r, seenUnits) {
     let visible = r.getVisibleRobots();
 
-    for(let k=0;i<visible.length;i++) {
+    for(let k=0;k<visible.length;k++) {
         if(visible[k].team !== r.me.team) {
             if(visible[k].unit === SPECS.CRUSADER) {
                 for(let i=-4;i<=4;i++) {

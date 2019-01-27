@@ -30,9 +30,24 @@ function init(r) {
         r.goal_map = util.BFSMap_with_rmap(r.map,{x: r.currentJob.x, y: r.currentJob.y}, r.moves, r);
         return mode.travel_to_goal5(r,r.moves);
     }
+    if (r.currentJob.code === constants.PROPHET_JOBS.ATTACK_GOAL_LOWER) {
+        r.mode = constants.PROPHET_MODE.PATH_TO_GOAL;
+        r.moves = util.getMoves(2);
+        r.safetyMap = util.safetyMapUnderLine2(r,{x:r.currentJob.x,y:r.currentJob.y},r.parent_castle_coords,true)
+        r.allyIsLower = true;
+        r.goal_map = util.BFSMap_with_rmap(r.safetyMap, {x: r.currentJob.x, y: r.currentJob.y}, r.moves, r);
+    }
+    if (r.currentJob.code === constants.PROPHET_JOBS.ATTACK_GOAL_HIGHER) {
+        r.mode = constants.PROPHET_MODE.PATH_TO_GOAL;
+        r.moves = util.getMoves(2);
+        r.allyIsLower = false;
+        r.safetyMap = util.safetyMapUnderLine2(r,{x:r.currentJob.x,y:r.currentJob.y},r.parent_castle_coords,false)
+
+        r.goal_map = util.BFSMap_with_rmap(r.safetyMap, {x: r.currentJob.x, y: r.currentJob.y}, r.moves, r);
+    }
 }
 
-
+n
 export function step(r) {
     if (r.mode === constants.PROPHET_MODE.DEFEND_CASTLE) {
         if (r.wait === 0) {
@@ -61,6 +76,9 @@ export function step(r) {
 
     if (r.mode === constants.PROPHET_MODE.PATH_TO_GOAL) {
         //r.log('moving');
+        if (r.currentJob.code === constants.PROPHET_JOBS.ATTACK_GOAL_HIGHER || r.currentJob.code === constants.PROPHET_JOBS.ATTACK_GOAL_LOWER) {
+            return mode.travel_to_attack_goal(r,r.moves);
+        }
         return mode.travel_to_goal5(r,r.moves);
     }
     if (r.mode === constants.PROPHET_MODE.DEFEND) {
@@ -69,6 +87,9 @@ export function step(r) {
     if (r.mode === constants.PROPHET_MODE.ATTACK) {
         //r.log("parent");
         //r.log(r.parent_castle_coords);
+        if (r.currentJob.code === constants.PROPHET_JOBS.ATTACK_GOAL_HIGHER || r.currentJob.code === constants.PROPHET_JOBS.ATTACK_GOAL_LOWER) {
+            return mode.prophet_attack_offensive(r);
+        }
         return mode.prophet_attack(r,r.parent_castle_coords);
     }
 
