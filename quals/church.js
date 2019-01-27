@@ -233,6 +233,11 @@ function buildOffensiveQueue(r) {
     let position = null;
 
     for(let i=0;i<visible.length;i++) {
+        if(util.decodeCoords(visible[i].signal).code === constants.SIGNAL_CODE.CREATE_OFFENSIVE_CHURCH && visible[i].id === r.myScoutId) {
+            r.offensiveChurch = false;
+            return;
+        }
+
         if(util.decodeCoords(visible[i].signal).code === constants.SIGNAL_CODE.SCOUT_INFO && visible[i].id === r.myScoutId) {
             position = {x: visible[i].x, y: visible[i].y};
             break;
@@ -266,6 +271,8 @@ function buildOffensiveQueue(r) {
         r.buildQueue.push({unit: SPECS.PROPHET, karbonite: 30, fuel: 50});
         r.prophetQueue.push({x: next3.x, y: next3.y, code: constants.PROPHET_JOBS.DEFEND_GOAL});
     }
+
+    r.log([next, next2, next3]);
 }
 
 // function defenseQueue(r) {

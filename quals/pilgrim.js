@@ -210,7 +210,7 @@ function init(r) {
         r.resource_map = util.BFSMap(r.map, {x: r.currentJob.x, y: r.currentJob.y}, util.getMoves(2));
     } else if (r.job === constants.PILGRIM_JOBS.BUILD_WALL) {
         r.mode = constants.PILGRIM_MODE.MOVE_OFFENSIVE;
-        r.resource_map = util.BFSMap(r.map, {x: r.currentJob.x, y: r.currentJob.y}, util.getMoves(2));
+        r.resource_map = util.BFSMap(r.map, util.getReflectedCoord({x: r.currentJob.x, y: r.currentJob.y}, r), util.getMoves(2));
         r.starting_pos = {x: r.me.x, y: r.me.y};
     } else if (r.job === constants.PILGRIM_JOBS.BUILD_WALL_SUBSEQUENT) {
         r.mode = constants.PILGRIM_MODE.MOVE_OFFENSIVE;
@@ -281,21 +281,26 @@ export function flee(r) {
 
 
 function moveOffensiveStep(r) {
-    if(r.mode === constants.PILGRIM_MODE.MOVE_OFFENSIVE && (combat.enemyInRange(r) || r.resource_map[r.me.y][r.me.x] === 99) && r.karbonite > 50 && r.fuel > 200) {
+    if(r.mode === constants.PILGRIM_MODE.MOVE_OFFENSIVE && r.resource_map[r.me.y][r.me.x] === 99) {
+        r.mode = constants.PILGRIM_MODE.MOVE_OFFENSIVE2;
+        r.resource_map = util.BFSMap(r.map, {x: r.currentJob.x, y: r.currentJob.y}, util.getMoves(2));
+    }
+
+    if(r.mode === constants.PILGRIM_MODE.MOVE_OFFENSIVE2 && (combat.enemyInRange(r) || r.resource_map[r.me.y][r.me.x] === 99) && r.karbonite > 50 && r.fuel > 200) {
         //made it all the way through
         r.mode = constants.PILGRIM_MODE.SCOUT;
         r.log("building offensive church");
         if(r.job === constants.PILGRIM_JOBS.BUILD_WALL) {
             r.wait = 0;
 
-            r.scout_destination = wallutil.scoutDestination2(r, {x: r.currentJob.x, y: r.currentJob.y});
+            r.scout_destination = wallutil.scoutDestinationUp(r, {x: r.currentJob.x, y: r.currentJob.y});
             r.goal_map = util.BFSMap(wallutil.safetyMap(r), r.scout_destination, util.getMoves(2));
 
             r.signal(util.signalCoords(r.currentJob.x, r.currentJob.y, constants.SIGNAL_CODE.CREATE_OFFENSIVE_CHURCH), 2);
 
             r.church_pos = wallutil.freeOffensiveChurch(r);
 
-            r.seenUnitMap = util.copy(r.map);
+            r.seenUnitMap = util.create2dArray(r.map.length, r.map.length, true);
             wallutil.addSeenUnits(r, r.seenUnitMap);
 
             r.back = wallutil.pilgrim_backward(r, r.church_pos);
@@ -321,6 +326,16 @@ function scoutStep(r) {
 
     if((r.me.x - r.scout_destination.x) ** 2 + (r.me.y - r.scout_destination.y) ** 2 > 2) {
         if(r.lastPos === undefined || wallutil.checkCompletePositions(r, {x: r.me.x, y: r.me.y}, r.back) || r.wait === constants.WALL_WAIT) {
+            wallutil.addSeenUnits(r, r.seenUnitMap);
+
+            if(wallutil.testLine(r, r.church_pos, r.seenUnitMap)) {
+                r.church_pos = wallutil.freeOffensiveChurch(r);
+                r.signal(util.signalCoords(r.me.x, r.me.y, constants.SIGNAL_CODE.CREATE_OFFENSIVE_CHURCH), church_dist);
+                return r.buildUnit(SPECS.CHURCH, r.church_pos.x - r.me.x, r.church_pos.y - r.me.y);
+            }
+
+            r.goal_map = util.BFSMap(wallutil.safetyMap(r), r.scout_destination, util.getMoves(2));
+
             r.lastPos = {x: r.me.x, y: r.me.y};
             r.wait = 0;
             r.log("sending " + r.me.x + " " + r.me.y);
@@ -357,6 +372,9 @@ export function pilgrim_step(r) {
             return flee(r);
             break;
         case constants.PILGRIM_MODE.MOVE_OFFENSIVE:
+            return moveOffensiveStep(r);
+            break;
+        case constants.PILGRIM_MODE.MOVE_OFFENSIVE2:
             return moveOffensiveStep(r);
             break;
         case constants.PILGRIM_MODE.SCOUT:
