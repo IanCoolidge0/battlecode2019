@@ -21,7 +21,7 @@ function init(r) {
         r.mode = constants.CRUSADER_MODE.PATH_TO_CHURCH;
         r.safety_map = util.safetyMap(r, [util.getReflectedCoord(r.parent_castle_coords, r)]);
 
-        r.goal_map = util.BFSMap(r.safety_map, {x: r.currentJob.x, y: r.currentJob.y}, util.getMoves(2));
+        r.goal_map = util.BFSMap(r.safety_map, {x: r.currentJob.x, y: r.currentJob.y}, util.getMoves(3));
     }
 
 }

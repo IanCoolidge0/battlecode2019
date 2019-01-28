@@ -472,7 +472,7 @@ function lateGameStep(r) {
 
         let coord = util.findCoord(r);
 
-        if(fuelRatio > 2.5) {
+        if(fuelRatio < 2.5) {
             r.buildQueue.push({unit: SPECS.PREACHER, karbonite: 50, fuel: 50, override_build_map: true});
             r.preacherQueue.push({x: coord.x, y: coord.y, code: constants.PREACHER_JOBS.DEFEND_GOAL});
         } else {
