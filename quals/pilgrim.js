@@ -15,7 +15,7 @@ function affordChurch(r) {
             return true;
     }
 
-    return r.karbonite > 50 && r.currentJob.code === constants.PILGRIM_JOBS.BUILD_CHURCH;
+    return r.karbonite > 80 && r.currentJob.code === constants.PILGRIM_JOBS.BUILD_CHURCH;
 }
 
 function oldMoveToResourceStep(r) {
