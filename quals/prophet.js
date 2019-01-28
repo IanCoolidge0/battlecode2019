@@ -47,7 +47,7 @@ function init(r) {
     }
 }
 
-n
+
 export function step(r) {
     if (r.mode === constants.PROPHET_MODE.DEFEND_CASTLE) {
         if (r.wait === 0) {

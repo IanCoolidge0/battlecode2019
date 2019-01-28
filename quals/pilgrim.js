@@ -335,9 +335,10 @@ function scoutStep(r) {
                 return r.buildUnit(SPECS.CHURCH, r.church_pos.x - r.me.x, r.church_pos.y - r.me.y);
             }
 
+            let safety_map = wallutil.safetyMap(r);
             let accessible_map = util.BFSMap(wallutil.safetyMap(r), {x: r.me.x, y: r.me.y}, util.getMoves(2));
             r.scout_destination = wallutil.scoutDestinationUp(r, {x: r.currentJob.x, y: r.currentJob.y}, accessible_map);
-            r.goal_map = util.BFSMap(wallutil.safetyMap(r), r.scout_destination, util.getMoves(2));
+            r.goal_map = util.BFSMap(r.seenUnitMap, r.scout_destination, util.getMoves(2));
 
             r.lastPos = {x: r.me.x, y: r.me.y};
             r.wait = 0;

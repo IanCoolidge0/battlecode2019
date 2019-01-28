@@ -1053,7 +1053,7 @@ export function findCoord(r) {
                     return {x: x, y: y};
             }
         }
-    } else if(!hsymm && goal_pos.y !== 0) {
+    } else if(!hsymm && r.me.y > r.map.length / 2) {
         for(let x=r.map.length-1;x>=0;x--) {
             for(let y=0;y<r.map.length;y++) {
                 if(r.map[y][x])
