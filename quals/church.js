@@ -418,7 +418,7 @@ function step(r) {
         let requiredKarbonite = r.buildQueue[0].karbonite;
         let requiredFuel = r.buildQueue[0].fuel;
 
-        if((r.karbonite >= requiredKarbonite + 70 && r.fuel >= requiredFuel) && (r.buildQueue[0].unit === SPECS.PILGRIM || r.combatBuildCooldown === 0 || r.offensiveChurch) || (r.buildQueue[0].priority && r.karbonite >=r.buildQueue[0].karbonite && r.fuel >= r.buildQueue[0].fuel)) {
+        if((r.karbonite >= requiredKarbonite + 70 && r.fuel >= requiredFuel) && (r.buildQueue[0].unit === SPECS.PILGRIM || r.combatBuildCooldown === 0 || r.offensiveChurch || r.buildQueue[0].override_build_map) || (r.buildQueue[0].priority && r.karbonite >=r.buildQueue[0].karbonite && r.fuel >= r.buildQueue[0].fuel)) {
             let robot_to_build = r.buildQueue.shift();
 
             switch(robot_to_build.unit) {
@@ -468,7 +468,26 @@ export function church_step(r) {
         if(r.offensiveChurch)
             buildOffensiveQueue(r);
 
+        if(!r.enemyChurch && !r.offensiveChurch)
+            lateGameStep(r);
+
         return step(r);
     }
 }
 
+function lateGameStep(r) {
+    //r.log(r.buildQueue.length + " asjfihasohfuiasohfbfhu8oaw " + r.karbonite + " " + r.fuel);
+    if(r.buildQueue.length === 0 && r.karbonite > 1234 && r.fuel > 4321) {
+        let fuelRatio = r.fuel / r.karbonite;
+
+        let coord = util.findCoord(r);
+
+        if(fuelRatio > 2.5) {
+            r.buildQueue.unshift({unit: SPECS.PREACHER, karbonite: 50, fuel: 50, override_build_map: true});
+            r.preacherQueue.unshift({x: coord.x, y: coord.y, code: constants.PREACHER_JOBS.DEFEND_GOAL});
+        } else {
+            r.buildQueue.unshift({unit: SPECS.CRUSADER, karbonite: 50, fuel: 50, override_build_map: true});
+            r.crusaderQueue.unshift({x: coord.x, y: coord.y, code: constants.CRUSADER_JOBS.DEFEND_GOAL});
+        }
+    }
+}
