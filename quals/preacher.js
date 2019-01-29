@@ -16,7 +16,7 @@ function init(r) {
     r.parent_castle = util.findParentCastle(r);
     r.parent_castle_coords = {x:r.parent_castle.x,y:r.parent_castle.y};
     r.currentJob = util.decodeCoords(r.parent_castle.signal);
-    //r.log(r.currentJob);
+    r.log(r.currentJob);
     if(r.currentJob.code < 8) {
 
         r.mode = constants.PREACHER_MODE.DEFEND_CASTLE;

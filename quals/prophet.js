@@ -14,7 +14,7 @@ function init(r) {
     r.parent_castle = util.findParentCastle(r);
     r.parent_castle_coords = {x:r.parent_castle.x,y:r.parent_castle.y};
     r.currentJob = util.decodeCoords(r.parent_castle.signal);
-    //r.log(r.currentJob);
+    r.log(r.currentJob);
 
     if(r.currentJob.code === constants.PROPHET_JOBS.DEFEND_GOAL) {
         r.mode = constants.PROPHET_MODE.PATH_TO_GOAL;
