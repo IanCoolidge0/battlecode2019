@@ -10,12 +10,48 @@ export function travel_to_goal(r,radius,tolerance,goalMap) {
 
     return util.fuzzyMove(r,-dir.x,-dir.y,radius,tolerance);
 }
+export function travel_to_goal_pilgrim(r,goalMap,passable_map,start,moves) {
+    if (r.wait2 == undefined) r.wait2 = 0;
+    let rmap = r.getVisibleRobotMap();
+    let move = goalMap[r.me.y][r.me.x];
+    //r.log('position ' + r.me.x + ', ' + r.me.y);
+    let next_location = {x:r.me.x - move.x,y:r.me.y - move.y};
+    if (next_location.x === r.currentJob.x && next_location.y === r.currentJob.y) {
+        return;
+    }
+    //r.log(move);
+
+    if (move === 0 || move === 99) {
+        r.wait2++;
+        return;
+    }
+
+    let next = {x:r.me.x - move.x,y:r.me.y - move.y};
+    //r.log(next);
+    if (rmap[next.y][next.x] === 0) {
+        //r.log("SOMEONE IS AT: " + next.y + ", " + next.x);
+        r.wait2 = 0;
+        return r.move(-move.x,-move.y);
+    } else if (r.wait2 > 2 && r.me.time > 100) {
+        //r.log("REROUTING to" + r.currentJob.x + ', ' + r.currentJob.y);
+        r.wait2 = 0;
+        let new_goal_map = util.BFSMap_with_rmap(passable_map, start, moves,r);
+        return travel_to_goal_pilgrim(r,new_goal_map,passable_map,start,moves);
+    } else {
+        r.wait2++;
+        return
+    }
+}
 export function travel_to_goal5(r,moves) {
     if (r.wait == undefined) r.wait = 0;
     let rmap = r.getVisibleRobotMap();
     let move = r.goal_map[r.me.y][r.me.x];
     //r.log('position ' + r.me.x + ', ' + r.me.y);
+    let next_location = {x:r.me.x - move.x,y:r.me.y - move.y};
 
+    if (next_location.x === r.currentJob.x && next_location.y === r.currentJob.y) {
+        return;
+    }
     //r.log(move);
 
     if (move === 0 || move === 99) {

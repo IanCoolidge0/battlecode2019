@@ -58,6 +58,7 @@ export const PREACHER_JOBS = {
     DEFEND_GOAL: 8,
     ATTACK_GOAL_LOWER: 10,
     ATTACK_GOAL_HIGHER:11,
+    SUICIDE:12
 };
 
 export const PREACHER_MODE = {
