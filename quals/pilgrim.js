@@ -182,7 +182,7 @@ function init(r) {
     r.signal(util.signalCoords(0, 0, constants.SIGNAL_CODE.INIT_SIGNAL), 2);
 
     r.parent_building = util.findParentCastle(r);
-    r.parent_building_coords = {x:r.parent_building.x,y:r.parent_building.y};
+    r.parent_building_coords = {x: r.parent_building.x, y: r.parent_building.y};
 
     r.currentJob = util.decodeCoords(r.parent_building.signal);
 
@@ -209,7 +209,10 @@ function init(r) {
         r.resource_map = util.BFSMap(r.map, {x: r.currentJob.x, y: r.currentJob.y}, util.getMoves(2));
     } else if (r.job === constants.PILGRIM_JOBS.BUILD_WALL) {
         r.mode = constants.PILGRIM_MODE.MOVE_OFFENSIVE;
-        r.resource_map = util.BFSMap(r.map, util.getReflectedCoord({x: r.currentJob.x, y: r.currentJob.y}, r), util.getMoves(2));
+        r.resource_map = util.BFSMap(r.map, util.getReflectedCoord({
+            x: r.currentJob.x,
+            y: r.currentJob.y
+        }, r), util.getMoves(2));
         r.starting_pos = {x: r.me.x, y: r.me.y};
     } else if (r.job === constants.PILGRIM_JOBS.BUILD_WALL_SUBSEQUENT) {
         r.mode = constants.PILGRIM_MODE.MOVE_OFFENSIVE;
@@ -217,6 +220,9 @@ function init(r) {
         r.desiredPos = wallutil.wallLocationSubsequent(r, {x: r.currentJob.x, y: r.currentJob.y});
         r.resource_map = util.BFSMap(r.map, {x: r.desiredPos.x, y: r.desiredPos.y}, util.getMoves(2));
         r.starting_pos = {x: r.me.x, y: r.me.y};
+    } else if(r.job === constants.PILGRIM_JOBS.BUILD_PREACHER_CHURCH) {
+        r.mode = constants.PILGRIM_MODE.MOVE_OFFENSIVE2;
+        r.resource_map = util.BFSMap(r.map, util.getReflectedCoord(r.parent_building_coords, r), util.getMoves(2));
     } else {
         r.resource_map = util.BFSMap(r.map, {x: r.currentJob.x, y: r.currentJob.y}, util.getMoves(2));
     }
@@ -246,6 +252,7 @@ export function isEndangered(r) {
         r.mode = constants.PILGRIM_MODE.MOVE_TO_RESOURCE;
     }
 }
+
 export function flee(r) {
     let damageMap = combat.damageMap(r);
     //r.log(damageMap);
@@ -287,11 +294,11 @@ function moveOffensiveStep(r) {
 
     if(r.mode === constants.PILGRIM_MODE.MOVE_OFFENSIVE2 && (combat.enemyInRange(r) || r.resource_map[r.me.y][r.me.x] === 99) && r.karbonite > 50 && r.fuel > 200) {
         //made it all the way through
-        r.mode = constants.PILGRIM_MODE.SCOUT;
+
         r.log("building offensive church");
         if(r.job === constants.PILGRIM_JOBS.BUILD_WALL) {
             r.wait = 0;
-
+            r.mode = constants.PILGRIM_MODE.SCOUT;
             let accessible_map = util.BFSMap(wallutil.safetyMap(r), {x: r.me.x, y: r.me.y}, util.getMoves(2));
             r.scout_destination = wallutil.scoutDestinationUp(r, {x: r.currentJob.x, y: r.currentJob.y}, accessible_map);
             r.goal_map = util.BFSMap(wallutil.safetyMap(r), r.scout_destination, util.getMoves(2));
@@ -305,16 +312,13 @@ function moveOffensiveStep(r) {
 
             r.back = wallutil.pilgrim_backward(r, r.church_pos);
             return r.buildUnit(SPECS.CHURCH, r.church_pos.x - r.me.x, r.church_pos.y - r.me.y);
-        } // else if(r.job === constants.PILGRIM_JOBS.BUILD_WALL_SUBSEQUENT) {
-        //     //what is left
-        //     r.scout_destination = {x: r.lastChurchPos.x, y: r.lastChurchPos.y};
-        //     r.goal_map = util.BFSMap(wallutil.safetyMap(r), r.scout_destination, util.getMoves(2));
-        //
-        //     r.signal(util.signalCoords(r.currentJob.x, r.currentJob.y, constants.SIGNAL_CODE.CREATE_OFFENSIVE_CHURCH), 2);
-        //
-        //     r.church_pos = wallutil.freeOffensiveChurch(r);
-        //     return r.buildUnit(SPECS.CHURCH, r.church_pos.x - r.me.x, r.church_pos.y - r.me.y);
-        // }
+        } else if(r.job === constants.PILGRIM_JOBS.BUILD_PREACHER_CHURCH) {
+            r.mode = constants.PILGRIM_MODE.SIGNAL_PREACHERS;
+            r.signal(util.signalCoords(r.currentJob.x, r.currentJob.y, constants.SIGNAL_CODE.CREATE_PREACHER_CHURCH), 2);
+            r.church_pos = wallutil.freeOffensiveChurch(r);
+
+            return r.buildUnit(SPECS.CHURCH, r.church_pos.x - r.me.x, r.church_pos.y - r.me.y);
+        }
     }
     //r.log(r.me.x + ", " + r.me.y);
     if(r.me.x !== r.currentJob.x || r.me.y !== r.currentJob.y)

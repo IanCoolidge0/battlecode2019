@@ -1,8 +1,8 @@
 import * as util from "./util.js";
-import * as constants from "./constants.js";
 import {SPECS} from 'battlecode';
 import * as combat from "./combat.js";
 import * as mode from "./mode.js";
+import * as constants from "./constants.js";
 
 
 
@@ -49,6 +49,12 @@ function init(r) {
         r.safetyMap = util.safetyMapUnderLine2(r,{x:r.currentJob.x,y:r.currentJob.y},{x:r.me.x,y:r.me.y},false)
 
         r.goal_map = util.BFSMap_with_rmap(r.safetyMap, {x: r.currentJob.x, y: r.currentJob.y}, r.moves, r);
+    }
+    if(r.currentJob.code === constants.PREACHER_JOBS.SUICIDE) {
+        r.mode = constants.PREACHER_MODE.PATH_TO_GOAL;
+        r.moves = util.getMoves(2);
+
+        r.goal_map = util.BFSMap(r.map, {x: r.currentJob.x, y: r.currentJob.y}, r.moves);
     }
 
 }

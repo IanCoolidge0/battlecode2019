@@ -467,18 +467,22 @@ function step(r) {
 
 function lateGameStep(r) {
     //r.log(r.buildQueue.length + " asjfihasohfuiasohfbfhu8oaw " + r.karbonite + " " + r.fuel);
-    if(r.buildQueue.length === 0 && (r.karbonite > 1234 || (r.step > 600 && r.karbonite > 200)) && r.fuel > 4321) {
-        let fuelRatio = r.fuel / r.karbonite;
-
-        let coord = util.findCoord(r);
-
-        if(fuelRatio < 2.5) {
-            r.buildQueue.push({unit: SPECS.PREACHER, karbonite: 50, fuel: 50, override_build_map: true});
-            r.preacherQueue.push({x: coord.x, y: coord.y, code: constants.PREACHER_JOBS.DEFEND_GOAL});
-        } else {
-            r.buildQueue.push({unit: SPECS.CRUSADER, karbonite: 50, fuel: 50, override_build_map: true});
-            r.crusaderQueue.push({x: coord.x, y: coord.y, code: constants.CRUSADER_JOBS.DEFEND_GOAL});
-        }
+    // if(r.buildQueue.length === 0 && (r.karbonite > 1234 || (r.step > 600 && r.karbonite > 200)) && r.fuel > 4321) {
+    //     let fuelRatio = r.fuel / r.karbonite;
+    //
+    //     let coord = util.findCoord(r);
+    //
+    //     if(fuelRatio < 2.5) {
+    //         r.buildQueue.push({unit: SPECS.PREACHER, karbonite: 50, fuel: 50, override_build_map: true});
+    //         r.preacherQueue.push({x: coord.x, y: coord.y, code: constants.PREACHER_JOBS.DEFEND_GOAL});
+    //     } else {
+    //         r.buildQueue.push({unit: SPECS.CRUSADER, karbonite: 50, fuel: 50, override_build_map: true});
+    //         r.crusaderQueue.push({x: coord.x, y: coord.y, code: constants.CRUSADER_JOBS.DEFEND_GOAL});
+    //     }
+    // }
+    if(r.step === 300) {
+        r.buildQueue.push({unit: SPECS.PILGRIM, karbonite: 50, fuel: 50, override_build_map: true});
+        r.pilgrimQueue.push({x: 0, y: 0, code: constants.PILGRIM_JOBS.BUILD_PREACHER_CHURCH});
     }
 }
 

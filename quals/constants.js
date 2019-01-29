@@ -20,7 +20,8 @@ export const PILGRIM_JOBS = {
     OFFENSIVE: 4,
     BUILD_WALL: 5,
     SCOUT: 6,
-    BUILD_WALL_SUBSEQUENT: 7
+    BUILD_WALL_SUBSEQUENT: 7,
+    BUILD_PREACHER_CHURCH: 8
 };
 
 export const PILGRIM_MODE = {
@@ -30,7 +31,8 @@ export const PILGRIM_MODE = {
     FLEE: 3,
     MOVE_OFFENSIVE: 4,
     NOTHING: 5,
-    MOVE_OFFENSIVE2: 6
+    MOVE_OFFENSIVE2: 6,
+    SIGNAL_PREACHERS: 7
 };
 
 export const PROPHET_JOBS = {
@@ -58,6 +60,7 @@ export const PREACHER_JOBS = {
     DEFEND_GOAL: 8,
     ATTACK_GOAL_LOWER: 10,
     ATTACK_GOAL_HIGHER:11,
+    SUICIDE: 12
 };
 
 export const PREACHER_MODE = {
@@ -96,7 +99,8 @@ export const SIGNAL_CODE = {
     CREATE_FRIENDLY_CHURCH: 5,
     CREATE_OFFENSIVE_CHURCH: 6,
     SCOUT_INFO: 7,
-    DONE_SCOUTING: 8
+    DONE_SCOUTING: 8,
+    CREATE_PREACHER_CHURCH: 9
 };
 
 export const PROPHET_SIGNAL_CODE = {
