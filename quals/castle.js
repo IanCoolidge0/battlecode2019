@@ -173,6 +173,8 @@ function initializeBuildQueue(r) {
         }
     }
 
+
+
     for(let i=0;i<Math.min(r.safe_enemy_churches.length, 2);i++) {
         let amIresponsible = true;
 
@@ -466,7 +468,7 @@ function step(r) {
 }
 
 function lateGameStep(r) {
-    //r.log(r.buildQueue.length + " asjfihasohfuiasohfbfhu8oaw " + r.karbonite + " " + r.fuel);
+    // r.log(r.buildQueue.length + " asjfihasohfuiasohfbfhu8oaw " + r.karbonite + " " + r.fuel);
     // if(r.buildQueue.length === 0 && (r.karbonite > 1234 || (r.step > 600 && r.karbonite > 200)) && r.fuel > 4321) {
     //     let fuelRatio = r.fuel / r.karbonite;
     //
@@ -478,11 +480,12 @@ function lateGameStep(r) {
     //     } else {
     //         r.buildQueue.push({unit: SPECS.CRUSADER, karbonite: 50, fuel: 50, override_build_map: true});
     //         r.crusaderQueue.push({x: coord.x, y: coord.y, code: constants.CRUSADER_JOBS.DEFEND_GOAL});
-    //     }
+    //    }
     // }
-    if(r.step === 300) {
-        r.buildQueue.push({unit: SPECS.PILGRIM, karbonite: 50, fuel: 50, override_build_map: true});
-        r.pilgrimQueue.push({x: 0, y: 0, code: constants.PILGRIM_JOBS.BUILD_PREACHER_CHURCH});
+    if(r.step === 250) {
+        r.buildQueue.unshift({unit: SPECS.PILGRIM, karbonite: 50, fuel: 50, override_build_map: true});
+        let coord = util.getReflectedCoord({x: r.me.x, y: r.me.y}, r);
+        r.pilgrimQueue.unshift({x: coord.x, y: coord.y, code: constants.PILGRIM_JOBS.BUILD_PREACHER_CHURCH});
     }
 }
 

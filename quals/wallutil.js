@@ -182,6 +182,26 @@ export function safetyMap(r) {
     return map;
 }
 
+export function buildingAvoidanceMap(r) {
+    let map = util.create2dArray(r.map.length, r.map.length, false);
+
+    let visible = r.getVisibleRobots();
+
+    for(let i=0;i<r.map.length;i++) {
+        for(let j=0;j<r.map.length;j++) {
+            if(r.map[j][i])
+                map[j][i] = true;
+
+            for(let k=0;k<visible.length;k++) {
+                if(visible[k].unit === SPECS.CHURCH && (visible[k].x - i) ** 2 + (visible[k].y - j) ** 2 <= 3 && r.me.team === visible[k].team)
+                    map[j][i] = false;
+            }
+        }
+    }
+
+    return map;
+}
+
 export function wallLocationSubsequent(r, goal_pos) {
     if(util.isHorizontallySymm(r)) {
         let gy = (r.me.y >= r.map.length / 2) ? 0 : r.map.length - 1;

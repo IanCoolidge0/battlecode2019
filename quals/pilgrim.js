@@ -222,7 +222,8 @@ function init(r) {
         r.starting_pos = {x: r.me.x, y: r.me.y};
     } else if(r.job === constants.PILGRIM_JOBS.BUILD_PREACHER_CHURCH) {
         r.mode = constants.PILGRIM_MODE.MOVE_OFFENSIVE2;
-        r.resource_map = util.BFSMap(r.map, util.getReflectedCoord(r.parent_building_coords, r), util.getMoves(2));
+        r.resource_map = util.BFSMap(wallutil.buildingAvoidanceMap(r), util.getReflectedCoord(r.parent_building_coords, r), util.getMoves(2));
+        r.starting_pos = {x: r.me.x, y: r.me.y};
     } else {
         r.resource_map = util.BFSMap(r.map, {x: r.currentJob.x, y: r.currentJob.y}, util.getMoves(2));
     }
@@ -313,6 +314,7 @@ function moveOffensiveStep(r) {
             r.back = wallutil.pilgrim_backward(r, r.church_pos);
             return r.buildUnit(SPECS.CHURCH, r.church_pos.x - r.me.x, r.church_pos.y - r.me.y);
         } else if(r.job === constants.PILGRIM_JOBS.BUILD_PREACHER_CHURCH) {
+            r.log("building preacher church");
             r.mode = constants.PILGRIM_MODE.SIGNAL_PREACHERS;
             r.signal(util.signalCoords(r.currentJob.x, r.currentJob.y, constants.SIGNAL_CODE.CREATE_PREACHER_CHURCH), 2);
             r.church_pos = wallutil.freeOffensiveChurch(r);
