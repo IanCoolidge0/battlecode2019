@@ -201,7 +201,7 @@ function init(r) {
             r.enemyCastlePosition = {x: sig.x, y: sig.y};
             r.preacherChurch = true;
 
-            for(let i=0;i<100;i++) {
+            for(let i=0;i<1000;i++) {
                 r.buildQueue.push({unit: SPECS.PREACHER, karbonite: 30, fuel: 50, override_build_map: true});
                 r.preacherQueue.push({x: sig.x, y: sig.y, code: constants.PREACHER_JOBS.SUICIDE});
             }
