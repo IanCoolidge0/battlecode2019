@@ -53,6 +53,17 @@ export function nearestEnemy(r) {
     return nearestRobot;
 }
 
+export function enemyInRangeNotPilgrim(r) {
+    let robots = r.getVisibleRobots();
+    for (let i =0;i < robots.length;i++) {
+        let robot = robots[i];
+        if (r.isVisible(robot) && robot.team !== r.me.team && robot.unit !== SPECS.PILGRIM) {
+            return true;
+        }
+    }
+    return false;
+}
+
 export function enemyCombatInRange(r) {
     let robots = r.getVisibleRobots();
     for (let i =0;i < robots.length;i++) {

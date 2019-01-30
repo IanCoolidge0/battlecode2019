@@ -202,7 +202,7 @@ function init(r) {
             r.preacherChurch = true;
             r.log("preacher church created");
             r.castleTalk(constants.PREACHER_CHURCH_INIT);
-            r.signal(util.signalCoords(r.me.x, r.me.y, constants.SIGNAL_CODE.PREACHER_CHURCH_INIT), 2 * map.length ** 2);
+            r.signal(util.signalCoords(r.me.x, r.me.y, constants.SIGNAL_CODE.PREACHER_CHURCH_INIT), 2 * r.map.length ** 2);
 
             for(let i=0;i<1000;i++) {
                 r.buildQueue.push({unit: SPECS.PREACHER, karbonite: 30, fuel: 50, override_build_map: true});
@@ -249,18 +249,18 @@ function initializeDefensiveBuildQueue(r) {
         }
     }
 
-    for (let i=0;i<r.unitLocationQueue_prophet.length;i++) {
-        r.buildQueue.push({unit: SPECS.PROPHET,karbonite:25, fuel: 200});
-        r.prophetQueue.push({x:r.unitLocationQueue_prophet[i].x, y: r.unitLocationQueue_prophet[i].y, code: constants.PROPHET_JOBS.DEFEND_GOAL});
-    }
-    for (let i=0;i<r.unitLocationQueue_preacher.length;i++) {
-        r.buildQueue.push({unit: SPECS.PREACHER,karbonite:30, fuel: 200});
-        r.preacherQueue.push({x:r.unitLocationQueue_preacher[i].x, y: r.unitLocationQueue_preacher[i].y, code: constants.PREACHER_JOBS.DEFEND_GOAL});
-    }
-    for (let i=0;i<r.unitLocationQueue_prophet2.length;i++) {
-        r.buildQueue.push({unit: SPECS.PROPHET,karbonite:25, fuel: 200});
-        r.prophetQueue.push({x:r.unitLocationQueue_prophet2[i].x, y: r.unitLocationQueue_prophet2[i].y, code: constants.PROPHET_JOBS.DEFEND_GOAL});
-    }
+    // for (let i=0;i<r.unitLocationQueue_prophet.length;i++) {
+    //     r.buildQueue.push({unit: SPECS.PROPHET,karbonite:25, fuel: 200});
+    //     r.prophetQueue.push({x:r.unitLocationQueue_prophet[i].x, y: r.unitLocationQueue_prophet[i].y, code: constants.PROPHET_JOBS.DEFEND_GOAL});
+    // }
+    // for (let i=0;i<r.unitLocationQueue_preacher.length;i++) {
+    //     r.buildQueue.push({unit: SPECS.PREACHER,karbonite:30, fuel: 200});
+    //     r.preacherQueue.push({x:r.unitLocationQueue_preacher[i].x, y: r.unitLocationQueue_preacher[i].y, code: constants.PREACHER_JOBS.DEFEND_GOAL});
+    // }
+    // for (let i=0;i<r.unitLocationQueue_prophet2.length;i++) {
+    //     r.buildQueue.push({unit: SPECS.PROPHET,karbonite:25, fuel: 200});
+    //     r.prophetQueue.push({x:r.unitLocationQueue_prophet2[i].x, y: r.unitLocationQueue_prophet2[i].y, code: constants.PROPHET_JOBS.DEFEND_GOAL});
+    // }
 }
 
 
@@ -479,6 +479,7 @@ export function church_step(r) {
     if (r.step === 0) {
         init(r);
     } else {
+        r.castleTalk(124);
         if(r.offensiveChurch)
             buildOffensiveQueue(r);
 

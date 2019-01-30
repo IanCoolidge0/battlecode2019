@@ -237,18 +237,18 @@ function initializeBuildQueue(r) {
     //     r.buildQueue.push({unit: SPECS.PROPHET, karbonite:25, fuel: 500});
     //     r.prophetQueue.push({x:r.prophetLocations[i].x, y: r.prophetLocations[i].y, code: constants.PROPHET_JOBS.DEFEND_GOAL});
     // }
-    for (let i=0;i<r.unitLocationQueue_prophet.length;i++) {
-        r.buildQueue.push({unit: SPECS.PROPHET,karbonite:25, fuel: 200});
-        r.prophetQueue.push({x:r.unitLocationQueue_prophet[i].x, y: r.unitLocationQueue_prophet[i].y, code: constants.PROPHET_JOBS.DEFEND_GOAL});
-    }
-    for (let i=0;i<r.unitLocationQueue_preacher.length;i++) {
-        r.buildQueue.push({unit: SPECS.PREACHER,karbonite:30, fuel: 200});
-        r.preacherQueue.push({x:r.unitLocationQueue_preacher[i].x, y: r.unitLocationQueue_preacher[i].y, code: constants.PREACHER_JOBS.DEFEND_GOAL});
-    }
-    for (let i=0;i<r.unitLocationQueue_prophet2.length;i++) {
-        r.buildQueue.push({unit: SPECS.PROPHET,karbonite:25, fuel: 200});
-        r.prophetQueue.push({x:r.unitLocationQueue_prophet2[i].x, y: r.unitLocationQueue_prophet2[i].y, code: constants.PROPHET_JOBS.DEFEND_GOAL});
-    }
+    // for (let i=0;i<r.unitLocationQueue_prophet.length;i++) {
+    //     r.buildQueue.push({unit: SPECS.PROPHET,karbonite:25, fuel: 200});
+    //     r.prophetQueue.push({x:r.unitLocationQueue_prophet[i].x, y: r.unitLocationQueue_prophet[i].y, code: constants.PROPHET_JOBS.DEFEND_GOAL});
+    // }
+    // for (let i=0;i<r.unitLocationQueue_preacher.length;i++) {
+    //     r.buildQueue.push({unit: SPECS.PREACHER,karbonite:30, fuel: 200});
+    //     r.preacherQueue.push({x:r.unitLocationQueue_preacher[i].x, y: r.unitLocationQueue_preacher[i].y, code: constants.PREACHER_JOBS.DEFEND_GOAL});
+    // }
+    // for (let i=0;i<r.unitLocationQueue_prophet2.length;i++) {
+    //     r.buildQueue.push({unit: SPECS.PROPHET,karbonite:25, fuel: 200});
+    //     r.prophetQueue.push({x:r.unitLocationQueue_prophet2[i].x, y: r.unitLocationQueue_prophet2[i].y, code: constants.PROPHET_JOBS.DEFEND_GOAL});
+    // }
     //queue crusader rush
     // for (let i = 0; i < r.crusaderLocations.length; i++) {
     //     r.buildQueue.push({unit: SPECS.CRUSADER, karbonite: 15, fuel: 2000});

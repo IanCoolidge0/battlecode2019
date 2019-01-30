@@ -229,6 +229,7 @@ function init(r) {
         r.pass_map = wallutil.buildingAvoidanceMap(r);
         r.resource_map = util.BFSMap_with_rmap(r.pass_map, util.getReflectedCoord(r.parent_building_coords, r), util.getMoves(2), r);
         r.starting_pos = {x: r.me.x, y: r.me.y};
+        r.log("PILGRIM JOB PREACHER CHRUCH ADASIOASDIOASDIOA");
     } else {
         r.goal = {x: r.currentJob.x, y: r.currentJob.y};
         r.resource_map = util.BFSMap_with_rmap(r.map, {x: r.currentJob.x, y: r.currentJob.y}, util.getMoves(2),r);
@@ -290,7 +291,7 @@ function moveOffensiveStep(r) {
         r.resource_map = util.BFSMap_with_rmap(r.map, {x: r.currentJob.x, y: r.currentJob.y}, util.getMoves(2),r);
     }
 
-    if(r.mode === constants.PILGRIM_MODE.MOVE_OFFENSIVE2 && (combat.enemyCombatInRange(r) || r.resource_map[r.me.y][r.me.x] === 99) && r.karbonite > 50 && r.fuel > 200) {
+    if(r.mode === constants.PILGRIM_MODE.MOVE_OFFENSIVE2 && (combat.enemyInRangeNotPilgrim(r) || r.resource_map[r.me.y][r.me.x] === 99) && r.karbonite > 50 && r.fuel > 200) {
         //made it all the way through
 
         r.log("building offensive church");
