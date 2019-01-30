@@ -229,6 +229,7 @@ function init(r) {
         r.resource_map = util.BFSMap_with_rmap(r.pass_map, util.getReflectedCoord(r.parent_building_coords, r), util.getMoves(2), r);
         r.starting_pos = {x: r.me.x, y: r.me.y};
     } else {
+        r.goal = {x: r.currentJob.x, y: r.currentJob.y};
         r.resource_map = util.BFSMap_with_rmap(r.map, {x: r.currentJob.x, y: r.currentJob.y}, util.getMoves(2),r);
         r.goal = {x: r.currentJob.x, y: r.currentJob.y};
         r.pass_map = r.map;

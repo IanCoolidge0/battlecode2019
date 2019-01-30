@@ -154,7 +154,7 @@ function init(r) {
     for(let i=0;i<visible.length;i++) {
         let sig = util.decodeCoords(visible[i].signal);
         if(sig.code === constants.SIGNAL_CODE.CREATE_FRIENDLY_CHURCH) {
-            r.unitMap = combat.unitMap2(r,2);
+            r.unitMap = combat.unitMap2(r,1);
             //r.log("UNITMAP_________________________________________")
             //r.log(r.unitMap);
             r.unitLocationQueue_prophet = combat.unitLocationsQueue(r,6,7,r.unitMap,true);
@@ -480,7 +480,7 @@ export function church_step(r) {
             buildOffensiveQueue(r);
 
         if(!r.enemyChurch && !r.offensiveChurch)
-            lateGameStep(r);
+            //lateGameStep(r);
 
         return step(r);
     }

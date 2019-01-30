@@ -597,6 +597,26 @@ export function unitMap2(r,tolerance) {
     return map;
 }
 
+export function unitMap_lategame(r,tolerance) {
+
+    let map = util.create2dArray(r.size, r.size, false);
+    let enemyCastle = util.getReflectedCoord({x: r.me.x, y: r.me.y}, r);
+
+    for(let i=0;i<r.size;i++) {
+        for(let j=0;j<r.size;j++) {
+            if(r.map[j][i] && !r.karbonite_map[j][i] && !r.fuel_map[j][i]) {
+                let enemyCastleDir = util.directionTo(enemyCastle.x - r.me.x, enemyCastle.y - r.me.y);
+                let unitDir = util.directionTo(i - r.me.x, j - r.me.y);
+
+                if(!util.similar_with_tolerance(enemyCastleDir, unitDir,tolerance))
+                    map[j][i] = true;
+            }
+        }
+    }
+    //r.log(map);
+    return map;
+}
+
 export function unitMap_odd(r) {
 
     let map = util.create2dArray(r.size,r.size,false);
