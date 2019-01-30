@@ -5,6 +5,7 @@ import {SPECS} from 'battlecode';
 import * as combat from "./combat.js";
 import * as mode from "./mode.js";
 
+
 function affordChurch(r) {
 
     if(r.fuel < 250)
@@ -262,35 +263,24 @@ export function isEndangered(r) {
 }
 
 export function flee(r) {
-    let damageMap = combat.damageMap(r);
+
     //r.log(damageMap);
     let moves = util.getMoves(2);
 
     //r.log(moves);
 
+    let safetyMap = util.copy(r.map);
+    wallutil.addSeenUnits(r,safetyMap);
     let rmap = r.getVisibleRobotMap();
-    let move = r.castle_map[r.me.y][r.me.x];
-    let potential_moves = util.getFuzzyMoves(r, move.x, move.y, 2, 2);
 
-    for(let i=0;i<potential_moves.length;i++) {
-        let next = {x:r.me.x - potential_moves[i].x, y:r.me.y - potential_moves[i].y};
-        if (util.withInMap(next,r) && r.map[next.y][next.x] && damageMap[next.y][next.x] === 0 && rmap[next.y][next.x] === 0) {
-            //r.log('flee move');
+    for (let i = 0;i < moves.length;i++) {
+        let next = {x:r.me.x + moves[i].x,y:r.me.y + moves[i].y};
+        if (util.withInMap(next,r) && safetyMap[next.y][next.x] && rmap[next.y][next.x] === 0) {
 
-            return r.move(-potential_moves[i].x, -potential_moves[i].y);
-
+            return r.move(moves[i].x,moves[i].y);
         }
     }
-    // for (let i = 0;i < moves.length;i++) {
-    //     const next = {x:r.me.x + moves[i].x,y:r.me.y + moves[i].y};
-    //
-    //     if (util.withInMap(next,r) && r.map[next.y][next.x] && damageMap[next.y][next.x] === 0 && rmap[next.y][next.x] === 0) {
-    //         r.log('flee move');
-    //
-    //         return r.move(moves[i].x,moves[i].y);
-    //
-    //     }
-    // }
+
 }
 
 
@@ -300,7 +290,7 @@ function moveOffensiveStep(r) {
         r.resource_map = util.BFSMap_with_rmap(r.map, {x: r.currentJob.x, y: r.currentJob.y}, util.getMoves(2),r);
     }
 
-    if(r.mode === constants.PILGRIM_MODE.MOVE_OFFENSIVE2 && (combat.enemyInRange(r) || r.resource_map[r.me.y][r.me.x] === 99) && r.karbonite > 50 && r.fuel > 200) {
+    if(r.mode === constants.PILGRIM_MODE.MOVE_OFFENSIVE2 && (combat.enemyCombatInRange(r) || r.resource_map[r.me.y][r.me.x] === 99) && r.karbonite > 50 && r.fuel > 200) {
         //made it all the way through
 
         r.log("building offensive church");
