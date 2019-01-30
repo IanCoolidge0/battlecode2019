@@ -200,6 +200,8 @@ function init(r) {
             r.offensiveChurch = true;
             r.enemyCastlePosition = {x: sig.x, y: sig.y};
             r.preacherChurch = true;
+            r.log("preacher church created");
+            r.castleTalk(constants.PREACHER_CHURCH_INIT);
 
             for(let i=0;i<1000;i++) {
                 r.buildQueue.push({unit: SPECS.PREACHER, karbonite: 30, fuel: 50, override_build_map: true});
@@ -480,7 +482,7 @@ export function church_step(r) {
             buildOffensiveQueue(r);
 
         if(!r.enemyChurch && !r.offensiveChurch)
-            //lateGameStep(r);
+            lateGameStep(r);
 
         return step(r);
     }

@@ -2,6 +2,7 @@
 export const LATTICE_RADIUS = 6;
 export const INIT_CASTLETALK = 255;
 export const PILGRIM_DANGER_CASTLETALK = 1;
+export const PREACHER_CHURCH_INIT = 209;
 
 export const CLUSTER_RADIUS = 5;
 export const ENEMY_PREACHER = 15;

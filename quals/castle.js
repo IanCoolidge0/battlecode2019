@@ -47,6 +47,7 @@ function initVariables(r) {
     r.karboniteCoords = util.resourceCoords(r.map, r.karbonite_map, {x:r.me.x, y:r.me.y}, util.getMoves(2), r);
     r.fuelCoords = util.resourceCoords(r.map, r.fuel_map, {x:r.me.x, y:r.me.y}, util.getMoves(2), r);
     r.createdRobots = {};
+    r.preacherChurches = {};
 
     r.unit_location_distance =Math.floor(Math.sqrt((r.me.x - r.enemy_castle.x)**2 + (r.me.y - r.enemy_castle.y)**2) / 2);
     if (r.unit_location_distance > 7) {
@@ -400,6 +401,11 @@ function step(r) {
         }
     }
 
+    for(let i=0;i<visible.length;i++) {
+        if(visible[i].castle_talk === constants.PREACHER_CHURCH_INIT)
+            r.preacherChurches.push(visible[i].id);
+    }
+
     //build unit from queue
     if(r.buildQueue.length > 0) {
         let requiredKarbonite = r.buildQueue[0].karbonite;
@@ -490,7 +496,7 @@ function lateGameStep(r) {
     //         r.crusaderQueue.push({x: coord.x, y: coord.y, code: constants.CRUSADER_JOBS.DEFEND_GOAL});
     //    }
     // }
-    if(r.step === 400) {
+    if(r.step === 100) {
         r.buildQueue.unshift({unit: SPECS.PILGRIM, karbonite: 50, fuel: 50, override_build_map: true});
         let coord = util.getReflectedCoord({x: r.me.x, y: r.me.y}, r);
         r.pilgrimQueue.unshift({x: coord.x, y: coord.y, code: constants.PILGRIM_JOBS.BUILD_PREACHER_CHURCH});
@@ -527,7 +533,7 @@ export function castle_step(r) {
         if(r.step === 1)
             turn1step(r);
 
-        wallingStep(r);
+        //wallingStep(r);
 
         lateGameStep(r);
         if (r.step === 900) {
