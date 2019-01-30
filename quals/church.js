@@ -200,6 +200,11 @@ function init(r) {
             r.offensiveChurch = true;
             r.enemyCastlePosition = {x: sig.x, y: sig.y};
             r.preacherChurch = true;
+
+            for(let i=0;i<100;i++) {
+                r.buildQueue.push({unit: SPECS.PREACHER, karbonite: 30, fuel: 50, override_build_map: true});
+                r.preacherQueue.push({x: sig.x, y: sig.y, code: constants.PREACHER_JOBS.SUICIDE});
+            }
         }
     }
 
@@ -446,7 +451,7 @@ function step(r) {
                 case SPECS.PROPHET:
                     if(r.prophetQueue.length > 0) {
                         let job = r.prophetQueue.shift();
-                        if (!r.currentUnitMap[job.y][job.x]) {
+                        if (!r.currentUnitMap[job.y][job.x] || robot_to_build.override_build_map) {
                             r.combatBuildCooldown = 5 + Math.floor((r.map.length - 32) / 6);
                             return build_unit(r, SPECS.PROPHET, job.x, job.y, job.code);
                         }
@@ -456,7 +461,7 @@ function step(r) {
                 case SPECS.PREACHER:
                     if(r.preacherQueue.length > 0) {
                         let job = r.preacherQueue.shift();
-                        if (!r.currentUnitMap[job.y][job.x]) {
+                        if (!r.currentUnitMap[job.y][job.x] || robot_to_build.override_build_map) {
                             r.combatBuildCooldown = 5 + Math.floor((r.map.length - 32) / 6);
                             return build_unit(r, SPECS.PREACHER, job.x, job.y, job.code);
                         }

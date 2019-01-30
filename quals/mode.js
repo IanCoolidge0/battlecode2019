@@ -16,7 +16,7 @@ export function travel_to_goal_pilgrim(r,goalMap,passable_map,start,moves) {
     let move = goalMap[r.me.y][r.me.x];
     //r.log('position ' + r.me.x + ', ' + r.me.y);
     let next_location = {x:r.me.x - move.x,y:r.me.y - move.y};
-    if (next_location.x === r.currentJob.x && next_location.y === r.currentJob.y) {
+    if (next_location.x === r.currentJob.x && next_location.y === r.currentJob.y && rmap[next_location.y][next_location.x] > 0) {
         return;
     }
     //r.log(move);
@@ -49,7 +49,7 @@ export function travel_to_goal5(r,moves) {
     //r.log('position ' + r.me.x + ', ' + r.me.y);
     let next_location = {x:r.me.x - move.x,y:r.me.y - move.y};
 
-    if (next_location.x === r.currentJob.x && next_location.y === r.currentJob.y) {
+    if (next_location.x === r.currentJob.x && next_location.y === r.currentJob.y && rmap[next_location.y][next_location.x] > 0) {
         return;
     }
     //r.log(move);

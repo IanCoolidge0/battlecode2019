@@ -231,6 +231,7 @@ function init(r) {
     } else {
         r.resource_map = util.BFSMap_with_rmap(r.map, {x: r.currentJob.x, y: r.currentJob.y}, util.getMoves(2),r);
         r.goal = {x: r.currentJob.x, y: r.currentJob.y};
+        r.pass_map = r.map;
     }
 
     r.requestedReinforcements = false;
