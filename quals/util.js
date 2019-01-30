@@ -506,6 +506,21 @@ export function getFuzzyMoves(r,dx,dy,radius,tolerance) {
     return moves;
 }
 
+export function calculateEarlyGameFund(r, castles) {
+    let fund = 40;
+    for(let i=0;i<r.map.length;i++) {
+        for(let j=0;j<r.map.length;j++) {
+            for(let k=0;k<castles.length;k++) {
+                if(r.karbonite_map[j][i] && (castles[k].x - i) ** 2 + (castles[k].y - j) ** 2 <= constants.CLUSTER_RADIUS ** 2) {
+                    fund += 10;
+                }
+            }
+        }
+    }
+
+    return fund;
+}
+
 export function getFuzzyMoves2(r,dx,dy,r_squared,tolerance) {
 
     let possibleMoves = getMoves2(r_squared);

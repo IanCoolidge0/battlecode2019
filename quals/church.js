@@ -205,8 +205,10 @@ function init(r) {
             r.signal(util.signalCoords(r.me.x, r.me.y, constants.SIGNAL_CODE.PREACHER_CHURCH_INIT), 2 * r.map.length ** 2);
 
             for(let i=0;i<1000;i++) {
-                // r.buildQueue.push({unit: SPECS.PREACHER, karbonite: 30, fuel: 50, override_build_map: true});
-                // r.preacherQueue.push({x: sig.x, y: sig.y, code: constants.PREACHER_JOBS.SUICIDE});
+
+                //r.buildQueue.push({unit: SPECS.PREACHER, karbonite: 30, fuel: 50, override_build_map: true});
+                //r.preacherQueue.push({x: sig.x, y: sig.y, code: constants.PREACHER_JOBS.SUICIDE});
+
             }
         }
     }
@@ -249,18 +251,18 @@ function initializeDefensiveBuildQueue(r) {
         }
     }
 
-    // for (let i=0;i<r.unitLocationQueue_prophet.length;i++) {
-    //     r.buildQueue.push({unit: SPECS.PROPHET,karbonite:25, fuel: 200});
-    //     r.prophetQueue.push({x:r.unitLocationQueue_prophet[i].x, y: r.unitLocationQueue_prophet[i].y, code: constants.PROPHET_JOBS.DEFEND_GOAL});
-    // }
-    // for (let i=0;i<r.unitLocationQueue_preacher.length;i++) {
-    //     r.buildQueue.push({unit: SPECS.PREACHER,karbonite:30, fuel: 200});
-    //     r.preacherQueue.push({x:r.unitLocationQueue_preacher[i].x, y: r.unitLocationQueue_preacher[i].y, code: constants.PREACHER_JOBS.DEFEND_GOAL});
-    // }
-    // for (let i=0;i<r.unitLocationQueue_prophet2.length;i++) {
-    //     r.buildQueue.push({unit: SPECS.PROPHET,karbonite:25, fuel: 200});
-    //     r.prophetQueue.push({x:r.unitLocationQueue_prophet2[i].x, y: r.unitLocationQueue_prophet2[i].y, code: constants.PROPHET_JOBS.DEFEND_GOAL});
-    // }
+    for (let i=0;i<r.unitLocationQueue_prophet.length;i++) {
+        r.buildQueue.push({unit: SPECS.PROPHET,karbonite:25, fuel: 200});
+        r.prophetQueue.push({x:r.unitLocationQueue_prophet[i].x, y: r.unitLocationQueue_prophet[i].y, code: constants.PROPHET_JOBS.DEFEND_GOAL});
+    }
+    for (let i=0;i<r.unitLocationQueue_preacher.length;i++) {
+        r.buildQueue.push({unit: SPECS.PREACHER,karbonite:30, fuel: 200});
+        r.preacherQueue.push({x:r.unitLocationQueue_preacher[i].x, y: r.unitLocationQueue_preacher[i].y, code: constants.PREACHER_JOBS.DEFEND_GOAL});
+    }
+    for (let i=0;i<r.unitLocationQueue_prophet2.length;i++) {
+        r.buildQueue.push({unit: SPECS.PROPHET,karbonite:25, fuel: 200});
+        r.prophetQueue.push({x:r.unitLocationQueue_prophet2[i].x, y: r.unitLocationQueue_prophet2[i].y, code: constants.PROPHET_JOBS.DEFEND_GOAL});
+    }
 }
 
 
@@ -428,7 +430,7 @@ function step(r) {
         r.combatBuildCooldown--;
 
     //build unit from queue
-    if(r.buildQueue.length > 0) {
+    if(r.buildQueue.length > 0 && r.win === undefined) {
         let requiredKarbonite = r.buildQueue[0].karbonite;
         let requiredFuel = r.buildQueue[0].fuel;
 
@@ -485,6 +487,16 @@ export function church_step(r) {
 
         if(!r.enemyChurch && !r.offensiveChurch)
             lateGameStep(r);
+
+        if(r.preacherChurch) {
+            let visible = r.getVisibleRobots();
+            for(let i=0;i<visible.length;i++) {
+                let signal = util.decodeCoords(visible[i].signal);
+                if(signal.code === constants.SIGNAL_CODE.PREACHER_VICTORY && signal.x === r.enemyCastlePosition.x && signal.y === r.enemyCastlePosition.y) {
+                    r.win = true;
+                }
+            }
+        }
 
         return step(r);
     }
