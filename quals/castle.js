@@ -495,9 +495,9 @@ function lateGameStep(r) {
         let coord = util.getReflectedCoord({x: r.me.x, y: r.me.y}, r);
         r.pilgrimQueue.unshift({x: coord.x, y: coord.y, code: constants.PILGRIM_JOBS.BUILD_PREACHER_CHURCH});
 
-        r.buildQueue.unshift({unit: SPECS.PILGRIM, karbonite: 50, fuel: 50, override_build_map: true});
-        coord = util.getReflectedCoord({x: r.me.x, y: r.me.y}, r);
-        r.pilgrimQueue.unshift({x: coord.x, y: coord.y, code: constants.PILGRIM_JOBS.BUILD_PREACHER_CHURCH});
+        // r.buildQueue.unshift({unit: SPECS.PILGRIM, karbonite: 50, fuel: 50, override_build_map: true});
+        // coord = util.getReflectedCoord({x: r.me.x, y: r.me.y}, r);
+        // r.pilgrimQueue.unshift({x: coord.x, y: coord.y, code: constants.PILGRIM_JOBS.BUILD_PREACHER_CHURCH});
     }
 }
 
