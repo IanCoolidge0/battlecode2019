@@ -490,7 +490,7 @@ function lateGameStep(r) {
     //         r.crusaderQueue.push({x: coord.x, y: coord.y, code: constants.CRUSADER_JOBS.DEFEND_GOAL});
     //    }
     // }
-    if(r.step === 500) {
+    if(r.step === 400) {
         r.buildQueue.unshift({unit: SPECS.PILGRIM, karbonite: 50, fuel: 50, override_build_map: true});
         let coord = util.getReflectedCoord({x: r.me.x, y: r.me.y}, r);
         r.pilgrimQueue.unshift({x: coord.x, y: coord.y, code: constants.PILGRIM_JOBS.BUILD_PREACHER_CHURCH});
@@ -520,7 +520,7 @@ export function castle_step(r) {
     }
 
     if (r.step === 0) {
-
+        util.BFSMap_with_rmap_castle(r.map,{x:r.me.x,y:r.me.y},util.getMoves2(2),r);
         init(r);
     } else {
 
