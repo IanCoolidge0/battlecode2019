@@ -271,6 +271,14 @@ export function addSeenUnits(r, seenUnits) {
                     }
                 }
             }
+            if(visible[k].unit === SPECS.CASTLE || visible[k].unit === SPECS.CHURCH) {
+                for(let i=-8;i<=8;i++) {
+                    for(let j=-8;j<=8;j++) {
+                        if(i ** 2 + j ** 2 <= 81 && util.withInMap({x: visible[k].x + i, y: visible[k].y + j}, r))
+                            seenUnits[visible[k].y + j][visible[k].x + i] = false;
+                    }
+                }
+            }
         }
     }
 }
