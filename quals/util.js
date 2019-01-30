@@ -83,6 +83,48 @@ export function BFSMap_with_rmap(pass_map, start, moves, r) {
     //r.log(path_finding_map);
     return path_finding_map
 }
+export function BFSMap_with_rmap_castle(pass_map, start, moves, r) {
+    let rmap = r.getVisibleRobotMap();
+    rmap[r.me.y][r.me.x] = 0;
+    rmap[start.y][start.x] = 0;
+
+    let size = pass_map.length;
+    let path_finding_map = create2dArray(size,size,0);
+
+    path_finding_map[start.y][start.x] = 99;
+    let directions = getMoves2(2);
+    let current_locations = [];
+
+    for (let i = 0;i < directions.length;i++) {
+        let adjacent = {x:start.x + directions[i].x,y:start.y + directions[i].y}
+        if (withInMap(adjacent,r) && pass_map[adjacent.y][adjacent.x] && rmap[adjacent.y][adjacent.x] <= 0) {
+            current_locations.push(adjacent);
+            path_finding_map[adjacent.y][adjacent.x] = 99;
+        }
+    }
+    //r.log("starting location");
+    //r.log(current_locations);
+
+    while (current_locations.length > 0) {
+        //r.log(current_locations);
+        let location = current_locations.shift();
+        for (let i = 0;i < moves.length;i++) {
+
+            let next_location = {x: location.x + moves[i].x, y: location.y + moves[i].y};
+            if ( next_location.x >= 0 && next_location.y >= 0 && next_location.x < size && next_location.y < size
+                && path_finding_map[next_location.y][next_location.x] === 0 && pass_map[next_location.y][next_location.x] === true && rmap[next_location.y][next_location.x] <= 0) {
+                //r.log("reached");
+                path_finding_map[next_location.y][next_location.x] = moves[i];
+                //r.log("reached 2")
+                current_locations.push(next_location);
+            }
+        }
+    }
+    //r.log("BFS FOR CASTLE");
+    //r.log(path_finding_map);
+    //r.log(path_finding_map);
+    return path_finding_map
+}
 
 export function location_within_attackRange(pass_map, start, end, moves, range_squared) {
 

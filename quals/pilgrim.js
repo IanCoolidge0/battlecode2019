@@ -160,7 +160,7 @@ function moveToCastleStep(r) {
     let py = r.parent_building.y;
 
     if((r.me.x - px) ** 2 + (r.me.y - py) ** 2 > 2) {
-        return mode.travel_to_goal(r, 2, 2, r.castle_map);
+        return mode.travel_to_goal_castle(r, r.castle_map, r.map, {x: r.parent_building_coords.x, y: r.parent_building_coords.y},util.getMoves(2));
     } else {
         if(r.getVisibleRobotMap()[py][px] === 0) {
             if (r.karbonite > 50 && r.fuel > 200)
@@ -186,7 +186,7 @@ function init(r) {
 
     r.currentJob = util.decodeCoords(r.parent_building.signal);
 
-    r.castle_map = util.BFSMap(r.map, {x: r.parent_building.x, y: r.parent_building.y}, util.getMoves(2));
+    r.castle_map = util.BFSMap_with_rmap_castle(r.map, {x: r.parent_building_coords.x, y: r.parent_building_coords.y}, util.getMoves(2),r);
     //r.resource_map = util.BFSMap_with_rmap(r.map, {x: r.currentJob.x, y: r.currentJob.y}, util.getMoves(2),r);
 
     r.job = r.currentJob.code;
