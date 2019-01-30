@@ -193,7 +193,7 @@ export function buildingAvoidanceMap(r) {
                 map[j][i] = true;
 
             for(let k=0;k<visible.length;k++) {
-                if(visible[k].unit === SPECS.CHURCH && (visible[k].x - i) ** 2 + (visible[k].y - j) ** 2 <= 3 && r.me.team === visible[k].team)
+                if(visible[k].unit === SPECS.CHURCH && (visible[k].x - i) ** 2 + (visible[k].y - j) ** 2 <= 18 && r.me.team === visible[k].team)
                     map[j][i] = false;
             }
         }

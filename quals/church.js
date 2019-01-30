@@ -290,7 +290,7 @@ function buildOffensiveQueue(r) {
         let position = null;
 
         for (let i = 0; i < visible.length; i++) {
-            if (util.decodeCoords(visible[i].signal).code === constants.SIGNAL_CODE.CREATE_OFFENSIVE_CHURCH && visible[i].id === r.myScoutId) {
+            if (util.decodeCoords(visible[i].signal).code === constants.SIGNAL_CODE.CREATE_OFFENSIVE_CHURCH && visible[i].id === r.myScoutId && !r.preacherChurch) {
                 r.offensiveChurch = false;
                 return;
             }
@@ -365,9 +365,6 @@ function buildOffensiveQueue(r) {
         // r.log(next2);
         // r.log(next3);
         // r.log(next4);
-    } else {
-        r.buildQueue.push({unit: SPECS.PREACHER, fuel: 50, karbonite: 50});
-        r.preacherQueue.push({x: r.enemyCastlePosition.x, y: r.enemyCastlePosition.y, code: constants.PREACHER_JOBS.SUICIDE});
     }
 
 }
@@ -486,17 +483,17 @@ export function church_step(r) {
 
 function lateGameStep(r) {
     //r.log(r.buildQueue.length + " asjfihasohfuiasohfbfhu8oaw " + r.karbonite + " " + r.fuel);
-    if(r.buildQueue.length === 0 && (r.karbonite > 1234 || (r.step > 600 && r.karbonite > 200)) && r.fuel > 4321) {
-        let fuelRatio = r.fuel / r.karbonite;
-
-        let coord = util.findCoord(r);
-
-        if(fuelRatio < 2.5) {
-            r.buildQueue.push({unit: SPECS.PREACHER, karbonite: 50, fuel: 50, override_build_map: true});
-            r.preacherQueue.push({x: coord.x, y: coord.y, code: constants.PREACHER_JOBS.DEFEND_GOAL});
-        } else {
-            r.buildQueue.push({unit: SPECS.CRUSADER, karbonite: 50, fuel: 50, override_build_map: true});
-            r.crusaderQueue.push({x: coord.x, y: coord.y, code: constants.CRUSADER_JOBS.DEFEND_GOAL});
-        }
-    }
+    // if(r.buildQueue.length === 0 && (r.karbonite > 1234 || (r.step > 600 && r.karbonite > 200)) && r.fuel > 4321) {
+    //     let fuelRatio = r.fuel / r.karbonite;
+    //
+    //     let coord = util.findCoord(r);
+    //
+    //     if(fuelRatio < 2.5) {
+    //         r.buildQueue.push({unit: SPECS.PREACHER, karbonite: 50, fuel: 50, override_build_map: true});
+    //         r.preacherQueue.push({x: coord.x, y: coord.y, code: constants.PREACHER_JOBS.DEFEND_GOAL});
+    //     } else {
+    //         r.buildQueue.push({unit: SPECS.CRUSADER, karbonite: 50, fuel: 50, override_build_map: true});
+    //         r.crusaderQueue.push({x: coord.x, y: coord.y, code: constants.CRUSADER_JOBS.DEFEND_GOAL});
+    //     }
+    // }
 }

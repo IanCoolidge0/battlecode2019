@@ -482,7 +482,7 @@ function lateGameStep(r) {
     //         r.crusaderQueue.push({x: coord.x, y: coord.y, code: constants.CRUSADER_JOBS.DEFEND_GOAL});
     //    }
     // }
-    if(r.step === 250) {
+    if(r.step === 500) {
         r.buildQueue.unshift({unit: SPECS.PILGRIM, karbonite: 50, fuel: 50, override_build_map: true});
         let coord = util.getReflectedCoord({x: r.me.x, y: r.me.y}, r);
         r.pilgrimQueue.unshift({x: coord.x, y: coord.y, code: constants.PILGRIM_JOBS.BUILD_PREACHER_CHURCH});

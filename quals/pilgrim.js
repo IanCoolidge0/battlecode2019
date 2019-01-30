@@ -225,10 +225,12 @@ function init(r) {
         r.starting_pos = {x: r.me.x, y: r.me.y};
     } else if(r.job === constants.PILGRIM_JOBS.BUILD_PREACHER_CHURCH) {
         r.mode = constants.PILGRIM_MODE.MOVE_OFFENSIVE2;
-        r.resource_map = util.BFSMap(wallutil.buildingAvoidanceMap(r), util.getReflectedCoord(r.parent_building_coords, r), util.getMoves(2));
+        r.pass_map = wallutil.buildingAvoidanceMap(r);
+        r.resource_map = util.BFSMap_with_rmap(r.pass_map, util.getReflectedCoord(r.parent_building_coords, r), util.getMoves(2), r);
         r.starting_pos = {x: r.me.x, y: r.me.y};
     } else {
         r.resource_map = util.BFSMap_with_rmap(r.map, {x: r.currentJob.x, y: r.currentJob.y}, util.getMoves(2),r);
+        r.goal = {x: r.currentJob.x, y: r.currentJob.y};
     }
 
     r.requestedReinforcements = false;
