@@ -160,7 +160,7 @@ function moveToCastleStep(r) {
     let py = r.parent_building.y;
 
     if((r.me.x - px) ** 2 + (r.me.y - py) ** 2 > 2) {
-        return mode.travel_to_goal_pilgrim(r, r.castle_map,r.map,{x: r.parent_building.x, y: r.parent_building.y},util.getMoves(2));
+        return mode.travel_to_goal(r, 2, 2, r.castle_map);
     } else {
         if(r.getVisibleRobotMap()[py][px] === 0) {
             if (r.karbonite > 50 && r.fuel > 200)
