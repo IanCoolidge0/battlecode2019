@@ -59,6 +59,28 @@ function init(r) {
 
 }
 function step(r) {
+    if(r.mode === constants.PREACHER_MODE.VICTORY) return;
+
+    if(r.currentJob.code === constants.PREACHER_JOBS.SUICIDE) {
+        let visible = r.getVisibleRobots();
+        for(let i=0;i<visible.length;i++) {
+            let signal = util.decodeCoords(visible[i].signal);
+            if(signal.code === constants.SIGNAL_CODE.PREACHER_VICTORY && signal.x === r.currentJob.x && signal.y === r.currentJob.y) {
+                r.log('rec victory signal');
+                r.mode = constants.PREACHER_MODE.VICTORY;
+            }
+        }
+
+        let robotAtGoal = r.getVisibleRobotMap()[r.currentJob.y][r.currentJob.x];
+        if(robotAtGoal !== -1) {
+            if(robotAtGoal === 0 || r.getRobot(robotAtGoal).unit !== SPECS.CASTLE) {
+                r.log("VICTORY ROYALE!!!!!!!!!!!!!!! " + r.currentJob.x + " " + r.currentJob.y);
+                r.signal(util.signalCoords(r.currentJob.x, r.currentJob.y, constants.SIGNAL_CODE.PREACHER_VICTORY), 2 * r.map.length ** 2);
+                r.mode = constants.PREACHER_MODE.VICTORY;
+            }
+        }
+    }
+
     if (r.mode === constants.PREACHER_MODE.DEFEND_CASTLE) {
         if (r.wait === 5) {
             r.mode = constants.PREACHER_MODE.PATH_TO_GOAL;
@@ -115,7 +137,7 @@ function step(r) {
     if (combat.enemyInRange(r)) {
         //r.log("CHANGE MODE TO ATTACK");
         r.mode = constants.PREACHER_MODE.ATTACK;
-    } else if (frontLine !== false) {
+    } else if (frontLine !== false && r.currentJob.code !== constants.PREACHER_JOBS.SUICIDE) {
         r.mode = constants.PREACHER_MODE.MOVE_TO_FRONT_LINES;
         r.wait = 0;
         if (r.currentJob.code === constants.PREACHER_JOBS.DEFEND_GOAL) {
@@ -177,10 +199,9 @@ function step(r) {
             return r.attack(attack.x, attack.y);
         }
     }
-
 }
 function neededInFrontLines(r) {
-
+    if(r.currentJob.code === constants.PREACHER_JOBS.SUICIDE) return;
     let robots = r.getVisibleRobots();
     let enemy_signaled = [];
     for (let i = 0;i < robots.length;i++) {

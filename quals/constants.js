@@ -71,8 +71,8 @@ export const PREACHER_MODE = {
     DEFEND: 3,
     ATTACK: 4,
     REINFORCE: 5,
-    MOVE_TO_FRONT_LINES: 6
-
+    MOVE_TO_FRONT_LINES: 6,
+    VICTORY: 7
 };
 export const CRUSADER_JOBS = {
     DEFEND_GOAL: 0,
@@ -102,7 +102,8 @@ export const SIGNAL_CODE = {
     SCOUT_INFO: 7,
     DONE_SCOUTING: 8,
     CREATE_PREACHER_CHURCH: 9,
-    PREACHER_CHURCH_INIT: 10
+    PREACHER_CHURCH_INIT: 10,
+    PREACHER_VICTORY: 11
 };
 
 export const PROPHET_SIGNAL_CODE = {

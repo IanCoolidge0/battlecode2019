@@ -400,5 +400,6 @@ export function pilgrim_step(r) {
         case constants.PILGRIM_MODE.SCOUT:
             return scoutStep(r);
             break;
+
     }
 }

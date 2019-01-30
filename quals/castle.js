@@ -163,20 +163,10 @@ function initializeChurches(r) {
 
 function initializeBuildQueue(r) {
 
-    //queue nearby karbonite locations
-    for(let i=-5;i<5;i++) {
-        for(let j=-5;j<5;j++) {
-            if(i ** 2 + j ** 2 > constants.CLUSTER_RADIUS ** 2) continue;
-            if(util.withInMap({x: r.me.x + i, y: r.me.y + j}, r) && r.karbonite_map[r.me.y + j][r.me.x + i]) {
-                r.buildQueue.push({unit: SPECS.PILGRIM, karbonite: 10, fuel: 200,priority:true});
-                r.pilgrimQueue.push({x: r.me.x + i, y: r.me.y + j, code: constants.PILGRIM_JOBS.MINE_KARBONITE});
-            }
-        }
-    }
+    let fund = util.calculateEarlyGameFund(r, r.castles);
+    let numSafe = Math.min(r.safe_enemy_churches.length, 2);
 
-
-
-    for(let i=0;i<Math.min(r.safe_enemy_churches.length, 2);i++) {
+    for(let i=0;i<numSafe;i++) {
         let amIresponsible = true;
 
         for(let j=0;j<r.castles.length;j++) {
@@ -188,16 +178,66 @@ function initializeBuildQueue(r) {
         }
 
         if(amIresponsible) {
-            r.buildQueue.push({unit: SPECS.PILGRIM, karbonite: 10, fuel: 100, priority: true});
-            r.pilgrimQueue.push({x: r.safe_enemy_churches[i].x, y: r.safe_enemy_churches[i].y, code: constants.PILGRIM_JOBS.BUILD_ENEMY_CHURCH});
-
             r.buildQueue.push({unit: SPECS.CRUSADER, karbonite: 20, fuel: 100, priority: true});
             r.crusaderQueue.push({x: r.safe_enemy_churches[i].x, y: r.safe_enemy_churches[i].y, code: constants.CRUSADER_JOBS.DEFEND_ENEMY_CHURCH});
 
-            for(let j=0;j<r.church_locations.length;j++) {
-                if((r.church_locations[j].x - r.safe_enemy_churches[i].x) ** 2 + (r.church_locations[j].y - r.safe_enemy_churches[i].y) ** 2 <= constants.CLUSTER_RADIUS ** 2)
-                    r.church_locations[j].alreadyVisited = true;
+            fund -= 15;
+        }
+    }
+
+    //queue nearby karbonite locations
+    for(let i=-5;i<5;i++) {
+        for(let j=-5;j<5;j++) {
+            if(i ** 2 + j ** 2 > constants.CLUSTER_RADIUS ** 2) continue;
+            if(util.withInMap({x: r.me.x + i, y: r.me.y + j}, r) && r.karbonite_map[r.me.y + j][r.me.x + i]) {
+                r.buildQueue.push({unit: SPECS.PILGRIM, karbonite: 10, fuel: 200,priority:true});
+                r.pilgrimQueue.push({x: r.me.x + i, y: r.me.y + j, code: constants.PILGRIM_JOBS.MINE_KARBONITE});
             }
+        }
+    }
+
+    if(numSafe === 0) {
+
+    } else {
+        let churchPos = r.safe_enemy_churches[0];
+
+        let amIresponsible = true;
+
+        for(let j=0;j<r.castles.length;j++) {
+            let dist = (r.castles[j].x - churchPos.x) ** 2 + (r.castles[j].y - churchPos.y) ** 2;
+            if(dist < (r.me.x - churchPos.x) ** 2 + (r.me.y - churchPos.y) ** 2) {
+                amIresponsible = false;
+                break;
+            }
+        }
+
+        if(amIresponsible) {
+            for(let k=0;k<Math.floor(fund / 25);k++) {
+                r.buildQueue.push({unit: SPECS.PROPHET, karbonite: 30, fuel: 50, override_build_map: true});
+                r.prophetQueue.push({x: churchPos.x, y: churchPos.y, code: constants.PROPHET_JOBS.DEFEND_GOAL});
+            }
+
+            for(let k=0;k<Math.floor((fund % 25) / 15);k++) {
+                r.buildQueue.push({unit: SPECS.CRUSADER, karbonite: 15, fuel: 50});
+                r.crusaderQueue.push({x: churchPos.x, y: churchPos.y, code: constants.CRUSADER_JOBS.DEFEND_ENEMY_CHURCH});
+            }
+        }
+    }
+
+    for(let i=0;i<numSafe;i++) {
+        let amIresponsible = true;
+
+        for(let j=0;j<r.castles.length;j++) {
+            let dist = (r.castles[j].x - r.safe_enemy_churches[i].x) ** 2 + (r.castles[j].y - r.safe_enemy_churches[i].y) ** 2;
+            if(dist < (r.me.x - r.safe_enemy_churches[i].x) ** 2 + (r.me.y - r.safe_enemy_churches[i].y) ** 2) {
+                amIresponsible = false;
+                break;
+            }
+        }
+
+        if(amIresponsible) {
+            r.buildQueue.push({unit: SPECS.PILGRIM, karbonite: 20, fuel: 100, priority: true});
+            r.pilgrimQueue.push({x: r.safe_enemy_churches[i].x, y: r.safe_enemy_churches[i].y, code: constants.PILGRIM_JOBS.BUILD_ENEMY_CHURCH});
         }
     }
 
@@ -212,10 +252,10 @@ function initializeBuildQueue(r) {
         }
     }
 
+    //r.log(r.buildQueue.length);
+
     //find responsible church locs
     for(let i=0;i<r.church_locations.length;i++) {
-        if(r.church_locations[i].alreadyVisited) continue;
-
         let amIresponsible = true;
         for(let j=0;j<r.castles.length;j++) {
             let dist = (r.castles[j].x - r.church_locations[i].x) ** 2 + (r.castles[j].y - r.church_locations[i].y) ** 2;
@@ -233,22 +273,18 @@ function initializeBuildQueue(r) {
     }
 
     //queue prophet lattice
-    // for (let i=0;i<r.prophetLocations.length;i++) {
-    //     r.buildQueue.push({unit: SPECS.PROPHET, karbonite:25, fuel: 500});
-    //     r.prophetQueue.push({x:r.prophetLocations[i].x, y: r.prophetLocations[i].y, code: constants.PROPHET_JOBS.DEFEND_GOAL});
-    // }
-    // for (let i=0;i<r.unitLocationQueue_prophet.length;i++) {
-    //     r.buildQueue.push({unit: SPECS.PROPHET,karbonite:25, fuel: 200});
-    //     r.prophetQueue.push({x:r.unitLocationQueue_prophet[i].x, y: r.unitLocationQueue_prophet[i].y, code: constants.PROPHET_JOBS.DEFEND_GOAL});
-    // }
-    // for (let i=0;i<r.unitLocationQueue_preacher.length;i++) {
-    //     r.buildQueue.push({unit: SPECS.PREACHER,karbonite:30, fuel: 200});
-    //     r.preacherQueue.push({x:r.unitLocationQueue_preacher[i].x, y: r.unitLocationQueue_preacher[i].y, code: constants.PREACHER_JOBS.DEFEND_GOAL});
-    // }
-    // for (let i=0;i<r.unitLocationQueue_prophet2.length;i++) {
-    //     r.buildQueue.push({unit: SPECS.PROPHET,karbonite:25, fuel: 200});
-    //     r.prophetQueue.push({x:r.unitLocationQueue_prophet2[i].x, y: r.unitLocationQueue_prophet2[i].y, code: constants.PROPHET_JOBS.DEFEND_GOAL});
-    // }
+    for (let i=0;i<r.unitLocationQueue_prophet.length;i++) {
+        r.buildQueue.push({unit: SPECS.PROPHET,karbonite:25, fuel: 200});
+        r.prophetQueue.push({x:r.unitLocationQueue_prophet[i].x, y: r.unitLocationQueue_prophet[i].y, code: constants.PROPHET_JOBS.DEFEND_GOAL});
+    }
+    for (let i=0;i<r.unitLocationQueue_preacher.length;i++) {
+        r.buildQueue.push({unit: SPECS.PREACHER,karbonite:30, fuel: 200});
+        r.preacherQueue.push({x:r.unitLocationQueue_preacher[i].x, y: r.unitLocationQueue_preacher[i].y, code: constants.PREACHER_JOBS.DEFEND_GOAL});
+    }
+    for (let i=0;i<r.unitLocationQueue_prophet2.length;i++) {
+        r.buildQueue.push({unit: SPECS.PROPHET,karbonite:25, fuel: 200});
+        r.prophetQueue.push({x:r.unitLocationQueue_prophet2[i].x, y: r.unitLocationQueue_prophet2[i].y, code: constants.PROPHET_JOBS.DEFEND_GOAL});
+    }
     //queue crusader rush
     // for (let i = 0; i < r.crusaderLocations.length; i++) {
     //     r.buildQueue.push({unit: SPECS.CRUSADER, karbonite: 15, fuel: 2000});
@@ -541,7 +577,7 @@ function lateGameStep(r) {
     //         r.crusaderQueue.push({x: coord.x, y: coord.y, code: constants.CRUSADER_JOBS.DEFEND_GOAL});
     //    }
     // }
-    if(r.step === 100) {
+    if(r.step === 200) {
         r.buildQueue.unshift({unit: SPECS.PILGRIM, karbonite: 50, fuel: 50, override_build_map: true});
         let coord = util.getReflectedCoord({x: r.me.x, y: r.me.y}, r);
         r.pilgrimQueue.unshift({x: coord.x, y: coord.y, code: constants.PILGRIM_JOBS.BUILD_PREACHER_CHURCH});
@@ -571,7 +607,7 @@ export function castle_step(r) {
     }
 
     if (r.step === 0) {
-        util.BFSMap_with_rmap_castle(r.map,{x:r.me.x,y:r.me.y},util.getMoves2(2),r);
+        //util.BFSMap_with_rmap_castle(r.map,{x:r.me.x,y:r.me.y},util.getMoves2(2),r);
         init(r);
     } else {
 
