@@ -202,6 +202,7 @@ function init(r) {
             r.preacherChurch = true;
             r.log("preacher church created");
             r.castleTalk(constants.PREACHER_CHURCH_INIT);
+            r.signal(util.signalCoords(r.me.x, r.me.y, constants.SIGNAL_CODE.PREACHER_CHURCH_INIT), 2 * map.length ** 2);
 
             for(let i=0;i<1000;i++) {
                 r.buildQueue.push({unit: SPECS.PREACHER, karbonite: 30, fuel: 50, override_build_map: true});

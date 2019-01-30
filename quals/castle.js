@@ -368,6 +368,23 @@ function wallingStep(r) {
     }
 }
 
+function replaceDeadPreacherChurch(robot, r) {
+    let amIresponsible = true;
+    for(let j=0;j<r.castles.length;j++) {
+        let dist = (r.castles[j].x - robot.x) ** 2 + (r.castles[j].y - robot.y) ** 2;
+        if(dist < (r.me.x - robot.x) ** 2 + (r.me.y - robot.y) ** 2) {
+            amIresponsible = false;
+            break;
+        }
+    }
+
+    if(amIresponsible) {
+        r.buildQueue.unshift({unit: SPECS.PILGRIM, karbonite: 10, fuel: 50});
+        let coord = util.getReflectedCoord({x: r.me.x, y: r.me.y}, r);
+        r.pilgrimQueue.unshift({x: coord.x, y: coord.y, code: constants.PILGRIM_JOBS.BUILD_PREACHER_CHURCH});
+    }
+}
+
 function step(r) {
 
     let visible = r.getVisibleRobots();
@@ -381,8 +398,9 @@ function step(r) {
 
         for (let j = 0; j < visible.length; j++) {
             //DO NOT CHANGE THIS TO ===
-            if (visible[j].id == myRobots[i])
+            if (visible[j].id == myRobots[i]) {
                 alive = true;
+            }
         }
 
         if (!alive) {
@@ -390,8 +408,33 @@ function step(r) {
             toRemove.push(myRobots[i]);
         }
     }
+
     for(let i=0;i<toRemove.length;i++) {
         delete r.createdRobots[toRemove[i]];
+    }
+
+    let myPreacherChurches = Object.keys(r.preacherChurches);
+    toRemove = [];
+    for(let i=0;i<r.preacherChurches.length;i++) {
+        let robot = r.preacherChurches[myPreacherChurches[i]];
+
+        let alive = false;
+
+        for (let j = 0; j < visible.length; j++) {
+            //DO NOT CHANGE THIS TO ===
+            if (visible[j].id == myRobots[i]) {
+                alive = true;
+            }
+        }
+
+        if(!alive) {
+            replaceDeadPreacherChurch(robot, r);
+            toRemove.push(myPreacherChurches[i]);
+        }
+    }
+
+    for(let i=0;i<toRemove.length;i++) {
+        delete r.preacherChurches[toRemove[i]];
     }
 
     //assignment
@@ -402,8 +445,10 @@ function step(r) {
     }
 
     for(let i=0;i<visible.length;i++) {
-        if(visible[i].castle_talk === constants.PREACHER_CHURCH_INIT)
-            r.preacherChurches.push(visible[i].id);
+        if(visible[i].castle_talk === constants.PREACHER_CHURCH_INIT) {
+            let signal = util.decodeCoords(visible[i].signal);
+            r.preacherChurches[visible[i].id] = {x: signal.x, y: signal.y};
+        }
     }
 
     //build unit from queue
