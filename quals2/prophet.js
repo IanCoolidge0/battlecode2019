@@ -45,41 +45,10 @@ function init(r) {
 
         r.goal_map = util.BFSMap_with_rmap(r.safetyMap, {x: r.currentJob.x, y: r.currentJob.y}, r.moves, r);
     }
-    if (r.currentJob.code === constants.PROPHET_JOBS.DEFEND_ENEMY_CHURCH) {
-        r.mode = constants.PROPHET_MODE.PATH_TO_CHURCH;
-        r.safety_map = util.safetyMap(r, [util.getReflectedCoord(r.parent_castle_coords, r)]);
-
-        r.goal_map = util.BFSMap_near_church(r.safety_map, {x: r.currentJob.x, y: r.currentJob.y}, util.getMoves(2),r);
-    }
 }
 
 
 export function step(r) {
-
-    if (r.currentJob.code === constants.PROPHET_JOBS.DEFEND_ENEMY_CHURCH) {
-
-        if (combat.enemyInAttackRange(r,64) && !combat.enemyInAttackRange(r,15)) {
-            r.mode = constants.PROPHET_MODE.ATTACK;
-        } else if (combat.enemyInAttackRange(r,16)){
-            r.mode = constants.PROPHET_MODE.MOVE_AWAY;
-        } else {
-            r.mode = constants.PROPHET_MODE.PATH_TO_CHURCH;
-        }
-
-        if (r.mode === constants.PROPHET_MODE.ATTACK) {
-            return mode.prophet_attack_offensive(r);
-        }
-        if (r.mode === constants.PROPHET_MODE.PATH_TO_CHURCH) {
-            return mode.travel_to_goal_enemy_church(r,util.getMoves(2));
-        }
-        if (r.mode === constants.PROPHET_MODE.MOVE_AWAY) {
-            return mode.prophet_move_away(r);
-        }
-
-
-
-    }
-
     if (r.mode === constants.PROPHET_MODE.DEFEND_CASTLE) {
         if (r.wait === 0) {
             r.mode = constants.PROPHET_MODE.PATH_TO_GOAL;
@@ -87,10 +56,6 @@ export function step(r) {
         r.wait--;
         return mode.prophet_attack(r,r.parent_castle_coords);
 
-    }
-    if (r.fuel < 300) {
-        r.log("no fuel");
-        return;
     }
 
     let distance_to_goal = (r.me.x - r.currentJob.x) + (r.me.y - r.currentJob.y);

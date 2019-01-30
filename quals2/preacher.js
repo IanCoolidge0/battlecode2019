@@ -56,19 +56,9 @@ function init(r) {
 
         r.goal_map = util.BFSMap(r.map, {x: r.currentJob.x, y: r.currentJob.y}, r.moves);
     }
-    if (r.currentJob.code === constants.PREACHER_JOBS.DEFEND_ENEMY_CHURCH) {
-        r.mode = constants.PREACHER_MODE.PATH_TO_CHURCH;
-        r.safety_map = util.safetyMap(r, [util.getReflectedCoord(r.parent_castle_coords, r)]);
-
-        r.goal_map = util.BFSMap_near_church(r.safety_map, {x: r.currentJob.x, y: r.currentJob.y}, util.getMoves(2),r);
-    }
 
 }
 function step(r) {
-    if (r.currentJob.code === constants.PREACHER_JOBS.DEFEND_ENEMY_CHURCH) {
-
-    }
-
     if (r.mode === constants.PREACHER_MODE.DEFEND_CASTLE) {
         if (r.wait === 5) {
             r.mode = constants.PREACHER_MODE.PATH_TO_GOAL;
@@ -83,10 +73,6 @@ function step(r) {
             return;
         }
 
-    }
-    if (r.fuel < 300) {
-        r.log("no fuel");
-        return;
     }
     if (r.mode === constants.PREACHER_MODE.MOVE_TO_FRONT_LINES) {
         if (r.currentJob.code === constants.PREACHER_JOBS.DEFEND_GOAL) {
@@ -221,8 +207,6 @@ function neededInFrontLines(r) {
     }
     return false;
 }
-
-
 
 function step_over_50(r) {
 

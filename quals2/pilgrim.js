@@ -55,12 +55,7 @@ function oldMoveToResourceStep(r) {
 }
 
 function moveToResourceStep(r) {
-    if (r.job === constants.PILGRIM_JOBS.BUILD_ENEMY_CHURCH) {
-        //r.log("SEARCHING FOR ENEMY");
-        signalNearestEnemy(r);
-    }
     if(r.resource_map[r.me.y][r.me.x] !== 99) {
-
         return mode.travel_to_goal_pilgrim(r, r.resource_map,r.pass_map,{x: r.goal.x, y: r.goal.y},util.getMoves(2));
     } else {
         if(r.currentJob.code === constants.PILGRIM_JOBS.BUILD_CHURCH || r.currentJob.code === constants.PILGRIM_JOBS.BUILD_ENEMY_CHURCH) {
@@ -123,10 +118,7 @@ function mineResourceStep(r) {
     // if(danger_units > 0 && (r.me.x - r.parent_castle.x) ** 2 + (r.me.y - r.parent_castle.y) ** 2 >= 25) {
     //     r.castleTalk(constants.PILGRIM_DANGER_CASTLETALK);
     // }
-    if (r.job === constants.PILGRIM_JOBS.BUILD_ENEMY_CHURCH) {
-        //r.log("SEARCHING FOR ENEMY");
-        signalNearestEnemy(r);
-    }
+
     if(r.step < 20) {
         let visible = r.getVisibleRobots();
         for (let i = 0; i < visible.length; i++) {
@@ -165,11 +157,6 @@ function mineResourceStep(r) {
 }
 
 function moveToCastleStep(r) {
-    if (r.job === constants.PILGRIM_JOBS.BUILD_ENEMY_CHURCH) {
-        //r.log("SEARCHING FOR ENEMY");
-        signalNearestEnemy(r);
-    }
-
     let px = r.parent_building.x;
     let py = r.parent_building.y;
 
@@ -192,7 +179,6 @@ function moveToCastleStep(r) {
 }
 
 function init(r) {
-
     r.castleTalk(constants.INIT_CASTLETALK);
     r.signal(util.signalCoords(0, 0, constants.SIGNAL_CODE.INIT_SIGNAL), 2);
 
@@ -382,31 +368,35 @@ function scoutStep(r) {
         r.mode = constants.PILGRIM_MODE.NOTHING;
     }
 }
-export function signalNearestEnemy(r) {
-    let combatVisionMap = util.combatVisionMap(r);
-
+export function signalNearestPreacher(r) {
+    for (let i = 0;i < robots.length;i++) {
+        let robot = robots[i];
+        if (robot.team === r.me.team && robot.unit === SPECS.PROPHET && r.isRadioing(robot) && robot.signal_radius === 65) {
+            let signal = util.decodeCoords(robot.signal);
+            enemy_signaled.push(signal);
+        }
+    }
     //r.log("enemy signaled:");
     //r.log(enemy_signaled);
     let possible_signals = [];
-    let robots = r.getVisibleRobots();
     for (let i = 0;i < robots.length;i++) {
         let robot = robots[i];
-        if (robot.team !== r.me.team && (robot.unit === SPECS.PROPHET) && combatVisionMap[robot.y][robot.x]) {
-            let signal = util.signalCoords(robot.x,robot.y,robot.unit);
-            //r.signal(signal,66);
-            //r.log(r.me.id + " HAS ENEMY FOUND, SIGNALING");
-            //r.log(util.decodeCoords(signal));
-            return;
-        }
-    }
-    for (let i = 0;i < robots.length;i++) {
-        let robot = robots[i];
-        if (robot.team !== r.me.team && (robot.unit === SPECS.PILGRIM) && combatVisionMap[robot.y][robot.x]) {
-            let signal = util.signalCoords(robot.x,robot.y,robot.unit);
-            //r.signal(signal,66);
-            //r.log(r.me.id + " HAS ENEMY FOUND, SIGNALING" );
-            //r.log(util.decodeCoords(signal));
-            return;
+        if (robot.team !== r.me.team && (robot.unit === SPECS.CRUSADER || robot.unit === SPECS.PREACHER)) {
+            let signaled = false;
+            for (let j = 0;j < enemy_signaled.length;j++) {
+                let enemy = enemy_signaled[j];
+                if ( enemy.x === robot.x && enemy.y === robot.y) {
+                    signaled = true;
+                    break;
+                }
+            }
+            if (!signaled) {
+                let signal = util.signalCoords(robot.x,robot.y,robot.unit);
+                r.signal(signal,66);
+                r.log(r.me.id + " HAS ENEMY FOUND, SIGNALING" );
+                r.log(util.decodeCoords(signal));
+                break;
+            }
         }
     }
 
@@ -443,7 +433,7 @@ export function pilgrim_step(r) {
             return scoutStep(r);
             break;
         case constants.PILGRIM_MODE.SIGNAL_PREACHERS:
-            //signalNearestEnemy(r);
+            signalNearestPreacher(r);
 
 
 

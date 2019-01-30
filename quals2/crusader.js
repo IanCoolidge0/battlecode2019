@@ -21,13 +21,13 @@ function init(r) {
         r.mode = constants.CRUSADER_MODE.PATH_TO_CHURCH;
         r.safety_map = util.safetyMap(r, [util.getReflectedCoord(r.parent_castle_coords, r)]);
 
-        r.goal_map = util.BFSMap_with_rmap_castle(r.safety_map, {x: r.currentJob.x, y: r.currentJob.y}, util.getMoves(3),r);
+        r.goal_map = util.BFSMap(r.safety_map, {x: r.currentJob.x, y: r.currentJob.y}, util.getMoves(3));
     }
 
 }
 function pilgrimInRange(r) {
     let robots = r.getVisibleRobots();
-    let enemyPilgrims = [];
+    let enemyPilgrims = []
     for (let i = 0;i < robots.length;i++) {
         let robot = robots[i];
         if (r.isVisible(robot) && robot.unit === SPECS.PILGRIM && robot.team !== r.me.team) {
@@ -45,6 +45,7 @@ function pilgrimInRange(r) {
                 nearestCoord = enemyPilgrims[i];
             }
         }
+
 
         if (nearest <= 16) {
             let attack = {x:nearestCoord.x - r.me.x,y:nearestCoord.y - r.me.y};
@@ -139,10 +140,6 @@ export function step(r) {
         if (r.mode === constants.PROPHET_MODE.DEFEND) {
             return;
         }
-    }
-    if (r.fuel < 300) {
-        r.log("no fuel");
-        return;
     }
     if (r.currentJob.code === constants.CRUSADER_JOBS.DEFEND_GOAL) {
         let distance_to_goal = (r.me.x - r.currentJob.x) + (r.me.y - r.currentJob.y);

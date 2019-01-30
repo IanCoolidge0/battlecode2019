@@ -96,53 +96,8 @@ export function BFSMap_with_rmap_castle(pass_map, start, moves, r) {
     let current_locations = [];
 
     for (let i = 0;i < directions.length;i++) {
-        let adjacent = {x:start.x + directions[i].x,y:start.y + directions[i].y};
+        let adjacent = {x:start.x + directions[i].x,y:start.y + directions[i].y}
         if (withInMap(adjacent,r) && pass_map[adjacent.y][adjacent.x] && rmap[adjacent.y][adjacent.x] <= 0) {
-            current_locations.push(adjacent);
-            path_finding_map[adjacent.y][adjacent.x] = 99;
-        }
-    }
-    //r.log("starting location");
-    //r.log(current_locations);
-
-    while (current_locations.length > 0) {
-        //r.log(current_locations);
-        let location = current_locations.shift();
-        for (let i = 0;i < moves.length;i++) {
-
-            let next_location = {x: location.x + moves[i].x, y: location.y + moves[i].y};
-            if ( next_location.x >= 0 && next_location.y >= 0 && next_location.x < size && next_location.y < size
-                && path_finding_map[next_location.y][next_location.x] === 0 && pass_map[next_location.y][next_location.x] === true && rmap[next_location.y][next_location.x] <= 0) {
-                //r.log("reached");
-                path_finding_map[next_location.y][next_location.x] = moves[i];
-                //r.log("reached 2")
-                current_locations.push(next_location);
-            }
-        }
-    }
-    //r.log("BFS FOR CASTLE");
-    //r.log(path_finding_map);
-    //r.log(path_finding_map);
-    return path_finding_map
-}
-
-export function BFSMap_near_church(pass_map, church, moves, r) {
-    let rmap = r.getVisibleRobotMap();
-    rmap[r.me.y][r.me.x] = 0;
-    rmap[church.y][church.x] = 0;
-
-    let size = pass_map.length;
-    let path_finding_map = create2dArray(size,size,0);
-
-    path_finding_map[church.y][church.x] = 99;
-    let directions = getMoves3(3,8);
-    let current_locations = [];
-    r.log(directions);
-    for (let i = 0;i < directions.length;i++) {
-        let adjacent = {x:church.x + directions[i].x,y:church.y + directions[i].y};
-
-        if (withInMap(adjacent,r) && pass_map[adjacent.y][adjacent.x]
-            && rmap[adjacent.y][adjacent.x] <= 0 && !r.karbonite_map[adjacent.y][adjacent.x] && !r.fuel_map[adjacent.y][adjacent.x]) {
             current_locations.push(adjacent);
             path_finding_map[adjacent.y][adjacent.x] = 99;
         }
@@ -223,21 +178,6 @@ export function getMoves2(r_squared) {
             if(i === 0 && j === 0) continue;
 
             if(i ** 2 + j ** 2 <= r_squared) {
-                moves.push({x:i,y:j});
-            }
-        }
-    }
-    return moves;
-}
-
-export function getMoves3(r_squared_min,r_squared_max) {
-    let r = Math.floor(Math.sqrt(r_squared_max));
-    let moves = [];
-    for(let i=-r;i<=r;i++) {
-        for(let j=-r;j<=r;j++) {
-            if(i === 0 && j === 0) continue;
-
-            if(i ** 2 + j ** 2 <= r_squared_max && i ** 2 + j ** 2 >= r_squared_min) {
                 moves.push({x:i,y:j});
             }
         }
@@ -804,28 +744,28 @@ export function combinedMap(r) {
 }
 
 
-// export function crusaderLocation(r,enemyCastles,location) {
-//     // let nearest_castle = enemyCastles[0];
-//     // let nearest_distance = (location.y - enemyCastles[0].y) ** 2 + (location.x - enemyCastles[0].x) ** 2;
-//     // for (let i = 1;i < enemyCastles.length;i++) {
-//     //     let distance = (location.y - enemyCastles[i].y) ** 2 + (location.x - enemyCastles[i].x) ** 2;
-//     //     if (distance )
-//     //
-//     // }
-//     for(let i=0;i<constants.CLUSTER_RADIUS**2;i++) {
-//         let newX = initial_pos.x + dx;
-//         let newY = initial_pos.y + dy;
-//
-//         if (newX >= 0 && newY >= 0 && newX < karb_map.length && newY < karb_map.length && !karb_map[newY][newX] && !fuel_map[newY][newX])
-//             return {x: newX, y: newY, karb_count: initial_pos.karb_count,fuel_count: initial_pos.fuel_count};
-//
-//         if (dx === dy || (dx < 0 && dx === -dy) || (dx > 0 && dx === 1 - dy))
-//             let delta = [-delta[1], delta[0]];
-//
-//         let dx = delta[0];
-//         let dy = delta[1];
-//     }
-// }
+export function crusaderLocation(r,enemyCastles,location) {
+    // let nearest_castle = enemyCastles[0];
+    // let nearest_distance = (location.y - enemyCastles[0].y) ** 2 + (location.x - enemyCastles[0].x) ** 2;
+    // for (let i = 1;i < enemyCastles.length;i++) {
+    //     let distance = (location.y - enemyCastles[i].y) ** 2 + (location.x - enemyCastles[i].x) ** 2;
+    //     if (distance )
+    //
+    // }
+    for(let i=0;i<constants.CLUSTER_RADIUS**2;i++) {
+        let newX = initial_pos.x + dx;
+        let newY = initial_pos.y + dy;
+
+        if (newX >= 0 && newY >= 0 && newX < karb_map.length && newY < karb_map.length && !karb_map[newY][newX] && !fuel_map[newY][newX])
+            return {x: newX, y: newY, karb_count: initial_pos.karb_count,fuel_count: initial_pos.fuel_count};
+
+        if (dx === dy || (dx < 0 && dx === -dy) || (dx > 0 && dx === 1 - dy))
+            delta = [-delta[1], delta[0]];
+
+        dx += delta[0];
+        dy += delta[1];
+    }
+}
 
 export function offensivePilgrimGoal(r, coord) {
     if(isHorizontallySymm(r)) {
@@ -1163,34 +1103,4 @@ export function findCoord(r) {
             }
         }
     }
-}
-
-export function combatVisionMap(r) {
-    let visible = r.getVisibleRobots();
-    let map = copy(r.map);
-    for(let k=0;k<visible.length;k++) {
-        if(visible[k].team === r.me.team) {
-            if(visible[k].unit === SPECS.CRUSADER) {
-                for(let i=-4;i<=4;i++) {
-                    for(let j=-4;j<=4;j++) {
-                        if(i ** 2 + j ** 2 <= 16 && withInMap({x: visible[k].x + i, y: visible[k].y + j}, r))
-                            map[visible[k].y + j][visible[k].x + i] = false;
-                    }
-                }
-            }
-
-            if(visible[k].unit === SPECS.PREACHER) {
-                for(let i=-5;i<=5;i++) {
-                    for(let j=-5;j<=5;j++) {
-                        if(i ** 2 + j ** 2 <= 25 && withInMap({x: visible[k].x + i, y: visible[k].y + j}, r))
-                            map[visible[k].y + j][visible[k].x + i] = false;
-                    }
-                }
-            }
-
-
-
-        }
-    }
-    return map;
 }

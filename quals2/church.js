@@ -205,8 +205,8 @@ function init(r) {
             r.signal(util.signalCoords(r.me.x, r.me.y, constants.SIGNAL_CODE.PREACHER_CHURCH_INIT), 2 * r.map.length ** 2);
 
             for(let i=0;i<1000;i++) {
-                // r.buildQueue.push({unit: SPECS.PREACHER, karbonite: 30, fuel: 50, override_build_map: true});
-                // r.preacherQueue.push({x: sig.x, y: sig.y, code: constants.PREACHER_JOBS.SUICIDE});
+                r.buildQueue.push({unit: SPECS.PREACHER, karbonite: 30, fuel: 50, override_build_map: true});
+                r.preacherQueue.push({x: sig.x, y: sig.y, code: constants.PREACHER_JOBS.SUICIDE});
             }
         }
     }

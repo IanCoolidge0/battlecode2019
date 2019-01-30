@@ -33,8 +33,6 @@ export function enemyInAttackRange(r,attackRange) {
 }
 
 
-
-
 export function nearestEnemy(r) {
     let robots = r.getVisibleRobots();
 

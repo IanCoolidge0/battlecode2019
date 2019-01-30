@@ -571,7 +571,7 @@ export function castle_step(r) {
     }
 
     if (r.step === 0) {
-        //util.BFSMap_with_rmap_castle(r.map,{x:r.me.x,y:r.me.y},util.getMoves2(2),r);
+        util.BFSMap_with_rmap_castle(r.map,{x:r.me.x,y:r.me.y},util.getMoves2(2),r);
         init(r);
     } else {
 
