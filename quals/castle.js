@@ -88,7 +88,7 @@ function initUnitMaps(r) {
 
     //r.crusaderLocations = combat.unitLocationsQueue(r, 3, r.size, r.crusaderMapCenter, true);
     //r.crusaderLocations = r.crusaderLocations.concat(combat.unitLocationsQueue(r, 3, r.size, r.crusaderMapEdge, true));
-    r.unitMap = combat.unitMap2(r,2);
+    r.unitMap = combat.unitMap2(r,1);
     //r.log("UNITMAP_________________________________________")
     //r.log(r.unitMap);
     r.unitLocationQueue_prophet = combat.unitLocationsQueue(r,6,7,r.unitMap,true);
@@ -464,8 +464,17 @@ function step(r) {
     }
 
 }
+function lateGameInitBuildQueue(r) {
+    r.unitMap = combat.unitMap_lategame(r,2);
+    r.unitLocationQueue_lateGame = combat.unitLocationsQueue(r,3,r.map.length / 2,r.unitMap,true);
+    for (let i=0;i<r.unitLocationQueue_prophet2.length;i++) {
+        r.buildQueue.push({unit: SPECS.CRUSADER,karbonite:15, fuel: 200});
+        r.crusaderQueue.push({x:r.unitLocationQueue_lateGame[i].x, y: r.unitLocationQueue_lateGame[i].y, code: constants.CRUSADER_JOBS.DEFEND_GOAL});
+    }
 
+}
 function lateGameStep(r) {
+
     //r.log(r.buildQueue.length + " asjfihasohfuiasohfbfhu8oaw " + r.karbonite + " " + r.fuel);
     if(r.buildQueue.length === 0 && (r.karbonite > 1234 || (r.step > 600 && r.karbonite > 200)) && r.fuel > 4321) {
         let fuelRatio = r.fuel / r.karbonite;
@@ -510,10 +519,12 @@ export function castle_step(r) {
 
         wallingStep(r);
 
-        lateGameStep(r);
-
+        //lateGameStep(r);
+        if (r.step === 900) {
+            lateGameInitBuildQueue(r);
+        }
         if (r.step === 950) {
-            r.signal(15,r.map.length ** 2);
+            //r.signal(15,r.map.length ** 2);
             r.log("CCCCCRRRRRUUUUUUUSSSSSAAAAADDDDDEEEEERRRRR AAAAAATTTTTTAAAAAAACCCCKKKKKK!!!!!!!!!!!!!!!!!!!!!!!!");
             return;
         }
