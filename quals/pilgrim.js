@@ -186,7 +186,7 @@ function init(r) {
 
     r.currentJob = util.decodeCoords(r.parent_building.signal);
 
-    r.castle_map = util.BFSMap_with_rmap(r.map, {x: r.parent_building.x, y: r.parent_building.y}, util.getMoves(2),r);
+    r.castle_map = util.BFSMap(r.map, {x: r.parent_building.x, y: r.parent_building.y}, util.getMoves(2));
     //r.resource_map = util.BFSMap_with_rmap(r.map, {x: r.currentJob.x, y: r.currentJob.y}, util.getMoves(2),r);
 
     r.job = r.currentJob.code;
