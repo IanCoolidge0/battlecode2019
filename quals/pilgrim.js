@@ -241,6 +241,7 @@ function init(r) {
     } else if(r.job === constants.PILGRIM_JOBS.BUILD_PREACHER_CHURCH) {
         r.mode = constants.PILGRIM_MODE.MOVE_OFFENSIVE2;
         r.pass_map = wallutil.buildingAvoidanceMap(r);
+        r.goall = util.getReflectedCoord(r.parent_building_coords, r);
         r.resource_map = util.BFSMap_with_rmap(r.pass_map, util.getReflectedCoord(r.parent_building_coords, r), util.getMoves(2), r);
         r.starting_pos = {x: r.me.x, y: r.me.y};
         r.log("PILGRIM JOB PREACHER CHRUCH ADASIOASDIOASDIOA");
@@ -347,8 +348,25 @@ function moveOffensiveStep(r) {
         // }
     }
     //r.log(r.me.x + ", " + r.me.y);
-    if(r.me.x !== r.currentJob.x || r.me.y !== r.currentJob.y)
-        return mode.travel_to_goal_pilgrim(r, r.resource_map,r.map, {x: r.currentJob.x, y: r.currentJob.y}, util.getMoves(2));
+    if (combat.enemyInRangeNotPilgrim(r)) {
+
+        r.log("NO RESOURCE AND ENDANGERED!!!!!!!!!!!!!!!!!!!!!!!");
+        if (r.lastMove !== undefined) {
+
+            let move = r.lastMove;
+            r.log("MOVE:" + move.x + ", " + move.y);
+            r.lastMove = undefined;
+            r.log("MOVE:" + move.x + ", " + move.y);
+            return r.move(move.x,move.y);
+        }
+    }
+    if(r.me.x !== r.currentJob.x || r.me.y !== r.currentJob.y) {
+
+        return mode.travel_to_goal_pilgrim(r, r.resource_map, r.map, {
+            x: r.currentJob.x,
+            y: r.currentJob.y
+        }, util.getMoves(2));
+    }
 }
 
 function scoutStep(r) {

@@ -32,6 +32,7 @@ export function travel_to_goal_pilgrim(r,goalMap,passable_map,start,moves) {
     if (rmap[next.y][next.x] === 0) {
         //r.log("SOMEONE IS AT: " + next.y + ", " + next.x);
         r.wait2 = 0;
+        r.lastMove = move;
         return r.move(-move.x,-move.y);
     } else if (r.wait2 > 2 && r.me.time > 100) {
         //r.log("REROUTING to" + r.currentJob.x + ', ' + r.currentJob.y);
