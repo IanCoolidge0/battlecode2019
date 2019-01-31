@@ -56,6 +56,8 @@ import * as constants from "./constants.js";
 //
 // }
 export function BFSMap_with_rmap(pass_map, start, moves, r) {
+    if(start.y === -1 || start.x === -1)
+        return create2dArray(pass_map.length, pass_map.length, {x: 0, y: 0});
     let rmap = r.getVisibleRobotMap();
     rmap[r.me.y][r.me.x] = 0;
     rmap[start.y][start.x] = 0;

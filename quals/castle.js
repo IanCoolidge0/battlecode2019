@@ -405,6 +405,8 @@ function wallingStep(r) {
 }
 
 function replaceDeadPreacherChurch(robot, r) {
+
+    r.log("replacing dead preacher church");
     let amIresponsible = true;
     for(let j=0;j<r.castles.length;j++) {
         let dist = (r.castles[j].x - robot.x) ** 2 + (r.castles[j].y - robot.y) ** 2;
@@ -448,7 +450,7 @@ function step(r) {
     for(let i=0;i<toRemove.length;i++) {
         delete r.createdRobots[toRemove[i]];
     }
-
+    r.log(r.preacherChurches);
     let myPreacherChurches = Object.keys(r.preacherChurches);
     toRemove = [];
     for(let i=0;i<r.preacherChurches.length;i++) {
@@ -481,8 +483,9 @@ function step(r) {
     }
 
     for(let i=0;i<visible.length;i++) {
-        if(visible[i].castle_talk === constants.PREACHER_CHURCH_INIT) {
+        if(util.decodeCoords(visible[i].signal).code === constants.SIGNAL_CODE.PREACHER_CHURCH_INIT) {
             let signal = util.decodeCoords(visible[i].signal);
+            r.log("added a preacher church at " + signal.x + ", " + signal.y);
             r.preacherChurches[visible[i].id] = {x: signal.x, y: signal.y};
         }
     }
@@ -577,7 +580,7 @@ function lateGameStep(r) {
     //         r.crusaderQueue.push({x: coord.x, y: coord.y, code: constants.CRUSADER_JOBS.DEFEND_GOAL});
     //    }
     // }
-    if(r.step === 200) {
+    if(r.step === 100) {
         r.buildQueue.unshift({unit: SPECS.PILGRIM, karbonite: 50, fuel: 50, override_build_map: true});
         let coord = util.getReflectedCoord({x: r.me.x, y: r.me.y}, r);
         r.pilgrimQueue.unshift({x: coord.x, y: coord.y, code: constants.PILGRIM_JOBS.BUILD_PREACHER_CHURCH});
