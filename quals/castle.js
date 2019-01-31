@@ -178,7 +178,7 @@ function initializeBuildQueue(r) {
         }
 
         if(amIresponsible) {
-            r.buildQueue.push({unit: SPECS.CRUSADER, karbonite: 20, fuel: 50, priority: true});
+            r.buildQueue.push({unit: SPECS.CRUSADER, karbonite: 20, fuel: 200, priority: true});
             r.crusaderQueue.push({x: r.safe_enemy_churches[i].x, y: r.safe_enemy_churches[i].y, code: constants.CRUSADER_JOBS.DEFEND_ENEMY_CHURCH});
 
             fund -= 15;
@@ -190,7 +190,7 @@ function initializeBuildQueue(r) {
         for(let j=-5;j<5;j++) {
             if(i ** 2 + j ** 2 > constants.CLUSTER_RADIUS ** 2) continue;
             if(util.withInMap({x: r.me.x + i, y: r.me.y + j}, r) && r.karbonite_map[r.me.y + j][r.me.x + i]) {
-                r.buildQueue.push({unit: SPECS.PILGRIM, karbonite: 10, fuel: 50,priority:true});
+                r.buildQueue.push({unit: SPECS.PILGRIM, karbonite: 10, fuel: 200,priority:true});
                 r.pilgrimQueue.push({x: r.me.x + i, y: r.me.y + j, code: constants.PILGRIM_JOBS.MINE_KARBONITE});
             }
         }
@@ -213,12 +213,12 @@ function initializeBuildQueue(r) {
 
         if(amIresponsible) {
             for(let k=0;k<Math.floor(fund / 25);k++) {
-                r.buildQueue.push({unit: SPECS.PROPHET, karbonite: 25, fuel: 50, override_build_map: true});
+                r.buildQueue.push({unit: SPECS.PROPHET, karbonite: 25, fuel: 200, override_build_map: true});
                 r.prophetQueue.push({x: churchPos.x, y: churchPos.y, code: constants.PROPHET_JOBS.DEFEND_GOAL});
             }
 
             for(let k=0;k<Math.floor((fund % 25) / 15);k++) {
-                r.buildQueue.push({unit: SPECS.CRUSADER, karbonite: 15, fuel: 50});
+                r.buildQueue.push({unit: SPECS.CRUSADER, karbonite: 15, fuel: 200});
                 r.crusaderQueue.push({x: churchPos.x, y: churchPos.y, code: constants.CRUSADER_JOBS.DEFEND_ENEMY_CHURCH});
             }
         }
@@ -236,7 +236,7 @@ function initializeBuildQueue(r) {
         }
 
         if(amIresponsible) {
-            r.buildQueue.push({unit: SPECS.PILGRIM, karbonite: 20, fuel: 50, priority: true});
+            r.buildQueue.push({unit: SPECS.PILGRIM, karbonite: 20, fuel: 200, priority: true});
             r.pilgrimQueue.push({x: r.safe_enemy_churches[i].x, y: r.safe_enemy_churches[i].y, code: constants.PILGRIM_JOBS.BUILD_ENEMY_CHURCH});
         }
     }
@@ -246,7 +246,7 @@ function initializeBuildQueue(r) {
         for(let j=-5;j<5;j++) {
             if(i ** 2 + j ** 2 > constants.CLUSTER_RADIUS ** 2) continue;
             if(util.withInMap({x: r.me.x + i, y: r.me.y + j}, r) && r.fuel_map[r.me.y + j][r.me.x + i]) {
-                r.buildQueue.push({unit: SPECS.PILGRIM, karbonite: 10, fuel: 50});
+                r.buildQueue.push({unit: SPECS.PILGRIM, karbonite: 10, fuel: 200});
                 r.pilgrimQueue.push({x: r.me.x + i, y: r.me.y + j, code: constants.PILGRIM_JOBS.MINE_FUEL});
             }
         }
@@ -450,7 +450,7 @@ function step(r) {
     for(let i=0;i<toRemove.length;i++) {
         delete r.createdRobots[toRemove[i]];
     }
-    r.log(r.preacherChurches);
+    //r.log(r.preacherChurches);
     let myPreacherChurches = Object.keys(r.preacherChurches);
     toRemove = [];
     for(let i=0;i<r.preacherChurches.length;i++) {
